@@ -9,6 +9,8 @@ From this [PR](https://github.com/AsamK/signal-cli/pull/1952).
 The same for the [generated](./generated/) and [json_schema](./json_schema) folders.
 Those come from signal-cli-rest-api and were copied directly from their documentation https://bbernhard.github.io/signal-cli-rest-api/
 
+TODO: simplify this via https://datamodel-code-generator.koxudaxi.dev/pyproject_toml/#named-profiles
+
 To generate the files run these commands at the root of the repository
 
 ```bash
