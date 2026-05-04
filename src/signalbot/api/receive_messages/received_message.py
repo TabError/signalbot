@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
-from signalbot.api.generated_receive.message_envelope_schema import MessageEnvelope
+from signalbot.api.generated import MessageEnvelope
 
 
 class ReceivedMessage(BaseModel):

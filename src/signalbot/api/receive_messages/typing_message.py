@@ -6,10 +6,8 @@ from typing import TYPE_CHECKING
 from signalbot.api.receive_messages.base_message import BaseMessage
 
 if TYPE_CHECKING:
-    from signalbot.api.generated_receive import (
-        MessageEnvelope,
-    )
-    from signalbot.api.generated_receive import TypingMessage as BaseTypingMessage
+    from signalbot.api.generated import MessageEnvelope
+    from signalbot.api.generated import TypingMessage as BaseTypingMessage
 
 
 class TypingAction(StrEnum):

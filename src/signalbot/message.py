@@ -18,7 +18,7 @@ from signalbot.reaction import Reaction
 
 if TYPE_CHECKING:
     from signalbot.api import SignalAPI
-    from signalbot.api.generated_receive.message_envelope_schema import MessageEnvelope
+    from signalbot.api.generated import MessageEnvelope
 
 
 async def _parse_sync_messages(

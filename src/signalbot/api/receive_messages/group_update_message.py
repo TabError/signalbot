@@ -7,12 +7,8 @@ from pydantic import BaseModel
 from signalbot.api.receive_messages.base_message import BaseMessage
 
 if TYPE_CHECKING:
-    from signalbot.api.generated_receive.data_message_schema import DataMessage
-    from signalbot.api.generated_receive.group_info_schema import (
-        GroupInfo as BaseGroupInfo,
-    )
-    from signalbot.api.generated_receive.message_envelope_schema import MessageEnvelope
-    from signalbot.api.generated_receive.sync_data_message_schema import SyncDataMessage
+    from signalbot.api.generated import DataMessage, MessageEnvelope, SyncDataMessage
+    from signalbot.api.generated import GroupInfo as BaseGroupInfo
 
 
 class GroupInfo(BaseModel):
