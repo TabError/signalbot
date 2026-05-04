@@ -5,12 +5,12 @@ from typing import TYPE_CHECKING
 from signalbot.api.receive_messages.base_message import BaseMessageWithGroup
 
 if TYPE_CHECKING:
-    from signalbot.api.generated_receive import (
+    from signalbot.api.generated import (
         DataMessage,
         MessageEnvelope,
         SyncDataMessage,
     )
-    from signalbot.api.generated_receive import RemoteDelete as BaseRemoteDelete
+    from signalbot.api.generated import RemoteDelete as BaseRemoteDelete
 
 
 class RemoteDelete(BaseMessageWithGroup):

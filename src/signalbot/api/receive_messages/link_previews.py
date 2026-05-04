@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from signalbot.api.generated_receive.preview_schema import Preview as BasePreview
+from signalbot.api.generated import Preview as BasePreview
 
 
 class Preview(BasePreview):

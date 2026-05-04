@@ -5,12 +5,14 @@ from copy import deepcopy
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from signalbot.api.generated import LinkPreviewType, MessageMention, TextMode
-from signalbot.api.generated_receive import (
+from signalbot.api.generated import (
+    LinkPreviewType,
     Mention,
+    MessageMention,
     Quote,
     Reaction,
     Sticker,
+    TextMode,
     TextStyle,
 )
 from signalbot.api.receive_messages.attachments import Attachment
@@ -20,7 +22,7 @@ from signalbot.api.requests import SendMessage
 
 if TYPE_CHECKING:
     from signalbot.api import SignalAPI
-    from signalbot.api.generated_receive import (
+    from signalbot.api.generated import (
         DataMessage,
         MessageEnvelope,
         SyncDataMessage,

@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 from pydantic import BaseModel, Field
 
-from signalbot.api.generated_receive import GroupInfo
+from signalbot.api.generated import GroupInfo
 
 
 class BaseMessage(ABC, BaseModel):
