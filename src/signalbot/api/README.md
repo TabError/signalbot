@@ -14,7 +14,7 @@ To generate the files run this command at the root of the repository
 uv run datamodel-codegen \
 --input ./src/signalbot/api/json_schema/signal-cli-rest-api.json \
 --input-file-type jsonschema \
---aliases src/signalbot/api/json_schema_receive_aliases.json \
+--aliases src/signalbot/api/json_schema/aliases.json \
 --output-model-type pydantic_v2.BaseModel \
 --formatters ruff-check ruff-format \
 --snake-case-field \
