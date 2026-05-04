@@ -6,5 +6,6 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 
-class DeleteLocalAccountDataRequest(BaseModel):
-    ignore_registered: bool = Field(..., examples=[False])
+class Sticker(BaseModel):
+    pack_id: str | None = Field(default=None, alias="packId")
+    sticker_id: int = Field(..., alias="stickerId")

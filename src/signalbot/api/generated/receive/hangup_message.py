@@ -6,5 +6,7 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 
-class DeleteLocalAccountDataRequest(BaseModel):
-    ignore_registered: bool = Field(..., examples=[False])
+class HangupMessage(BaseModel):
+    device_id: int = Field(..., alias="deviceId")
+    id: int | None = None
+    type: str | None = None

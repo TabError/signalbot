@@ -7,6 +7,6 @@ from pydantic import BaseModel
 
 
 class PinMessageInGroupRequest(BaseModel):
-    duration: int | None = None
+    duration: int
     target_author: str
     timestamp: int

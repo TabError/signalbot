@@ -7,6 +7,6 @@ from pydantic import BaseModel
 
 
 class UpdateProfileRequest(BaseModel):
-    about: str | None = None
-    base64_avatar: str | None = None
+    about: str
+    base64_avatar: str
     name: str

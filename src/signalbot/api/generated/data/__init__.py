@@ -7,6 +7,7 @@ from .add_members import AddMembers
 from .edit_group import EditGroup
 from .group_permissions import GroupPermissions
 from .link_preview_type import LinkPreviewType
+from .message import Message
 from .message_mention import MessageMention
 from .send_messages import SendMessages
 
@@ -15,6 +16,7 @@ __all__ = [
     "EditGroup",
     "GroupPermissions",
     "LinkPreviewType",
+    "Message",
     "MessageMention",
     "SendMessages",
 ]

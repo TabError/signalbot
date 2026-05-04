@@ -7,5 +7,5 @@ from pydantic import BaseModel
 
 
 class UpdateAccountSettingsRequest(BaseModel):
-    discoverable_by_number: bool | None = None
-    share_number: bool | None = None
+    discoverable_by_number: bool
+    share_number: bool

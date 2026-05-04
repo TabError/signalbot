@@ -7,5 +7,5 @@ from pydantic import BaseModel
 
 
 class RegisterNumberRequest(BaseModel):
-    captcha: str | None = None
-    use_voice: bool | None = None
+    captcha: str
+    use_voice: bool

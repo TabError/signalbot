@@ -6,5 +6,5 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 
-class DeleteLocalAccountDataRequest(BaseModel):
-    ignore_registered: bool = Field(..., examples=[False])
+class PollTerminate(BaseModel):
+    target_sent_timestamp: int = Field(..., alias="targetSentTimestamp")

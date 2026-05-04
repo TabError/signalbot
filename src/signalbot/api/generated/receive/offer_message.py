@@ -6,7 +6,7 @@ from __future__ import annotations
 from pydantic import BaseModel
 
 
-class UpdateContactRequest(BaseModel):
-    expiration_in_seconds: int
-    name: str
-    recipient: str
+class OfferMessage(BaseModel):
+    id: int | None = None
+    opaque: str | None = None
+    type: str | None = None

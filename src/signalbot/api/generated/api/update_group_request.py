@@ -11,9 +11,9 @@ from .group_link import GroupLink
 
 
 class UpdateGroupRequest(BaseModel):
-    base64_avatar: str | None = None
-    description: str | None = None
-    expiration_time: int | None = None
-    group_link: GroupLink | None = None
-    name: str | None = None
-    permissions: GroupPermissions | None = None
+    base64_avatar: str
+    description: str
+    expiration_time: int
+    group_link: GroupLink
+    name: str
+    permissions: GroupPermissions

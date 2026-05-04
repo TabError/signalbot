@@ -5,8 +5,9 @@ from __future__ import annotations
 
 from pydantic import BaseModel
 
+from signalbot.api.generated.receive.message_envelope import MessageEnvelope
 
-class SendMessageError(BaseModel):
+
+class Message(BaseModel):
     account: str
-    challenge_tokens: list[str]
-    error: str
+    envelope: MessageEnvelope

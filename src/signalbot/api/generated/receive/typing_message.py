@@ -6,5 +6,7 @@ from __future__ import annotations
 from pydantic import BaseModel, Field
 
 
-class DeleteLocalAccountDataRequest(BaseModel):
-    ignore_registered: bool = Field(..., examples=[False])
+class TypingMessage(BaseModel):
+    action: str | None = None
+    group_id: str | None = Field(default=None, alias="groupId")
+    timestamp: int
