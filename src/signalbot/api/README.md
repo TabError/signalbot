@@ -1,33 +1,14 @@
 # API classes
 
-The classes in the [generated_receive folder](./generated_receive/) were automatically generated from the [JSON Schema](https://json-schema.org/) files in the [json_schema_receive folder](./json_schema_receive).
+The classes in the [generated folder](./generated/) were automatically generated from the [JSON Schema](https://json-schema.org/) files in the [json_schema folder](./json_schema/).
 To convert from JSON Schema to pydantic dataclasses the [datamodel-code-generator tool](https://datamodel-code-generator.koxudaxi.dev/) is used.
 
-Those files were copied over from the [signal-cli repository](https://github.com/AsamK/signal-cli).
+Those files were copied over from the [signal-cli-rest-api repository](https://bbernhard.github.io/signal-cli-rest-api/).
 From this [PR](https://github.com/AsamK/signal-cli/pull/1952).
-
-The same for the [generated](./generated/) and [json_schema](./json_schema) folders.
-Those come from signal-cli-rest-api and were copied directly from their documentation https://bbernhard.github.io/signal-cli-rest-api/
 
 TODO: simplify this via https://datamodel-code-generator.koxudaxi.dev/pyproject_toml/#named-profiles
 
-To generate the files run these commands at the root of the repository
-
-```bash
-uv run datamodel-codegen \
---input ./src/signalbot/api/json_schema_receive/ \
---input-file-type jsonschema \
---output-model-type pydantic_v2.BaseModel \
---formatters ruff-check ruff-format \
---snake-case-field \
---disable-timestamp \
---use-exact-imports \
---use-default-kwarg \
---no-use-type-checking-imports \
---all-exports-scope recursive \
---all-exports-collision-strategy minimal-prefix \
---output ./src/signalbot/api/generated_receive
-```
+To generate the files run this command at the root of the repository
 
 ```bash
 uv run datamodel-codegen \
