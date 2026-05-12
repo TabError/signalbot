@@ -6,6 +6,7 @@ from enum import Enum, auto
 from typing import TYPE_CHECKING
 
 from signalbot.api.receive_messages import (
+    EditMessage,
     GroupUpdateMessage,
     ReceiveDataMessage,
     ReceivedMessage,
@@ -31,6 +32,9 @@ async def _parse_sync_messages(
             if GroupUpdateMessage.message_envelope_is_group_update(message_envelope):
                 return GroupUpdateMessage.from_message_envelope(message_envelope)
 
+            if sync_message.sent_message.edit_message is not None:
+                return await EditMessage.from_message_envelope(message_envelope, signal)
+
             return await ReceiveDataMessage.from_message_envelope(
                 message_envelope, signal
             )
@@ -52,11 +56,8 @@ async def _parse_main_messages(
             return GroupUpdateMessage.from_message_envelope(message_envelope)
         return await ReceiveDataMessage.from_message_envelope(message_envelope, signal)
 
-    if message_envelope.sync_message is not None:
-        pass
-
     if message_envelope.edit_message is not None:
-        pass
+        return await EditMessage.from_message_envelope(message_envelope, signal)
 
     if message_envelope.receipt_message is not None:
         pass
