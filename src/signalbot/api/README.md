@@ -13,16 +13,16 @@ uv run datamodel-codegen --profile signal-cli-rest-api
 
 ## Manual modications
 
-* Add a `serialization_alias` to the `text` field in `SendMessageV2` class in `src/signalbot/api/generated/api.py` by replacing
+* Add a `serialization_alias` to the `text` field in `SendMessageV2` class in `src/signalbot/api/generated/send_message_v2.py` by replacing
     ```python
-    text: str | None = Field(
-        default=None, validation_alias=AliasChoices("message", "text")
+    text: str = Field(
+        ..., validation_alias=AliasChoices("message", "text")
     )
     ```
     with
     ```python
-    text: str | None = Field(
-        default=None,
+    text: str = Field(
+        ...,
         validation_alias=AliasChoices("message", "text"),
         serialization_alias="message",
     )
