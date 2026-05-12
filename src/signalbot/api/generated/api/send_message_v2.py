@@ -25,7 +25,11 @@ class SendMessageV2(BaseModel):
     edit_timestamp: int
     link_preview: LinkPreviewType
     mentions: list[MessageMention]
-    text: str = Field(..., validation_alias=AliasChoices("message", "text"))
+    text: str = Field(
+        ...,
+        validation_alias=AliasChoices("message", "text"),
+        serialization_alias="message",
+    )
     notify_self: bool
     number: str
     quote_author: str
