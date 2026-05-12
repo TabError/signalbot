@@ -110,6 +110,7 @@ line_length = 120 # This should be 88 but the formatter breaks some }} in the gi
 input = "src/signalbot/api/json_schema/signal-cli-rest-api.json"
 input-file-type = "jsonschema"
 aliases = "src/signalbot/api/json_schema/aliases.json"
+serialization-aliases = "src/signalbot/api/json_schema/serialization-aliases.json"
 output-model-type = "pydantic_v2.BaseModel"
 formatters = ["ruff-check", "ruff-format"]
 snake-case-field = true

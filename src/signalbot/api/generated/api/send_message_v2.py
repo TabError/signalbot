@@ -27,8 +27,8 @@ class SendMessageV2(BaseModel):
     mentions: list[MessageMention]
     text: str = Field(
         ...,
-        validation_alias=AliasChoices("message", "text"),
         serialization_alias="message",
+        validation_alias=AliasChoices("message", "text"),
     )
     notify_self: bool
     number: str
