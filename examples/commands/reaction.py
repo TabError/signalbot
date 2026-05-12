@@ -7,7 +7,7 @@ class ReactionCommand(CommandWithHelpMessage):
         return "react with any emoji: 👍 Reaction decorator example."
 
     @reaction_triggered()
-    async def handle(self, context: Context) -> None:
+    async def handle_data_message(self, context: Context) -> None:
         reaction = context.message.reaction
         if reaction.is_remove:
             await context.send(f"You removed your {reaction.emoji} reaction")
@@ -23,5 +23,5 @@ class ThumbsUpCommand(CommandWithHelpMessage):
         return "react with 👍 or ❤️: 🎯 Filtered reaction decorator example."
 
     @reaction_triggered("👍", "❤️")
-    async def handle(self, context: Context) -> None:
+    async def handle_data_message(self, context: Context) -> None:
         await context.send("Thanks for the love!")

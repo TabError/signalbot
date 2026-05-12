@@ -21,6 +21,8 @@ from signalbot.api.receive_messages import (
     GroupUpdateMessage,
     ReceiveDataMessage,
     ReceivedMessageType,
+    RemoteDelete,
+    TypingMessage,
 )
 from signalbot.api.requests import SentMessage
 from signalbot.bot_config import (
@@ -31,7 +33,12 @@ from signalbot.bot_config import (
     load_config,
 )
 from signalbot.command import Command
-from signalbot.context import Context
+from signalbot.context import (
+    ContextDataMessage,
+    ContextGroupUpdateMessage,
+    ContextRemoteDelete,
+    ContextTypingMessage,
+)
 from signalbot.message import Message, UnknownMessageFormatError, parse
 from signalbot.storage import RedisStorage, SQLiteStorage
 
@@ -316,6 +323,21 @@ class SignalBot:
         )
 
         return SentMessage.from_send_message(data_message, timestamp)
+
+    async def edit(
+        self, new_message: SendMessage, original_message: SentMessage
+    ) -> int:
+        """Edit a message.
+
+        Args:
+            new_message: The message to send.
+            original_message: The original message to edit.
+
+        Returns:
+            A SentMessage instance.
+        """
+        new_message.edit_timestamp = original_message.timestamp
+        return await self.send(new_message)
 
     async def poll(
         self,
@@ -773,8 +795,20 @@ class SignalBot:
 
         # handle Command
         try:
-            context = Context(self, message)
-            await command.handle(context)
+            if isinstance(message, ReceiveDataMessage):
+                await command.handle_data_message(ContextDataMessage(self, message))
+            elif isinstance(message, GroupUpdateMessage):
+                await command.handle_group_update_message(
+                    ContextGroupUpdateMessage(self, message)
+                )
+            elif isinstance(message, RemoteDelete):
+                await command.handle_remote_delete(ContextRemoteDelete(self, message))
+            elif isinstance(message, TypingMessage):
+                await command.handle_typing_message(ContextTypingMessage(self, message))
+            else:
+                error_msg = f"[Bot] Unknown message type: {type(message)}, "
+                error_msg += "skipping command execution"
+                self._logger.warning(error_msg)
         except Exception:
             self._logger.exception(f"[{command.__class__.__name__}]")  # noqa: G004
             raise

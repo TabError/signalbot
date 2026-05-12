@@ -7,5 +7,5 @@ class RegexTriggeredCommand(CommandWithHelpMessage):
         return "^[\\w\\.-]+@gmail\\.com$: 😤 Regular expression decorator example."
 
     @regex_triggered(r"^[\w\.-]+@gmail\.com$")
-    async def handle(self, context: Context) -> None:
+    async def handle_data_message(self, context: Context) -> None:
         await context.send("Detected a Gmail address!")

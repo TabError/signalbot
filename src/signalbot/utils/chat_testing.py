@@ -214,5 +214,5 @@ class CheckSignalServiceMock(AsyncMock):
 
 
 class DummyCommand(Command):
-    async def handle(self, context: Context) -> None:
+    async def handle_data_message(self, context: Context) -> None:
         pass

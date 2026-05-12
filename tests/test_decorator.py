@@ -15,31 +15,31 @@ from signalbot.utils import (
 
 class TriggeredCommand(Command):
     @triggered("Trump", "Biden")
-    async def handle(self, context: Context):
+    async def handle_data_message(self, context: Context):
         await context.send("I am triggered")
 
 
 class TriggeredCaseSensitiveCommand(Command):
     @triggered("Trump", "Biden", case_sensitive=True)
-    async def handle(self, context: Context):
+    async def handle_data_message(self, context: Context):
         await context.send("I am triggered")
 
 
 class ReactionTriggeredCommand(Command):
     @reaction_triggered()
-    async def handle(self, context: Context):
+    async def handle_data_message(self, context: Context):
         await context.send("I am triggered by reactions")
 
 
 class ReactionFilteredCommand(Command):
     @reaction_triggered("👍", "❤️")
-    async def handle(self, context: Context):
+    async def handle_data_message(self, context: Context):
         await context.send("I am triggered by specific reactions")
 
 
 class RegexTriggeredCommand(Command):
     @regex_triggered(r"\w+@\w+\.\w+", r"\d{3}-\d{3}-\d{4}")
-    async def handle(self, context: Context):
+    async def handle_data_message(self, context: Context):
         await context.send("I am triggered by regular expressions")
 
 

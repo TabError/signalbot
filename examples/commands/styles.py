@@ -7,7 +7,7 @@ class StylesCommand(CommandWithHelpMessage):
         return "styles: 🎨 Demonstrates different text styles."
 
     @triggered("styles")
-    async def handle(self, context: Context) -> None:
+    async def handle_data_message(self, context: Context) -> None:
         await context.send("**Bold style**", text_mode="styled")
         await context.send("*Italic style*", text_mode="styled")
         await context.send("~Strikethrough style~", text_mode="styled")

@@ -2,7 +2,6 @@ from __future__ import annotations
 
 import functools
 import re
-from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, ParamSpec, TypeVar
 
 from signalbot.api.receive_messages import (
@@ -16,7 +15,13 @@ if TYPE_CHECKING:
     from collections.abc import Callable
 
     from signalbot.bot import SignalBot
-    from signalbot.context import Context
+    from signalbot.context import (
+        Context,
+        ContextDataMessage,
+        ContextGroupUpdateMessage,
+        ContextRemoteDelete,
+        ContextTypingMessage,
+    )
 
 
 def regex_triggered(
@@ -113,7 +118,7 @@ def reaction_triggered(
     return decorator_reaction_triggered
 
 
-class Command(ABC):
+class Command:
     """Abstract base class for commands.
 
     To create a command, subclass this class and implement the `handle` method.
@@ -145,9 +150,34 @@ class Command(ABC):
         """
         return
 
-    @abstractmethod
-    async def handle(self, context: Context) -> None:
-        """Abstract method to handle a command.
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
+        """Method to handle a data message.
+        This method must be implemented by subclasses to define the behavior of the
+            command.
+        Args:
+            context: Chat context containing the received message and other information.
+        """
+
+    async def handle_group_update_message(
+        self, context: ContextGroupUpdateMessage
+    ) -> None:
+        """Method to handle a group update message.
+        This method must be implemented by subclasses to define the behavior of the
+            command.
+        Args:
+            context: Chat context containing the received message and other information.
+        """
+
+    async def handle_remote_delete(self, context: ContextRemoteDelete) -> None:
+        """Method to handle a remote delete message.
+        This method must be implemented by subclasses to define the behavior of the
+            command.
+        Args:
+            context: Chat context containing the received message and other information.
+        """
+
+    async def handle_typing_message(self, context: ContextTypingMessage) -> None:
+        """Method to handle a typing message.
         This method must be implemented by subclasses to define the behavior of the
             command.
         Args:

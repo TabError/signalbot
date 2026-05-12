@@ -4,7 +4,8 @@ from datetime import datetime
 from anyio import Path
 
 from examples.commands.help import CommandWithHelpMessage
-from signalbot import Context, MessageType, triggered
+from signalbot import triggered
+from signalbot.context import ContextDataMessage, ContextRemoteDelete
 
 
 class DeleteCommand(CommandWithHelpMessage):
@@ -12,7 +13,7 @@ class DeleteCommand(CommandWithHelpMessage):
         return "delete: 🗑️ Delete a message."
 
     @triggered("delete")
-    async def handle(self, context: Context) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         timestamp = await context.send("This message will be deleted in two seconds.")
         await asyncio.sleep(2)
         await context.remote_delete(timestamp=timestamp)
@@ -23,8 +24,8 @@ class DeleteLocalAttachmentCommand(CommandWithHelpMessage):
         return "delete_attachment: 🗑️ Delete the local copy of an attachment."
 
     @triggered("delete_attachment")
-    async def handle(self, context: Context) -> None:
-        local_filenames = context.message.attachments_local_filenames
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
+        local_filenames = [attachment.id for attachment in context.message.attachments]
         if local_filenames is None or len(local_filenames) == 0:
             await context.send("Please send an attachment to delete.")
 
@@ -48,10 +49,9 @@ class ReceiveDeleteCommand(CommandWithHelpMessage):
     def help_message(self) -> str:
         return "N/A: 🗑️ Receive a message has been deleted notification."
 
-    async def handle(self, context: Context) -> None:
-        if context.message.type == MessageType.DELETE_MESSAGE:
-            deleted_at = datetime.fromtimestamp(  # noqa: DTZ006
-                context.message.remote_delete_timestamp / 1000
-            )
-            message = f"You've deleted a message, which was sent at {deleted_at}."
-            await context.send(message)
+    async def handle_remote_delete(self, context: ContextRemoteDelete) -> None:
+        deleted_at = datetime.fromtimestamp(  # noqa: DTZ006
+            context.message.timestamp / 1000
+        )
+        message = f"You've deleted a message, which was sent at {deleted_at}."
+        await context.send(message)

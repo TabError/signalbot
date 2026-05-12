@@ -7,5 +7,5 @@ class ReplyCommand(CommandWithHelpMessage):
         return "reply: 💬 Reply to a message."
 
     @triggered("reply")
-    async def handle(self, context: Context) -> None:
+    async def handle_data_message(self, context: Context) -> None:
         await context.reply("This is a reply.")

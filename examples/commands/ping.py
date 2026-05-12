@@ -8,5 +8,5 @@ class PingCommand(CommandWithHelpMessage):
         return "ping: 🏓 Listen for a ping and send a pong reply."
 
     @triggered("ping")
-    async def handle(self, context: Context) -> None:
+    async def handle_data_message(self, context: Context) -> None:
         await context.send(SendMessage(text="pong"))
