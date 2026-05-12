@@ -102,3 +102,19 @@ runtime-evaluated-base-classes = [
 explicit_start = false
 whitelines = 1
 line_length = 120 # This should be 88 but the formatter breaks some }} in the github workflows.
+
+[tool.datamodel-codegen.profiles.signal-cli-rest-api]
+input = "src/signalbot/api/json_schema/signal-cli-rest-api.json"
+input-file-type = "jsonschema"
+aliases = "src/signalbot/api/json_schema/aliases.json"
+output-model-type = "pydantic_v2.BaseModel"
+formatters = ["ruff-check", "ruff-format"]
+snake-case-field = true
+disable-timestamp = true
+use-exact-imports = true
+use-default-kwarg = true
+module-split-mode = "single"
+no-use-type-checking-imports = true
+all-exports-scope = "recursive"
+all-exports-collision-strategy = "minimal-prefix"
+output = "src/signalbot/api/generated"
