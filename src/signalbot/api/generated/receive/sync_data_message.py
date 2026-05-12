@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field
 
 from .admin_delete import AdminDelete
 from .attachment import Attachment
@@ -38,7 +38,11 @@ class SyncDataMessage(BaseModel):
     group_info: GroupInfo | None = Field(default=None, alias="groupInfo")
     is_expiration_update: bool | None = Field(default=None, alias="isExpirationUpdate")
     mentions: list[Mention] | None = None
-    message: str | None = None
+    text: str | None = Field(
+        default=None,
+        serialization_alias="message",
+        validation_alias=AliasChoices("message", "text"),
+    )
     payment: Payment | None = None
     pin_message: PinMessage | None = Field(default=None, alias="pinMessage")
     poll_create: PollCreate | None = Field(default=None, alias="pollCreate")

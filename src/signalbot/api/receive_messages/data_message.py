@@ -105,7 +105,7 @@ class ReceiveDataMessage(BaseMessageWithGroup):
             attachments=attachments,
             expires_in_seconds=data_message.expires_in_seconds,
             mentions=data_message.mentions,
-            text=data_message.message,
+            text=data_message.text,
             previews=link_previews,
             quote=data_message.quote,
             reaction=data_message.reaction,

@@ -1,3 +1,5 @@
 {
-  "api.SendMessageV2.message": ["text"]
+  "api.SendMessageV2.message": ["text"],
+  "receive.DataMessage.message": ["text"],
+  "receive.SyncDataMessage.message": ["text"]
 }
