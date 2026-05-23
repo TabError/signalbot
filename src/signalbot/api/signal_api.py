@@ -12,6 +12,7 @@ from signalbot.api.generated import About, GroupEntry
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
+    from signalbot.api.generated.api import TypingIndicatorRequest
     from signalbot.api.requests import SendMessage
 
 
@@ -158,11 +159,11 @@ class SignalAPI:
         ) as exc:
             raise ReactionError from exc
 
-    async def start_typing(self, receiver: str) -> aiohttp.ClientResponse:
+    async def start_typing(
+        self, typing_request: TypingIndicatorRequest
+    ) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.typing_indicator_uri()
-        payload = {
-            "recipient": receiver,
-        }
+        payload = typing_request.model_dump(exclude_none=True, by_alias=True)
         try:
             async with aiohttp.ClientSession() as session:
                 resp = await session.put(uri, json=payload)

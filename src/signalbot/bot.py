@@ -17,6 +17,7 @@ from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from packaging.version import Version
 
 from signalbot.api import ReceiveMessagesError, SignalAPI
+from signalbot.api.generated.api.typing_indicator_request import TypingIndicatorRequest
 from signalbot.api.receive_messages import (
     EditMessage,
     GroupUpdateMessage,
@@ -415,7 +416,7 @@ class SignalBot:
             receiver: Message recipient.
         """
         receiver = self._resolve_receiver(receiver)
-        await self._signal.start_typing(receiver)
+        await self._signal.start_typing(TypingIndicatorRequest(recipient=receiver))
 
     async def stop_typing(self, receiver: str) -> None:
         """Stop a typing indicator for a receiver.
@@ -424,7 +425,7 @@ class SignalBot:
             receiver: Message recipient.
         """
         receiver = self._resolve_receiver(receiver)
-        await self._signal.stop_typing(receiver)
+        await self._signal.stop_typing(TypingIndicatorRequest(recipient=receiver))
 
     async def update_contact(
         self,
