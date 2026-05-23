@@ -23,6 +23,7 @@ from signalbot.api.receive_messages import (
     ReceivedMessageType,
     RemoteDelete,
     TypingMessage,
+    EditMessage,
 )
 from signalbot.api.requests import SentMessage
 from signalbot.bot_config import (
@@ -38,6 +39,7 @@ from signalbot.context import (
     ContextGroupUpdateMessage,
     ContextRemoteDelete,
     ContextTypingMessage,
+    ContextEditMessage
 )
 from signalbot.message import Message, UnknownMessageFormatError, parse
 from signalbot.storage import RedisStorage, SQLiteStorage
@@ -795,7 +797,9 @@ class SignalBot:
 
         # handle Command
         try:
-            if isinstance(message, ReceiveDataMessage):
+            if isinstance(message, EditMessage):
+                await command.handle_edit_message(ContextEditMessage(self, message))
+            elif isinstance(message, ReceiveDataMessage):
                 await command.handle_data_message(ContextDataMessage(self, message))
             elif isinstance(message, GroupUpdateMessage):
                 await command.handle_group_update_message(

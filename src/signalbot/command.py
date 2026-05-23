@@ -21,6 +21,7 @@ if TYPE_CHECKING:
         ContextGroupUpdateMessage,
         ContextRemoteDelete,
         ContextTypingMessage,
+        ContextEditMessage,
     )
 
 
@@ -152,6 +153,14 @@ class Command:
 
     async def handle_data_message(self, context: ContextDataMessage) -> None:
         """Method to handle a data message.
+        This method must be implemented by subclasses to define the behavior of the
+            command.
+        Args:
+            context: Chat context containing the received message and other information.
+        """
+
+    async def handle_edit_message(self, context: ContextEditMessage) -> None:
+        """Method to handle an edit message.
         This method must be implemented by subclasses to define the behavior of the
             command.
         Args:
