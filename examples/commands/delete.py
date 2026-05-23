@@ -25,7 +25,7 @@ class DeleteLocalAttachmentCommand(CommandWithHelpMessage):
 
     @triggered("delete_attachment")
     async def handle_data_message(self, context: ContextDataMessage) -> None:
-        local_filenames = [attachment.id for attachment in context.message.attachments]
+        local_filenames = [attachment.local_filename for attachment in context.message.attachments]
         if local_filenames is None or len(local_filenames) == 0:
             await context.send("Please send an attachment to delete.")
 

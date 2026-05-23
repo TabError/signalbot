@@ -3,15 +3,23 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field
 
 
 class Attachment(BaseModel):
     caption: str | None = None
     content_type: str | None = Field(default=None, alias="contentType")
-    filename: str | None = None
+    remote_filename: str | None = Field(
+        default=None,
+        serialization_alias="filename",
+        validation_alias=AliasChoices("filename", "remote_filename"),
+    )
     height: int | None = None
-    id: str | None = None
+    local_filename: str | None = Field(
+        default=None,
+        serialization_alias="id",
+        validation_alias=AliasChoices("id", "local_filename"),
+    )
     size: int | None = None
     upload_timestamp: int | None = Field(default=None, alias="uploadTimestamp")
     width: int | None = None

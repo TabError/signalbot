@@ -48,8 +48,8 @@ class ReceiveDataMessage(BaseMessageWithGroup):
         cls, signal: SignalAPI, attachments: list[Attachment]
     ) -> list[str | None]:
         return [
-            await signal.get_attachment(attachment.id)
-            if attachment.id is not None
+            await signal.get_attachment(attachment.local_filename)
+            if attachment.local_filename is not None
             else None
             for attachment in attachments
         ]
@@ -59,8 +59,8 @@ class ReceiveDataMessage(BaseMessageWithGroup):
         cls, signal: SignalAPI, link_previews: list[Preview]
     ) -> list[str | None]:
         return [
-            await signal.get_attachment(link_preview.image.id)
-            if link_preview.image is not None and link_preview.image.id is not None
+            await signal.get_attachment(link_preview.image.local_filename)
+            if link_preview.image is not None and link_preview.image.local_filename is not None
             else None
             for link_preview in link_previews
         ]
@@ -181,13 +181,13 @@ class ReceiveDataMessage(BaseMessageWithGroup):
             base_64_attachments = []
             for attachment in copy.attachments:
                 if attachment.base64_content is None:
-                    if attachment.id is None:
+                    if attachment.local_filename is None:
                         error_msg = (
-                            "Attachment does not contain an id or base64 content"
+                            "Attachment does not contain an local_filename or base64 content"
                         )
                         raise ValueError(error_msg)
 
-                    with Path(attachment.id).open("rb") as f:
+                    with Path(attachment.local_filename).open("rb") as f:
                         base64_content = str(
                             base64.b64encode(f.read()), encoding="utf-8"
                         )
