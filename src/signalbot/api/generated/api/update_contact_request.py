@@ -7,6 +7,6 @@ from pydantic import BaseModel
 
 
 class UpdateContactRequest(BaseModel):
-    expiration_in_seconds: int
-    name: str
+    expiration_in_seconds: int | None = None
+    name: str | None = None
     recipient: str

@@ -7,4 +7,4 @@ from pydantic import BaseModel
 
 
 class VerifyNumberSettings(BaseModel):
-    pin: str
+    pin: str | None = None

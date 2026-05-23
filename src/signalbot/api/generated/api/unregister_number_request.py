@@ -7,5 +7,5 @@ from pydantic import BaseModel, Field
 
 
 class UnregisterNumberRequest(BaseModel):
-    delete_account: bool = Field(..., examples=[False])
-    delete_local_data: bool = Field(..., examples=[False])
+    delete_account: bool | None = Field(default=None, examples=[False])
+    delete_local_data: bool | None = Field(default=None, examples=[False])

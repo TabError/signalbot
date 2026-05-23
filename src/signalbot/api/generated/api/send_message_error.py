@@ -8,5 +8,5 @@ from pydantic import BaseModel
 
 class SendMessageError(BaseModel):
     account: str
-    challenge_tokens: list[str]
+    challenge_tokens: list[str] | None = None
     error: str

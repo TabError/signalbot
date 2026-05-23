@@ -12,8 +12,8 @@ from .text_mode import TextMode
 
 
 class SendMessageV2(BaseModel):
-    base64_attachments: list[str] = Field(
-        ...,
+    base64_attachments: list[str] | None = Field(
+        default=None,
         examples=[
             [
                 "<BASE64 ENCODED DATA>",
@@ -22,21 +22,21 @@ class SendMessageV2(BaseModel):
             ]
         ],
     )
-    edit_timestamp: int
-    link_preview: LinkPreviewType
-    mentions: list[MessageMention]
+    edit_timestamp: int | None = None
+    link_preview: LinkPreviewType | None = None
+    mentions: list[MessageMention] | None = None
     text: str = Field(
         ...,
         serialization_alias="message",
         validation_alias=AliasChoices("message", "text"),
     )
-    notify_self: bool
+    notify_self: bool | None = None
     number: str
-    quote_author: str
-    quote_mentions: list[MessageMention]
-    quote_message: str
-    quote_timestamp: int
+    quote_author: str | None = None
+    quote_mentions: list[MessageMention] | None = None
+    quote_message: str | None = None
+    quote_timestamp: int | None = None
     recipients: list[str]
-    sticker: str
-    text_mode: TextMode
-    view_once: bool
+    sticker: str | None = None
+    text_mode: TextMode | None = None
+    view_once: bool | None = None

@@ -7,7 +7,7 @@ from pydantic import BaseModel
 
 
 class RemoveReactionRequest(BaseModel):
-    reaction: str
+    reaction: str | None = None
     recipient: str
     target_author: str
     timestamp: int

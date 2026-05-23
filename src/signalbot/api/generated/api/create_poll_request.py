@@ -7,7 +7,7 @@ from pydantic import BaseModel, Field
 
 
 class CreatePollRequest(BaseModel):
-    allow_multiple_selections: bool = Field(..., examples=[True])
+    allow_multiple_selections: bool | None = Field(default=None, examples=[True])
     answers: list[str] = Field(..., examples=[["apple", "banana", "orange"]])
     question: str = Field(..., examples=["What's your favourite fruit?"])
     recipient: str = Field(..., examples=["<phone number> OR <username> OR <group id>"])

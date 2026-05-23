@@ -7,4 +7,4 @@ from pydantic import BaseModel, Field
 
 
 class DeleteLocalAccountDataRequest(BaseModel):
-    ignore_registered: bool = Field(..., examples=[False])
+    ignore_registered: bool | None = Field(default=None, examples=[False])

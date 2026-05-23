@@ -7,5 +7,5 @@ from pydantic import BaseModel, Field
 
 
 class TrustIdentityRequest(BaseModel):
-    trust_all_known_keys: bool = Field(..., examples=[False])
-    verified_safety_number: str
+    trust_all_known_keys: bool | None = Field(default=None, examples=[False])
+    verified_safety_number: str | None = None

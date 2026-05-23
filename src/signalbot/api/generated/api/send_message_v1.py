@@ -7,13 +7,13 @@ from pydantic import BaseModel, Field
 
 
 class SendMessageV1(BaseModel):
-    base64_attachment: str = Field(
-        ...,
+    base64_attachment: str | None = Field(
+        default=None,
         examples=[
             "'<BASE64 ENCODED DATA>' OR 'data:<MIME-TYPE>;base64,<BASE64 ENCODED DATA>' OR 'data:<MIME-TYPE>;filename=<FILENAME>;base64,<BASE64 ENCODED DATA>'"
         ],
     )
-    is_group: bool
+    is_group: bool | None = None
     message: str
     number: str
     recipients: list[str]
