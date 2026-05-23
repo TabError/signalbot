@@ -10,20 +10,3 @@ To generate the python files run this command at the root of the repository
 ```bash
 uv run datamodel-codegen --profile signal-cli-rest-api
 ```
-
-## Manual modications
-
-* Add a `serialization_alias` to the `text` field in `SendMessageV2` class in `src/signalbot/api/generated/send_message_v2.py` by replacing
-    ```python
-    text: str = Field(
-        ..., validation_alias=AliasChoices("message", "text")
-    )
-    ```
-    with
-    ```python
-    text: str = Field(
-        ...,
-        validation_alias=AliasChoices("message", "text"),
-        serialization_alias="message",
-    )
-    ```
