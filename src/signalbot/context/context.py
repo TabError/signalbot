@@ -1,6 +1,5 @@
 from __future__ import annotations
 
-from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Literal
 
 if TYPE_CHECKING:
@@ -9,15 +8,16 @@ if TYPE_CHECKING:
     from signalbot.bot import SignalBot
 
 
-class Context(ABC):
+class Context:
     """
     Context is a helper class that provides methods to reply, edit, react, etc. to a
     message. This is useful to avoid having to pass the recipient and other arguments to
     the bot's methods manually.
     """
 
-    @abstractmethod
-    def __init__(self, bot: SignalBot, message: ReceivedMessageType) -> None: ...
+    def __init__(self, bot: SignalBot, message: ReceivedMessageType) -> None:
+        self.bot = bot
+        self.message = message
 
     async def send(
         self,
