@@ -60,7 +60,8 @@ class ReceiveDataMessage(BaseMessageWithGroup):
     ) -> list[str | None]:
         return [
             await signal.get_attachment(link_preview.image.local_filename)
-            if link_preview.image is not None and link_preview.image.local_filename is not None
+            if link_preview.image is not None
+            and link_preview.image.local_filename is not None
             else None
             for link_preview in link_previews
         ]
@@ -182,9 +183,8 @@ class ReceiveDataMessage(BaseMessageWithGroup):
             for attachment in copy.attachments:
                 if attachment.base64_content is None:
                     if attachment.local_filename is None:
-                        error_msg = (
-                            "Attachment does not contain an local_filename or base64 content"
-                        )
+                        error_msg = "Attachment does not contain a "
+                        error_msg += "local_filename or base64 content"
                         raise ValueError(error_msg)
 
                     with Path(attachment.local_filename).open("rb") as f:

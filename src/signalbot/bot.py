@@ -18,12 +18,12 @@ from packaging.version import Version
 
 from signalbot.api import ReceiveMessagesError, SignalAPI
 from signalbot.api.receive_messages import (
+    EditMessage,
     GroupUpdateMessage,
     ReceiveDataMessage,
     ReceivedMessageType,
     RemoteDelete,
     TypingMessage,
-    EditMessage,
 )
 from signalbot.api.requests import SentMessage
 from signalbot.bot_config import (
@@ -36,10 +36,10 @@ from signalbot.bot_config import (
 from signalbot.command import Command
 from signalbot.context import (
     ContextDataMessage,
+    ContextEditMessage,
     ContextGroupUpdateMessage,
     ContextRemoteDelete,
     ContextTypingMessage,
-    ContextEditMessage
 )
 from signalbot.message import Message, UnknownMessageFormatError, parse
 from signalbot.storage import RedisStorage, SQLiteStorage

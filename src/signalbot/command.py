@@ -18,10 +18,10 @@ if TYPE_CHECKING:
     from signalbot.context import (
         Context,
         ContextDataMessage,
+        ContextEditMessage,
         ContextGroupUpdateMessage,
         ContextRemoteDelete,
         ContextTypingMessage,
-        ContextEditMessage,
     )
 
 
