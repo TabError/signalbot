@@ -29,9 +29,9 @@ class TestAPI:
             json=mock2,
         )
 
-        receiver = self.group_id
+        recipent = self.group_id
         message = "Hello World!"
-        resp = await self.signal_api.send(receiver, message)
+        resp = await self.signal_api.send(recipent, message)
 
         assert resp.status_code == status_code
 
@@ -48,10 +48,10 @@ class TestAPI:
             json=mock2,
         )
 
-        receiver = self.group_id
+        recipent = self.group_id
         question = "How much is the fish?"
         answers = ["hyper hyper", "3,80 DM"]
-        resp = await self.signal_api.poll(receiver, question, answers)
+        resp = await self.signal_api.poll(recipent, question, answers)
 
         assert resp.status_code == status_code
 

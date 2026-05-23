@@ -6,15 +6,15 @@ import typer
 from signalbot import SignalBot, enable_console_logging
 
 
-async def send(bot: SignalBot, receiver: str, text: str) -> None:
+async def send(bot: SignalBot, recipent: str, text: str) -> None:
     # Wait until the bot is fully initialized before sending a message
     await bot.init_task
 
-    await bot.send(receiver=receiver, text=text)
+    await bot.send(recipent=recipent, text=text)
 
 
 def main(
-    receiver: str = os.environ["PHONE_NUMBER"],
+    recipent: str = os.environ["PHONE_NUMBER"],
     text: str = "Hello from SignalBot!",
 ) -> None:
     enable_console_logging(logging.INFO)
@@ -25,9 +25,9 @@ def main(
     }
     bot = SignalBot(config)
 
-    bot.scheduler.add_job(send, args=[bot, receiver, text])
+    bot.scheduler.add_job(send, args=[bot, recipent, text])
     bot.scheduler.add_job(
-        send, args=[bot, receiver, "Ping"], trigger="interval", seconds=5
+        send, args=[bot, recipent, "Ping"], trigger="interval", seconds=5
     )
     bot.start()
 

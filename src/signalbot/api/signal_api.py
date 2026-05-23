@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import base64
 from enum import Enum
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 import aiohttp
 import websockets
@@ -12,7 +12,7 @@ from signalbot.api.generated import About, GroupEntry
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
-    from signalbot.api.generated.api import TypingIndicatorRequest
+    from signalbot.api.generated.api import Receipt, TypingIndicatorRequest
     from signalbot.api.requests import SendMessage
 
 
@@ -85,7 +85,7 @@ class SignalAPI:
 
     async def poll(
         self,
-        receiver: str,
+        recipent: str,
         question: str,
         answers: list[str],
         *,
@@ -93,7 +93,7 @@ class SignalAPI:
     ) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.poll_rest_uri()
         payload = {
-            "recipient": receiver,
+            "recipient": recipent,
             "question": question,
             "answers": answers,
             "allow_multiple_selections": allow_multiple_selections,
@@ -136,18 +136,9 @@ class SignalAPI:
         ) as exc:
             raise ReactionError from exc
 
-    async def receipt(
-        self,
-        recipient: str,
-        receipt_type: Literal["read", "viewed"],
-        timestamp: int,
-    ) -> aiohttp.ClientResponse:
+    async def receipt(self, receipt_request: Receipt) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.receipts_rest_uri()
-        payload = {
-            "recipient": recipient,
-            "receipt_type": receipt_type,
-            "timestamp": timestamp,
-        }
+        payload = receipt_request.model_dump(exclude_none=True, by_alias=True)
         try:
             async with aiohttp.ClientSession() as session:
                 resp = await session.post(uri, json=payload)
@@ -175,10 +166,10 @@ class SignalAPI:
         ) as exc:
             raise StartTypingError from exc
 
-    async def stop_typing(self, receiver: str) -> aiohttp.ClientResponse:
+    async def stop_typing(self, recipent: str) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.typing_indicator_uri()
         payload = {
-            "recipient": receiver,
+            "recipient": recipent,
         }
         try:
             async with aiohttp.ClientSession() as session:
@@ -250,12 +241,12 @@ class SignalAPI:
 
     async def update_contact(
         self,
-        receiver: str,
+        recipent: str,
         expiration_in_seconds: int | None = None,
         name: str | None = None,
     ) -> None:
         uri = self._signal_api_uris.contacts_uri()
-        payload = {"recipient": receiver}
+        payload = {"recipient": recipent}
 
         if expiration_in_seconds is not None:
             payload["expiration_in_seconds"] = expiration_in_seconds
@@ -353,11 +344,11 @@ class SignalAPI:
             raise AboutError from exc
 
     async def remote_delete(
-        self, receiver: str, timestamp: int
+        self, recipent: str, timestamp: int
     ) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.remote_delete_uri()
         payload = {
-            "recipient": receiver,
+            "recipient": recipent,
             "timestamp": timestamp,
         }
         try:

@@ -10,13 +10,14 @@ import traceback
 import uuid
 from collections import defaultdict
 from collections.abc import Callable, Mapping
-from typing import TYPE_CHECKING, Literal, TypeAlias
+from typing import TYPE_CHECKING, TypeAlias
 
 import phonenumbers
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from packaging.version import Version
 
 from signalbot.api import ReceiveMessagesError, SignalAPI
+from signalbot.api.generated.api.receipt import Receipt
 from signalbot.api.generated.api.typing_indicator_request import TypingIndicatorRequest
 from signalbot.api.receive_messages import (
     EditMessage,
@@ -49,8 +50,8 @@ if TYPE_CHECKING:
     from pathlib import Path
 
     from signalbot.api.generated import About, GroupEntry
+    from signalbot.api.generated.api.receipt_type import ReceiptType
     from signalbot.api.requests import SendMessage
-
 
 CommandList: TypeAlias = list[
     tuple[
@@ -222,7 +223,7 @@ class SignalBot:
             if isinstance(groups, list):
                 group_ids = []
                 for group in groups:
-                    group_id = self._resolve_group_receiver(group)
+                    group_id = self._resolve_group_recipient(group)
                     if group_id is not None:
                         group_ids.append(group_id)
                     else:
@@ -315,7 +316,7 @@ class SignalBot:
             raise ValueError(error_msg)
 
         data_message.recipients = [
-            self._resolve_receiver(recipient) for recipient in data_message.recipients
+            self._resolve_recipient(recipient) for recipient in data_message.recipients
         ]
 
         resp = await self._signal.send(data_message)
@@ -344,7 +345,7 @@ class SignalBot:
 
     async def poll(
         self,
-        receiver: str,
+        recipent: str,
         question: str,
         answers: list[str],
         *,
@@ -353,7 +354,7 @@ class SignalBot:
         """Create a poll.
 
         Args:
-            receiver: The recipient of the message.
+            recipent: The recipient of the message.
             question: The poll question.
             answers: List of answer options for the poll.
             allow_multiple_selections: Whether multiple answers can be selected.
@@ -361,10 +362,10 @@ class SignalBot:
         Returns:
             The timestamp the poll was created.
         """
-        receiver = self._resolve_receiver(receiver)
+        recipent = self._resolve_recipient(recipent)
 
         resp = await self._signal.poll(
-            receiver,
+            recipent,
             question,
             answers,
             allow_multiple_selections=allow_multiple_selections,
@@ -384,7 +385,7 @@ class SignalBot:
         """
         # TODO: check that emoji is really an emoji  # noqa: TD002, TD003
         recipient = message.recipient()
-        recipient = self._resolve_receiver(recipient)
+        recipient = self._resolve_recipient(recipient)
         target_author = message.source
         timestamp = message.timestamp
         await self._signal.react(recipient, emoji, target_author, timestamp)
@@ -392,57 +393,60 @@ class SignalBot:
 
     async def receipt(
         self,
-        message: Message,
-        receipt_type: Literal["read", "viewed"],
+        message: ReceiveDataMessage | EditMessage,
+        receipt_type: ReceiptType,
     ) -> None:
         """Send a read or viewed receipt for a message if supported.
 
         Args:
             message: The message to acknowledge.
-            receipt_type: Receipt type to send.
+            receipt_type: The receipt type to send.
         """
-        if message.group is not None:
+        if message.is_group() is not None:
             self._logger.warning("[Bot] Receipts are not supported for groups")
             return
 
-        recipient = self._resolve_receiver(message.recipient())
-        await self._signal.receipt(recipient, receipt_type, message.timestamp)
+        recipient = self._resolve_recipient(message.source_or_group_uuid())
+        receipt_request = Receipt(
+            recipient=recipient, type=receipt_type, timestamp=message.timestamp
+        )
+        await self._signal.receipt(receipt_request)
         self._logger.info(f"[Bot] Receipt: {receipt_type}")  # noqa: G004
 
-    async def start_typing(self, receiver: str) -> None:
-        """Send a typing indicator to a receiver.
+    async def start_typing(self, recipient: str) -> None:
+        """Send a typing indicator to a recipent.
 
         Args:
-            receiver: Message recipient.
+            recipient: Message recipient.
         """
-        receiver = self._resolve_receiver(receiver)
-        await self._signal.start_typing(TypingIndicatorRequest(recipient=receiver))
+        recipient = self._resolve_recipient(recipient)
+        await self._signal.start_typing(TypingIndicatorRequest(recipient=recipient))
 
-    async def stop_typing(self, receiver: str) -> None:
-        """Stop a typing indicator for a receiver.
+    async def stop_typing(self, recipient: str) -> None:
+        """Stop a typing indicator for a recipent.
 
         Args:
-            receiver: Message recipient.
+            recipient: Message recipient.
         """
-        receiver = self._resolve_receiver(receiver)
-        await self._signal.stop_typing(TypingIndicatorRequest(recipient=receiver))
+        recipient = self._resolve_recipient(recipient)
+        await self._signal.stop_typing(TypingIndicatorRequest(recipient=recipient))
 
     async def update_contact(
         self,
-        receiver: str,
+        recipent: str,
         expiration_in_seconds: int | None = None,
         name: str | None = None,
     ) -> None:
         """Update a contact's metadata.
 
         Args:
-            receiver: Contact identifier.
+            recipent: Contact identifier.
             expiration_in_seconds: Expiration timer in seconds.
             name: Contact display name.
         """
-        receiver = self._resolve_receiver(receiver)
+        recipent = self._resolve_recipient(recipent)
         await self._signal.update_contact(
-            receiver,
+            recipent,
             expiration_in_seconds=expiration_in_seconds,
             name=name,
         )
@@ -464,7 +468,7 @@ class SignalBot:
             expiration_in_seconds: Expiration timer in seconds.
             name: Group display name.
         """
-        group_id = self._resolve_receiver(group_id)
+        group_id = self._resolve_recipient(group_id)
         await self._signal.update_group(
             group_id,
             base64_avatar=base64_avatar,
@@ -473,20 +477,20 @@ class SignalBot:
             name=name,
         )
 
-    async def remote_delete(self, receiver: str, timestamp: int) -> int:
+    async def remote_delete(self, recipent: str, timestamp: int) -> int:
         """Delete a previously sent message.
 
         Args:
-            receiver: Recipient identifier.
+            recipent: Recipient identifier.
             timestamp: Timestamp of the message to delete.
 
         Returns:
             The timestamp of the delete action.
         """
-        receiver = self._resolve_receiver(receiver)
+        recipent = self._resolve_recipient(recipent)
 
         resp = await self._signal.remote_delete(
-            receiver,
+            recipent,
             timestamp=timestamp,
         )
         resp_payload = await resp.json()
@@ -550,23 +554,23 @@ class SignalBot:
         if isinstance(message, GroupUpdateMessage):
             await self._update_group(message.group_info.group_id)
 
-    def _resolve_receiver(self, receiver: str) -> str:
-        if self._is_phone_number(receiver):
-            return receiver
+    def _resolve_recipient(self, recipient: str) -> str:
+        if self._is_phone_number(recipient):
+            return recipient
 
-        if self._is_valid_uuid(receiver):
-            return receiver
+        if self._is_valid_uuid(recipient):
+            return recipient
 
-        if self._is_username(receiver):
-            return receiver
+        if self._is_username(recipient):
+            return recipient
 
-        group_id = self._resolve_group_receiver(receiver)
+        group_id = self._resolve_group_recipient(recipient)
         if group_id is not None:
             return group_id
 
-        raise SignalBotError("Cannot resolve receiver.")  # noqa: EM101, TRY003
+        raise SignalBotError("Cannot resolve recipent.")  # noqa: EM101, TRY003
 
-    def _resolve_group_receiver(self, group_id_or_name: str) -> str | None:
+    def _resolve_group_recipient(self, group_id_or_name: str) -> str | None:
         group = self._groups_by_id.get(group_id_or_name)
         if group is not None:
             return group.id
@@ -594,20 +598,20 @@ class SignalBot:
         except phonenumbers.phonenumberutil.NumberParseException:
             return False
 
-    def _is_valid_uuid(self, receiver_uuid: str) -> bool:
+    def _is_valid_uuid(self, recipent_uuid: str) -> bool:
         try:
-            uuid.UUID(str(receiver_uuid))
+            uuid.UUID(str(recipent_uuid))
             return True  # noqa: TRY300
         except ValueError:
             return False
 
-    def _is_username(self, receiver_username: str) -> bool:  # noqa: PLR0911
+    def _is_username(self, recipent_username: str) -> bool:  # noqa: PLR0911
         """
         Check if username has correct format, as described in
         https://support.signal.org/hc/en-us/articles/6712070553754-Phone-Number-Privacy-and-Usernames#username_req
         Additionally, cannot have more than 9 digits and the digits cannot be 00.
         """
-        split_username = receiver_username.split(".")
+        split_username = recipent_username.split(".")
         if len(split_username) == 2:  # noqa: PLR2004
             characters = split_username[0]
             digits = split_username[1]

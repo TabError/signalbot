@@ -20,12 +20,12 @@ The bot can do a lot more, here is a quick overview of the most common methods:
 - `bot.register(command, contacts=False, groups=["Hello World"])`: Only listen in the "Hello World" group
 - `bot.register(command, contacts=["+49123456789"], groups=False)`: Only respond to one contact
 - `bot.start()`: Start the bot
-- `bot.send(receiver, text)`: Send a new message
+- `bot.send(recipent, text)`: Send a new message
 - `bot.react(message, emoji)`: React to a message
-- `bot.start_typing(receiver)`: Start typing
-- `bot.stop_typing(receiver)`: Stop typing
-- `bot.send(receiver, text, edit_timestamp=timestamp)`: Edit a previously sent message
-- `bot.remote_delete(receiver, timestamp)`: Delete a previously sent message
+- `bot.start_typing(recipent)`: Start typing
+- `bot.stop_typing(recipent)`: Stop typing
+- `bot.send(recipent, text, edit_timestamp=timestamp)`: Edit a previously sent message
+- `bot.remote_delete(recipent, timestamp)`: Delete a previously sent message
 - `bot.receipt(message, receipt_type)`: Mark a message as read
 - `bot.update_group(group_id, avatar, description, expiration, name)`: Change group settings
 - `bot.delete_attachment(attachment_filename)`: Delete the local copy of an attachment

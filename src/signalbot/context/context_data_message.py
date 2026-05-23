@@ -7,7 +7,8 @@ from signalbot.api.generated import MessageMention
 from signalbot.context.context import Context
 
 if TYPE_CHECKING:
-    from signalbot.api.generated import Mention
+    from signalbot.api.generated.api.receipt_type import ReceiptType
+    from signalbot.api.generated.receive import Mention
     from signalbot.api.receive_messages import ReceiveDataMessage
     from signalbot.api.requests import SendMessage, SentMessage
     from signalbot.bot import SignalBot
@@ -60,6 +61,12 @@ class ContextDataMessage(Context):
         return await self.bot.remote_delete(
             self.message.recipient(), timestamp=timestamp
         )
+
+    async def receipt(self, receipt_type: ReceiptType) -> None:
+        """Same as
+         [signalbot.SignalBot.receipt()](bot.md#signalbot.SignalBot.receipt)
+        but with the recipient set to the message's recipient."""
+        await self.bot.receipt(self.message, receipt_type)
 
     def _convert_receive_mentions_into_send_mentions(
         self,

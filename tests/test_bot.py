@@ -324,7 +324,7 @@ class TestRegisterCommand(TestCommon):
 @pytest.mark.asyncio
 class TestPoll(TestCommon):
     async def test_poll_with_phone_number(self, mocker: MockerFixture):
-        receiver = "+49987654321"
+        recipent = "+49987654321"
         question = "What's your favorite color?"
         answers = ["Red", "Blue", "Green"]
         timestamp = 1633169000000
@@ -337,15 +337,15 @@ class TestPoll(TestCommon):
         )
         mocker.patch.object(self.signal_bot._signal, "poll", poll_mock)
 
-        result = await self.signal_bot.poll(receiver, question, answers)
+        result = await self.signal_bot.poll(recipent, question, answers)
 
         assert result == timestamp
         poll_mock.assert_called_once_with(
-            receiver, question, answers, allow_multiple_selections=False
+            recipent, question, answers, allow_multiple_selections=False
         )
 
     async def test_poll_with_group_id(self, mocker: MockerFixture):
-        receiver = self.group_id
+        recipent = self.group_id
         question = "What should we do?"
         answers = ["Option A", "Option B"]
         timestamp = 1633169000001
@@ -358,18 +358,18 @@ class TestPoll(TestCommon):
         )
         mocker.patch.object(self.signal_bot._signal, "poll", poll_mock)
 
-        result = await self.signal_bot.poll(receiver, question, answers)
+        result = await self.signal_bot.poll(recipent, question, answers)
 
         assert result == timestamp
         poll_mock.assert_called_once_with(
-            receiver,
+            recipent,
             question,
             answers,
             allow_multiple_selections=False,
         )
 
     async def test_poll_with_multiple_selections(self, mocker: MockerFixture):
-        receiver = "+49987654321"
+        recipent = "+49987654321"
         question = "Which colors do you like?"
         answers = ["Red", "Blue", "Green", "Yellow"]
         timestamp = 1633169000002
@@ -384,7 +384,7 @@ class TestPoll(TestCommon):
         mocker.patch.object(self.signal_bot._signal, "poll", poll_mock)
 
         result = await self.signal_bot.poll(
-            receiver,
+            recipent,
             question,
             answers,
             allow_multiple_selections=allow_multiple,
@@ -392,7 +392,7 @@ class TestPoll(TestCommon):
 
         assert result == timestamp
         poll_mock.assert_called_once_with(
-            receiver,
+            recipent,
             question,
             answers,
             allow_multiple_selections=True,
