@@ -13,7 +13,11 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
     from signalbot.api.generated.api import Receipt, TypingIndicatorRequest
-    from signalbot.api.requests import SendMessage, UpdateContactRequest
+    from signalbot.api.requests import (
+        SendMessage,
+        UpdateContactRequest,
+        UpdateGroupRequest,
+    )
 
 
 class ConnectionMode(str, Enum):
@@ -257,28 +261,9 @@ class SignalAPI:
         ) as exc:
             raise ContactUpdateError from exc
 
-    async def update_group(
-        self,
-        group_id: str,
-        base64_avatar: str | None = None,
-        description: str | None = None,
-        expiration_in_seconds: int | None = None,
-        name: str | None = None,
-    ) -> None:
-        uri = self._signal_api_uris.group_id_uri(group_id)
-        payload = {}
-
-        if base64_avatar is not None:
-            payload["base64_avatar"] = base64_avatar
-
-        if description is not None:
-            payload["description"] = description
-
-        if expiration_in_seconds is not None:
-            payload["expiration_time"] = expiration_in_seconds
-
-        if name is not None:
-            payload["name"] = name
+    async def update_group(self, update_group_request: UpdateGroupRequest) -> None:
+        uri = self._signal_api_uris.group_id_uri(update_group_request.group_id_or_name)
+        payload = update_group_request.model_dump(exclude_none=True, by_alias=True)
 
         try:
             async with aiohttp.ClientSession() as session:

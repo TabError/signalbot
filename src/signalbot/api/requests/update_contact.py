@@ -1,7 +1,5 @@
-from signalbot.api.generated import (
-    UpdateContactRequest as GeneratedUpdateContactRequest,
-)
+from signalbot.api.generated import UpdateContactRequest as _UpdateContactRequest
 
 
-class UpdateContactRequest(GeneratedUpdateContactRequest):
+class UpdateContactRequest(_UpdateContactRequest):
     pass

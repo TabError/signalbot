@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from pydantic import BaseModel
+from pydantic import AliasChoices, BaseModel, Field
 
 from signalbot.api.generated.data.group_permissions import GroupPermissions
 
@@ -13,7 +13,11 @@ from .group_link import GroupLink
 class UpdateGroupRequest(BaseModel):
     base64_avatar: str | None = None
     description: str | None = None
-    expiration_time: int | None = None
+    expiration_in_seconds: int | None = Field(
+        default=None,
+        serialization_alias="expiration_time",
+        validation_alias=AliasChoices("expiration_time", "expiration_in_seconds"),
+    )
     group_link: GroupLink | None = None
     name: str | None = None
     permissions: GroupPermissions | None = None

@@ -51,7 +51,11 @@ if TYPE_CHECKING:
 
     from signalbot.api.generated import About, GroupEntry
     from signalbot.api.generated.api.receipt_type import ReceiptType
-    from signalbot.api.requests import SendMessage, UpdateContactRequest
+    from signalbot.api.requests import (
+        SendMessage,
+        UpdateContactRequest,
+        UpdateGroupRequest,
+    )
 
 CommandList: TypeAlias = list[
     tuple[
@@ -446,29 +450,18 @@ class SignalBot:
 
     async def update_group(
         self,
-        group_id: str,
-        base64_avatar: str | None = None,
-        description: str | None = None,
-        expiration_in_seconds: int | None = None,
-        name: str | None = None,
+        update_group_request: UpdateGroupRequest,
     ) -> None:
         """Update a group's metadata.
 
         Args:
-            group_id: Group identifier or name.
-            base64_avatar: Base64-encoded avatar.
-            description: Group description.
-            expiration_in_seconds: Expiration timer in seconds.
-            name: Group display name.
+            update_group_request: Group update payload.
         """
-        recipient = self._resolve_recipient(group_id)
-        await self._signal.update_group(
-            recipient,
-            base64_avatar=base64_avatar,
-            description=description,
-            expiration_in_seconds=expiration_in_seconds,
-            name=name,
+        update_group_request = copy.deepcopy(update_group_request)
+        update_group_request.group_id_or_name = self._resolve_recipient(
+            update_group_request.group_id_or_name
         )
+        await self._signal.update_group(update_group_request)
 
     async def remote_delete(self, recipient: str, timestamp: int) -> int:
         """Delete a previously sent message.

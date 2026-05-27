@@ -3,5 +3,6 @@
   "receive.DataMessage.message": "message",
   "receive.SyncDataMessage.message": "message",
   "receive.Attachment.id": "id",
-  "receive.Attachment.filename": "filename"
+  "receive.Attachment.filename": "filename",
+  "api.UpdateGroupRequest.expiration_time": "expiration_time"
 }
