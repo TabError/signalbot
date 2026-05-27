@@ -3,6 +3,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from signalbot import ConnectionMode, SignalAPI
+from signalbot.api.generated import CreatePollRequest
 from signalbot.api.signal_api import HEALTH_CHECK_GOOD_STATUS, HealthCheckError
 
 
@@ -51,9 +52,15 @@ class TestAPI:
         recipient = self.group_id
         question = "How much is the fish?"
         answers = ["hyper hyper", "3,80 DM"]
-        resp = await self.signal_api.poll(recipient, question, answers)
+        create_poll_request = CreatePollRequest(
+            recipient=recipient,
+            question=question,
+            answers=answers,
+            allow_multiple_selections=False,
+        )
+        resp = await self.signal_api.poll(create_poll_request)
 
-        assert resp.status_code == status_code
+        assert resp.timestamp == "1774791959123"
 
     @pytest.mark.asyncio
     async def test_receive(self, mocker: MockerFixture):

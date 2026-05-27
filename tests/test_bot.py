@@ -12,6 +12,7 @@ from signalbot import (
     SignalAPI,
     SignalBot,
 )
+from signalbot.api.generated import CreatePollRequest
 from signalbot.context import Context
 from signalbot.utils import DummyCommand
 
@@ -331,18 +332,19 @@ class TestPoll(TestCommon):
 
         # Mock the SignalAPI.poll method
         poll_mock = mocker.AsyncMock()
-        poll_mock.return_value = mocker.AsyncMock(
-            spec=aiohttp.ClientResponse,
-            json=mocker.AsyncMock(return_value={"timestamp": timestamp}),
-        )
+        poll_mock.return_value = mocker.Mock(timestamp=str(timestamp))
         mocker.patch.object(self.signal_bot._signal, "poll", poll_mock)
 
-        result = await self.signal_bot.poll(recipient, question, answers)
+        create_poll_request = CreatePollRequest(
+            recipient=recipient,
+            question=question,
+            answers=answers,
+            allow_multiple_selections=False,
+        )
+        result = await self.signal_bot.poll(create_poll_request)
 
         assert result == timestamp
-        poll_mock.assert_called_once_with(
-            recipient, question, answers, allow_multiple_selections=False
-        )
+        poll_mock.assert_called_once_with(create_poll_request)
 
     async def test_poll_with_group_id(self, mocker: MockerFixture):
         recipient = self.group_id
@@ -352,21 +354,19 @@ class TestPoll(TestCommon):
 
         # Mock the SignalAPI.poll method
         poll_mock = mocker.AsyncMock()
-        poll_mock.return_value = mocker.AsyncMock(
-            spec=aiohttp.ClientResponse,
-            json=mocker.AsyncMock(return_value={"timestamp": timestamp}),
-        )
+        poll_mock.return_value = mocker.Mock(timestamp=str(timestamp))
         mocker.patch.object(self.signal_bot._signal, "poll", poll_mock)
 
-        result = await self.signal_bot.poll(recipient, question, answers)
-
-        assert result == timestamp
-        poll_mock.assert_called_once_with(
-            recipient,
-            question,
-            answers,
+        create_poll_request = CreatePollRequest(
+            recipient=recipient,
+            question=question,
+            answers=answers,
             allow_multiple_selections=False,
         )
+        result = await self.signal_bot.poll(create_poll_request)
+
+        assert result == timestamp
+        poll_mock.assert_called_once_with(create_poll_request)
 
     async def test_poll_with_multiple_selections(self, mocker: MockerFixture):
         recipient = "+49987654321"
@@ -377,23 +377,16 @@ class TestPoll(TestCommon):
 
         # Mock the SignalAPI.poll method
         poll_mock = mocker.AsyncMock()
-        poll_mock.return_value = mocker.AsyncMock(
-            spec=aiohttp.ClientResponse,
-            json=mocker.AsyncMock(return_value={"timestamp": timestamp}),
-        )
+        poll_mock.return_value = mocker.Mock(timestamp=str(timestamp))
         mocker.patch.object(self.signal_bot._signal, "poll", poll_mock)
 
-        result = await self.signal_bot.poll(
-            recipient,
-            question,
-            answers,
+        create_poll_request = CreatePollRequest(
+            recipient=recipient,
+            question=question,
+            answers=answers,
             allow_multiple_selections=allow_multiple,
         )
+        result = await self.signal_bot.poll(create_poll_request)
 
         assert result == timestamp
-        poll_mock.assert_called_once_with(
-            recipient,
-            question,
-            answers,
-            allow_multiple_selections=True,
-        )
+        poll_mock.assert_called_once_with(create_poll_request)

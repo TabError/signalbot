@@ -49,7 +49,12 @@ from signalbot.storage import RedisStorage, SQLiteStorage
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from signalbot.api.generated import About, GroupEntry, RemoteDeleteRequest
+    from signalbot.api.generated import (
+        About,
+        CreatePollRequest,
+        GroupEntry,
+        RemoteDeleteRequest,
+    )
     from signalbot.api.generated.api.receipt_type import ReceiptType
     from signalbot.api.requests import (
         SendMessage,
@@ -348,34 +353,23 @@ class SignalBot:
 
     async def poll(
         self,
-        recipient: str,
-        question: str,
-        answers: list[str],
-        *,
-        allow_multiple_selections: bool = False,
+        create_poll_request: CreatePollRequest,
     ) -> int:
         """Create a poll.
 
         Args:
-            recipient: The recipient of the message.
-            question: The poll question.
-            answers: List of answer options for the poll.
-            allow_multiple_selections: Whether multiple answers can be selected.
+            create_poll_request: Request payload for poll creation.
 
         Returns:
             The timestamp the poll was created.
         """
-        recipient = self._resolve_recipient(recipient)
-
-        resp = await self._signal.poll(
-            recipient,
-            question,
-            answers,
-            allow_multiple_selections=allow_multiple_selections,
+        create_poll_request.recipient = self._resolve_recipient(
+            create_poll_request.recipient
         )
-        resp_payload = await resp.json()
-        timestamp = int(resp_payload["timestamp"])
-        self._logger.info("[Bot] New poll created:\n%s", question)
+
+        created_poll = await self._signal.poll(create_poll_request)
+        timestamp = int(created_poll.timestamp)
+        self._logger.info("[Bot] New poll created:\n%s", create_poll_request.question)
 
         return timestamp
 

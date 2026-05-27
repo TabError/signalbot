@@ -9,6 +9,7 @@ import websockets
 
 from signalbot.api.generated import (
     About,
+    CreatePollResponse,
     GroupEntry,
     RemoteDeleteResponse,
     SendMessageResponse,
@@ -17,7 +18,7 @@ from signalbot.api.generated import (
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
-    from signalbot.api.generated import RemoteDeleteRequest
+    from signalbot.api.generated import CreatePollRequest, RemoteDeleteRequest
     from signalbot.api.generated.api import Receipt, TypingIndicatorRequest
     from signalbot.api.requests import (
         SendMessage,
@@ -95,25 +96,16 @@ class SignalAPI:
 
     async def poll(
         self,
-        recipient: str,
-        question: str,
-        answers: list[str],
-        *,
-        allow_multiple_selections: bool = False,
-    ) -> aiohttp.ClientResponse:
+        create_poll_request: CreatePollRequest,
+    ) -> CreatePollResponse:
         uri = self._signal_api_uris.poll_rest_uri()
-        payload = {
-            "recipient": recipient,
-            "question": question,
-            "answers": answers,
-            "allow_multiple_selections": allow_multiple_selections,
-        }
+        payload = create_poll_request.model_dump(exclude_none=True, by_alias=True)
 
         try:
             async with aiohttp.ClientSession() as session:
                 resp = await session.post(uri, json=payload)
                 resp.raise_for_status()
-                return resp
+                return CreatePollResponse.model_validate(await resp.json())
         except (
             aiohttp.ClientError,
             aiohttp.http_exceptions.HttpProcessingError,
