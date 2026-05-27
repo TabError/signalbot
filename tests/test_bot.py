@@ -13,6 +13,7 @@ from signalbot import (
     SignalBot,
 )
 from signalbot.api.generated import CreatePollRequest
+from signalbot.api.requests.poll import Poll
 from signalbot.context import Context
 from signalbot.utils import DummyCommand
 
@@ -343,7 +344,8 @@ class TestPoll(TestCommon):
         )
         result = await self.signal_bot.create_poll(create_poll_request)
 
-        assert result == timestamp
+        assert isinstance(result, Poll)
+        assert result.timestamp == timestamp
         poll_mock.assert_called_once_with(create_poll_request)
 
     async def test_poll_with_group_id(self, mocker: MockerFixture):
@@ -365,7 +367,8 @@ class TestPoll(TestCommon):
         )
         result = await self.signal_bot.create_poll(create_poll_request)
 
-        assert result == timestamp
+        assert isinstance(result, Poll)
+        assert result.timestamp == timestamp
         poll_mock.assert_called_once_with(create_poll_request)
 
     async def test_poll_with_multiple_selections(self, mocker: MockerFixture):
@@ -388,5 +391,6 @@ class TestPoll(TestCommon):
         )
         result = await self.signal_bot.create_poll(create_poll_request)
 
-        assert result == timestamp
+        assert isinstance(result, Poll)
+        assert result.timestamp == timestamp
         poll_mock.assert_called_once_with(create_poll_request)

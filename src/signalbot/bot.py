@@ -28,6 +28,7 @@ from signalbot.api.receive_messages import (
     TypingMessage,
 )
 from signalbot.api.requests import SentMessage
+from signalbot.api.requests.poll import Poll
 from signalbot.bot_config import (
     Config,
     InMemoryConfig,
@@ -354,14 +355,14 @@ class SignalBot:
     async def create_poll(
         self,
         create_poll_request: CreatePollRequest,
-    ) -> int:
+    ) -> Poll:
         """Create a poll.
 
         Args:
             create_poll_request: Request payload for poll creation.
 
         Returns:
-            The timestamp the poll was created.
+            A Poll instance.
         """
         create_poll_request.recipient = self._resolve_recipient(
             create_poll_request.recipient
@@ -371,7 +372,7 @@ class SignalBot:
         timestamp = int(created_poll.timestamp)
         self._logger.info("[Bot] New poll created:\n%s", create_poll_request.question)
 
-        return timestamp
+        return Poll.from_create_poll_request(create_poll_request, timestamp)
 
     async def react(self, message: Message, emoji: str) -> None:
         """React to a message with an emoji.
