@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 import aiohttp
 import websockets
 
-from signalbot.api.generated import About, GroupEntry
+from signalbot.api.generated import About, GroupEntry, RemoteDeleteResponse
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -323,14 +323,14 @@ class SignalAPI:
 
     async def remote_delete(
         self, remote_delete_request: RemoteDeleteRequest
-    ) -> aiohttp.ClientResponse:
+    ) -> RemoteDeleteResponse:
         uri = self._signal_api_uris.remote_delete_uri()
         payload = remote_delete_request.model_dump(exclude_none=True, by_alias=True)
         try:
             async with aiohttp.ClientSession() as session:
                 resp = await session.delete(uri, json=payload)
                 resp.raise_for_status()
-                return resp
+                return RemoteDeleteResponse.model_validate(await resp.json())
         except (
             aiohttp.ClientError,
             aiohttp.http_exceptions.HttpProcessingError,

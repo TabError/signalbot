@@ -479,9 +479,8 @@ class SignalBot:
             remote_delete_request.recipient
         )
 
-        resp = await self._signal.remote_delete(remote_delete_request)
-        resp_payload = await resp.json()
-        ret_timestamp = int(resp_payload["timestamp"])
+        remote_delete_response = await self._signal.remote_delete(remote_delete_request)
+        ret_timestamp = int(remote_delete_response.timestamp)
         self._logger.info(
             f"[Bot] Deleted message with timestamp {remote_delete_request.timestamp}"  # noqa: G004
         )
