@@ -13,7 +13,7 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
     from signalbot.api.generated.api import Receipt, TypingIndicatorRequest
-    from signalbot.api.requests import SendMessage
+    from signalbot.api.requests import SendMessage, UpdateContactRequest
 
 
 class ConnectionMode(str, Enum):
@@ -241,18 +241,10 @@ class SignalAPI:
 
     async def update_contact(
         self,
-        recipient: str,
-        expiration_in_seconds: int | None = None,
-        name: str | None = None,
+        update_contact_request: UpdateContactRequest,
     ) -> None:
         uri = self._signal_api_uris.contacts_uri()
-        payload = {"recipient": recipient}
-
-        if expiration_in_seconds is not None:
-            payload["expiration_in_seconds"] = expiration_in_seconds
-
-        if name is not None:
-            payload["name"] = name
+        payload = update_contact_request.model_dump(exclude_none=True, by_alias=True)
 
         try:
             async with aiohttp.ClientSession() as session:

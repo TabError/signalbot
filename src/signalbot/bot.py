@@ -51,7 +51,7 @@ if TYPE_CHECKING:
 
     from signalbot.api.generated import About, GroupEntry
     from signalbot.api.generated.api.receipt_type import ReceiptType
-    from signalbot.api.requests import SendMessage
+    from signalbot.api.requests import SendMessage, UpdateContactRequest
 
 CommandList: TypeAlias = list[
     tuple[
@@ -432,23 +432,17 @@ class SignalBot:
 
     async def update_contact(
         self,
-        recipient: str,
-        expiration_in_seconds: int | None = None,
-        name: str | None = None,
+        update_contact_request: UpdateContactRequest,
     ) -> None:
         """Update a contact's metadata.
 
         Args:
-            recipient: Contact identifier.
-            expiration_in_seconds: Expiration timer in seconds.
-            name: Contact display name.
+            update_contact_request: Contact update payload.
         """
-        recipient = self._resolve_recipient(recipient)
-        await self._signal.update_contact(
-            recipient,
-            expiration_in_seconds=expiration_in_seconds,
-            name=name,
+        update_contact_request.recipient = self._resolve_recipient(
+            update_contact_request.recipient
         )
+        await self._signal.update_contact(update_contact_request)
 
     async def update_group(
         self,
