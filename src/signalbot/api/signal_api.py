@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 
     from signalbot.api.generated import CreatePollRequest, RemoteDeleteRequest
     from signalbot.api.generated.api import Receipt, TypingIndicatorRequest
+    from signalbot.api.receive_messages import Attachment
     from signalbot.api.requests import (
         SendMessage,
         UpdateContactRequest,
@@ -228,7 +229,12 @@ class SignalAPI:
 
         return base64_string  # noqa: RET504
 
-    async def delete_attachment(self, attachment_id: str) -> str:
+    async def delete_attachment(self, attachment: Attachment) -> str:
+        attachment_id = attachment.local_filename
+        if attachment_id is None:
+            error_msg = "Attachment has no local filename"
+            raise ValueError(error_msg)
+
         uri = f"{self._signal_api_uris.attachment_rest_uri()}/{attachment_id}"
         try:
             async with aiohttp.ClientSession() as session:

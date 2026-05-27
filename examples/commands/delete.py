@@ -25,13 +25,16 @@ class DeleteLocalAttachmentCommand(CommandWithHelpMessage):
 
     @triggered("delete_attachment")
     async def handle_data_message(self, context: ContextDataMessage) -> None:
-        local_filenames = [
-            attachment.local_filename for attachment in context.message.attachments
-        ]
-        if local_filenames is None or len(local_filenames) == 0:
+        attachments = context.message.attachments
+        if attachments is None or len(attachments) == 0:
             await context.send("Please send an attachment to delete.")
+            return
 
-        for attachment_filename in local_filenames:
+        for attachment in attachments:
+            attachment_filename = attachment.local_filename
+            if attachment_filename is None:
+                continue
+
             attachment_path: Path = (
                 await Path.home()
                 / ".local/share/signal-api/attachments"
@@ -41,7 +44,7 @@ class DeleteLocalAttachmentCommand(CommandWithHelpMessage):
             if await attachment_path.exists():
                 print(f"Received file {attachment_path}")  # noqa: T201
 
-            await context.bot.delete_attachment(attachment_filename)
+            await context.bot.delete_attachment(attachment)
 
             if not await attachment_path.exists():
                 print(f"Deleted file {attachment_path}")  # noqa: T201

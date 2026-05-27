@@ -57,6 +57,7 @@ if TYPE_CHECKING:
         RemoteDeleteRequest,
     )
     from signalbot.api.generated.api.receipt_type import ReceiptType
+    from signalbot.api.receive_messages import Attachment
     from signalbot.api.requests import (
         SendMessage,
         UpdateContactRequest,
@@ -481,13 +482,13 @@ class SignalBot:
 
         return ret_timestamp
 
-    async def delete_attachment(self, attachment_filename: str) -> None:
+    async def delete_attachment(self, attachment: Attachment) -> None:
         """Delete an attachment from local storage.
 
         Args:
-            attachment_filename: File name to delete.
+            attachment: Attachment to delete.
         """
-        await self._signal.delete_attachment(attachment_filename)
+        await self._signal.delete_attachment(attachment)
 
     async def _detect_groups(self) -> None:
         # reset group lookups to avoid stale data

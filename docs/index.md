@@ -28,7 +28,7 @@ The bot can do a lot more, here is a quick overview of the most common methods:
 - `bot.remote_delete(remote_delete_request)`: Delete a previously sent message
 - `bot.receipt(message, receipt_type)`: Mark a message as read
 - `bot.update_group(group_id_or_name, update_group_request)`: Change group settings
-- `bot.delete_attachment(attachment_filename)`: Delete the local copy of an attachment
+- `bot.delete_attachment(attachment)`: Delete the local copy of an attachment
 - `bot.scheduler`: Schedule tasks, see the [scheduler examples](examples/bot_with_scheduler.md).
 
 ## Real world bot examples
