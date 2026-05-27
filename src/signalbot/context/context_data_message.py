@@ -19,15 +19,13 @@ class ContextDataMessage(Context):
         self.bot = bot
         self.message = message
 
-    async def edit(
-        self, new_message: SendMessage, original_message: SentMessage
-    ) -> int:
+    async def edit(self, new_message: SendMessage) -> SentMessage:
         """Same as
          [signalbot.SignalBot.send()](bot.md#signalbot.SignalBot.send)
-        but with the recipient and timestamp set to the message's."""
+        but with the original_message and recipient set to the message's."""
         new_message = deepcopy(new_message)
         new_message.recipients = [self.message.source_or_group_uuid()]
-        return await self.bot.edit(new_message, original_message)
+        return await self.bot.edit(new_message, self.message)
 
     async def reply(
         self,

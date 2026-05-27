@@ -330,7 +330,7 @@ class SignalBot:
 
     async def edit(
         self, new_message: SendMessage, original_message: SentMessage
-    ) -> int:
+    ) -> SentMessage:
         """Edit a message.
 
         Args:
