@@ -85,7 +85,7 @@ class SignalAPI:
 
     async def poll(
         self,
-        recipent: str,
+        recipient: str,
         question: str,
         answers: list[str],
         *,
@@ -93,7 +93,7 @@ class SignalAPI:
     ) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.poll_rest_uri()
         payload = {
-            "recipient": recipent,
+            "recipient": recipient,
             "question": question,
             "answers": answers,
             "allow_multiple_selections": allow_multiple_selections,
@@ -166,10 +166,10 @@ class SignalAPI:
         ) as exc:
             raise StartTypingError from exc
 
-    async def stop_typing(self, recipent: str) -> aiohttp.ClientResponse:
+    async def stop_typing(self, recipient: str) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.typing_indicator_uri()
         payload = {
-            "recipient": recipent,
+            "recipient": recipient,
         }
         try:
             async with aiohttp.ClientSession() as session:
@@ -241,12 +241,12 @@ class SignalAPI:
 
     async def update_contact(
         self,
-        recipent: str,
+        recipient: str,
         expiration_in_seconds: int | None = None,
         name: str | None = None,
     ) -> None:
         uri = self._signal_api_uris.contacts_uri()
-        payload = {"recipient": recipent}
+        payload = {"recipient": recipient}
 
         if expiration_in_seconds is not None:
             payload["expiration_in_seconds"] = expiration_in_seconds
@@ -344,11 +344,11 @@ class SignalAPI:
             raise AboutError from exc
 
     async def remote_delete(
-        self, recipent: str, timestamp: int
+        self, recipient: str, timestamp: int
     ) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.remote_delete_uri()
         payload = {
-            "recipient": recipent,
+            "recipient": recipient,
             "timestamp": timestamp,
         }
         try:
