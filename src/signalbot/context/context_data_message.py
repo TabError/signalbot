@@ -57,7 +57,7 @@ class ContextDataMessage(Context):
         [signalbot.SignalBot.remote_delete()](bot.md#signalbot.SignalBot.remote_delete)
         but with the recipient and timestamp set to the message's."""
         return await self.bot.remote_delete(
-            self.message.recipient(), timestamp=timestamp
+            self.message.source_or_group_uuid(), timestamp=timestamp
         )
 
     async def receipt(self, receipt_type: ReceiptType) -> None:

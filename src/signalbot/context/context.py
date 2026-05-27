@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Literal
+from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
     from signalbot.api.receive_messages import ReceivedMessageType
@@ -28,12 +28,6 @@ class Context:
         but with the recipient set to the message's recipient."""
         data_message.recipients = [self.message.source_or_group_uuid()]
         return await self.bot.send(data_message)
-
-    async def receipt(self, receipt_type: Literal["read", "viewed"]) -> None:
-        """Same as
-         [signalbot.SignalBot.receipt()](bot.md#signalbot.SignalBot.receipt)
-        but with the recipient set to the message's recipient."""
-        await self.bot.receipt(self.message, receipt_type)
 
     async def start_typing(self) -> None:
         """Same as
