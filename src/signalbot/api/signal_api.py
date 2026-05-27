@@ -7,7 +7,12 @@ from typing import TYPE_CHECKING
 import aiohttp
 import websockets
 
-from signalbot.api.generated import About, GroupEntry, RemoteDeleteResponse
+from signalbot.api.generated import (
+    About,
+    GroupEntry,
+    RemoteDeleteResponse,
+    SendMessageResponse,
+)
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -70,7 +75,7 @@ class SignalAPI:
     async def send(
         self,
         data_message: SendMessage,
-    ) -> aiohttp.ClientResponse:
+    ) -> SendMessageResponse:
         uri = self._signal_api_uris.send_rest_uri()
 
         data_message.number = self.phone_number
@@ -80,7 +85,7 @@ class SignalAPI:
             async with aiohttp.ClientSession() as session:
                 resp = await session.post(uri, json=payload)
                 resp.raise_for_status()
-                return resp
+                return SendMessageResponse.model_validate(await resp.json())
         except (
             aiohttp.ClientError,
             aiohttp.http_exceptions.HttpProcessingError,
