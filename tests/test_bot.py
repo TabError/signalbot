@@ -341,7 +341,7 @@ class TestPoll(TestCommon):
             answers=answers,
             allow_multiple_selections=False,
         )
-        result = await self.signal_bot.poll(create_poll_request)
+        result = await self.signal_bot.create_poll(create_poll_request)
 
         assert result == timestamp
         poll_mock.assert_called_once_with(create_poll_request)
@@ -363,7 +363,7 @@ class TestPoll(TestCommon):
             answers=answers,
             allow_multiple_selections=False,
         )
-        result = await self.signal_bot.poll(create_poll_request)
+        result = await self.signal_bot.create_poll(create_poll_request)
 
         assert result == timestamp
         poll_mock.assert_called_once_with(create_poll_request)
@@ -386,7 +386,7 @@ class TestPoll(TestCommon):
             answers=answers,
             allow_multiple_selections=allow_multiple,
         )
-        result = await self.signal_bot.poll(create_poll_request)
+        result = await self.signal_bot.create_poll(create_poll_request)
 
         assert result == timestamp
         poll_mock.assert_called_once_with(create_poll_request)

@@ -351,7 +351,7 @@ class SignalBot:
         new_message.edit_timestamp = original_message.timestamp
         return await self.send(new_message)
 
-    async def poll(
+    async def create_poll(
         self,
         create_poll_request: CreatePollRequest,
     ) -> int:
