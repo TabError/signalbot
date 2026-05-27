@@ -407,7 +407,7 @@ class SignalBot:
 
         recipient = self._resolve_recipient(message.source_or_group_uuid())
         receipt_request = Receipt(
-            recipient=recipient, type=receipt_type, timestamp=message.timestamp
+            recipient=recipient, receipt_type=receipt_type, timestamp=message.timestamp
         )
         await self._signal.receipt(receipt_request)
         self._logger.info(f"[Bot] Receipt: {receipt_type}")  # noqa: G004
