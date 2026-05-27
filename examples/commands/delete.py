@@ -1,8 +1,6 @@
 import asyncio
 from datetime import datetime
 
-from anyio import Path
-
 from examples.commands.help import CommandWithHelpMessage
 from signalbot import triggered
 from signalbot.context import ContextDataMessage, ContextRemoteDelete
@@ -31,22 +29,17 @@ class DeleteLocalAttachmentCommand(CommandWithHelpMessage):
             return
 
         for attachment in attachments:
-            attachment_filename = attachment.local_filename
-            if attachment_filename is None:
+            attachment_path = await attachment.local_path()
+
+            if attachment_path is None:
                 continue
 
-            attachment_path: Path = (
-                await Path.home()
-                / ".local/share/signal-api/attachments"
-                / attachment_filename
-            )
-
-            if await attachment_path.exists():
+            if attachment_path.exists():
                 print(f"Received file {attachment_path}")  # noqa: T201
 
             await context.bot.delete_attachment(attachment)
 
-            if not await attachment_path.exists():
+            if not attachment_path.exists():
                 print(f"Deleted file {attachment_path}")  # noqa: T201
 
 
