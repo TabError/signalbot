@@ -12,6 +12,7 @@ from signalbot.api.generated import About, GroupEntry
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
+    from signalbot.api.generated import RemoteDeleteRequest
     from signalbot.api.generated.api import Receipt, TypingIndicatorRequest
     from signalbot.api.requests import (
         SendMessage,
@@ -321,13 +322,10 @@ class SignalAPI:
             raise AboutError from exc
 
     async def remote_delete(
-        self, recipient: str, timestamp: int
+        self, remote_delete_request: RemoteDeleteRequest
     ) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.remote_delete_uri()
-        payload = {
-            "recipient": recipient,
-            "timestamp": timestamp,
-        }
+        payload = remote_delete_request.model_dump(exclude_none=True, by_alias=True)
         try:
             async with aiohttp.ClientSession() as session:
                 resp = await session.delete(uri, json=payload)

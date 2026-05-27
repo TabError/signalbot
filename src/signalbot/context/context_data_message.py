@@ -3,7 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
-from signalbot.api.generated import MessageMention
+from signalbot.api.generated import MessageMention, RemoteDeleteRequest
 from signalbot.context.context import Context
 
 if TYPE_CHECKING:
@@ -58,9 +58,11 @@ class ContextDataMessage(Context):
         """Same as
         [signalbot.SignalBot.remote_delete()](bot.md#signalbot.SignalBot.remote_delete)
         but with the recipient and timestamp set to the message's."""
-        return await self.bot.remote_delete(
-            self.message.source_or_group_uuid(), timestamp=timestamp
+        remote_delete_request = RemoteDeleteRequest(
+            recipient=self.message.source_or_group_uuid(),
+            timestamp=timestamp,
         )
+        return await self.bot.remote_delete(remote_delete_request)
 
     async def receipt(self, receipt_type: ReceiptType) -> None:
         """Same as

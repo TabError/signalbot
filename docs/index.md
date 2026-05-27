@@ -25,7 +25,7 @@ The bot can do a lot more, here is a quick overview of the most common methods:
 - `bot.start_typing(recipient)`: Start typing
 - `bot.stop_typing(recipient)`: Stop typing
 - `bot.send(recipient, text, edit_timestamp=timestamp)`: Edit a previously sent message
-- `bot.remote_delete(recipient, timestamp)`: Delete a previously sent message
+- `bot.remote_delete(remote_delete_request)`: Delete a previously sent message
 - `bot.receipt(message, receipt_type)`: Mark a message as read
 - `bot.update_group(group_id_or_name, update_group_request)`: Change group settings
 - `bot.delete_attachment(attachment_filename)`: Delete the local copy of an attachment

@@ -49,7 +49,7 @@ from signalbot.storage import RedisStorage, SQLiteStorage
 if TYPE_CHECKING:
     from pathlib import Path
 
-    from signalbot.api.generated import About, GroupEntry
+    from signalbot.api.generated import About, GroupEntry, RemoteDeleteRequest
     from signalbot.api.generated.api.receipt_type import ReceiptType
     from signalbot.api.requests import (
         SendMessage,
@@ -463,25 +463,28 @@ class SignalBot:
         )
         await self._signal.update_group(update_group_request)
 
-    async def remote_delete(self, recipient: str, timestamp: int) -> int:
+    async def remote_delete(
+        self,
+        remote_delete_request: RemoteDeleteRequest,
+    ) -> int:
         """Delete a previously sent message.
 
         Args:
-            recipient: Recipient identifier.
-            timestamp: Timestamp of the message to delete.
+            remote_delete_request: Request payload for remote delete.
 
         Returns:
             The timestamp of the delete action.
         """
-        recipient = self._resolve_recipient(recipient)
-
-        resp = await self._signal.remote_delete(
-            recipient,
-            timestamp=timestamp,
+        remote_delete_request.recipient = self._resolve_recipient(
+            remote_delete_request.recipient
         )
+
+        resp = await self._signal.remote_delete(remote_delete_request)
         resp_payload = await resp.json()
         ret_timestamp = int(resp_payload["timestamp"])
-        self._logger.info(f"[Bot] Deleted message with timestamp {timestamp}")  # noqa: G004
+        self._logger.info(
+            f"[Bot] Deleted message with timestamp {remote_delete_request.timestamp}"  # noqa: G004
+        )
 
         return ret_timestamp
 
