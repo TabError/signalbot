@@ -166,11 +166,11 @@ class SignalAPI:
         ) as exc:
             raise StartTypingError from exc
 
-    async def stop_typing(self, recipient: str) -> aiohttp.ClientResponse:
+    async def stop_typing(
+        self, typing_request: TypingIndicatorRequest
+    ) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.typing_indicator_uri()
-        payload = {
-            "recipient": recipient,
-        }
+        payload = typing_request.model_dump(exclude_none=True, by_alias=True)
         try:
             async with aiohttp.ClientSession() as session:
                 resp = await session.delete(uri, json=payload)
