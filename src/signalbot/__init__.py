@@ -22,7 +22,8 @@ from signalbot.command import (
     triggered,
 )
 from signalbot.context import Context
-from signalbot.message import Message, MessageType, Quote, UnknownMessageFormatError
+from signalbot.message import UnknownMessageFormatError
+from signalbot.quote import Quote
 from signalbot.reaction import Reaction
 
 __all__ = [
@@ -34,8 +35,6 @@ __all__ = [
     "ConnectionMode",
     "Context",
     "InMemoryConfig",
-    "Message",
-    "MessageType",
     "Preview",
     "Quote",
     "Reaction",
