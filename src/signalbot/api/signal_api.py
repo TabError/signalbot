@@ -18,8 +18,8 @@ from signalbot.api.generated import (
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
-    from signalbot.api.generated import Attachment as BaseAttachment
     from signalbot.api.generated import (
+        Attachment,
         CreatePollRequest,
         RemoteDeleteRequest,
         SendMessageV2,
@@ -29,7 +29,6 @@ if TYPE_CHECKING:
         SendReactionRequest,
         TypingIndicatorRequest,
     )
-    from signalbot.api.receive_messages import Attachment
     from signalbot.api.requests import (
         UpdateContactRequest,
         UpdateGroupRequest,
@@ -211,7 +210,7 @@ class SignalAPI:
         ) as exc:
             raise GroupsError from exc
 
-    async def download_attachment(self, attachment: BaseAttachment) -> str:
+    async def download_attachment(self, attachment: Attachment) -> str:
         uri = (
             f"{self._signal_api_uris.attachment_rest_uri()}/{attachment.local_filename}"
         )
