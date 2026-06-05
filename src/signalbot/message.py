@@ -374,7 +374,7 @@ class Message:
             return []
 
         return [
-            await signal.get_attachment(attachment["id"])
+            await signal.download_attachment(attachment["id"])
             for attachment in data_message["attachments"]
         ]
 
@@ -438,7 +438,7 @@ class Message:
 
                 base64_thumbnail = None
                 if img_id:
-                    base64_thumbnail = await signal.get_attachment(img_id)
+                    base64_thumbnail = await signal.download_attachment(img_id)
 
                 parsed_previews.append(
                     Preview(

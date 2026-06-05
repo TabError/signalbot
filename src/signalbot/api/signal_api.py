@@ -210,7 +210,7 @@ class SignalAPI:
         ) as exc:
             raise GroupsError from exc
 
-    async def get_attachment(self, attachment_id: str) -> str:
+    async def download_attachment(self, attachment_id: str) -> str:
         uri = f"{self._signal_api_uris.attachment_rest_uri()}/{attachment_id}"
         try:
             async with aiohttp.ClientSession() as session:

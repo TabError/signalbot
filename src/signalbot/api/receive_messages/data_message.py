@@ -48,7 +48,7 @@ class ReceiveDataMessage(BaseMessageWithGroup):
         cls, signal: SignalAPI, attachments: list[Attachment]
     ) -> list[str | None]:
         return [
-            await signal.get_attachment(attachment.local_filename)
+            await signal.download_attachment(attachment.local_filename)
             if attachment.local_filename is not None
             else None
             for attachment in attachments
@@ -59,7 +59,7 @@ class ReceiveDataMessage(BaseMessageWithGroup):
         cls, signal: SignalAPI, link_previews: list[Preview]
     ) -> list[str | None]:
         return [
-            await signal.get_attachment(link_preview.image.local_filename)
+            await signal.download_attachment(link_preview.image.local_filename)
             if link_preview.image is not None
             and link_preview.image.local_filename is not None
             else None
