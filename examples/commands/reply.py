@@ -10,9 +10,4 @@ class ReplyCommand(CommandWithHelpMessage):
 
     @triggered("reply")
     async def handle_data_message(self, context: ContextDataMessage) -> None:
-        await context.reply(
-            SendMessage(
-                recipient=context.message.source_or_group_uuid(),
-                text="This is a reply.",
-            )
-        )
+        await context.reply(SendMessage(text="This is a reply."))
