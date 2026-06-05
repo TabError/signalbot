@@ -326,6 +326,9 @@ class SignalBot:
         Returns:
             A SentMessage instance.
         """
+        if data_message.recipient is None:
+            error_msg = "Recipient must be set in SendMessage"
+            raise ValueError(error_msg)
         data_message.recipient = self._resolve_recipient(data_message.recipient)
         data_message_v2 = data_message.to_send_message_v2()
 
@@ -409,6 +412,9 @@ class SignalBot:
             emoji: Emoji reaction value.
         """
         if isinstance(message, SentMessage):
+            if message.recipient is None:
+                error_msg = "Recipient must be set in SendMessage"
+                raise ValueError(error_msg)
             recipient = message.recipient
             target_author = self.config.phone_number
         else:
