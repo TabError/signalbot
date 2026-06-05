@@ -169,7 +169,7 @@ class ReceiveDataMessage(BaseMessageWithGroup):
             for mention in mentions
         ]
 
-    def to_send_message(self, recipients: list[str]) -> SendMessage:
+    def to_send_message(self, recipient: str) -> SendMessage:
         """Convert the received message to a SendMessage that can be sent using the
             API.
 
@@ -223,7 +223,7 @@ class ReceiveDataMessage(BaseMessageWithGroup):
             else None,
             quote_message=copy.quote.text if copy.quote is not None else None,
             quote_timestamp=copy.quote.id if copy.quote is not None else None,
-            recipients=recipients,
+            recipient=recipient,
             # sticker=copy.sticker, # Not clear how to send stickers yet
             text_mode=text_style,
             view_once=copy.view_once,

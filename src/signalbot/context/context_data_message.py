@@ -26,7 +26,7 @@ class ContextDataMessage(Context):
          [signalbot.SignalBot.send()](bot.md#signalbot.SignalBot.send)
         but with the original_message and recipient set to the message's."""
         new_message = deepcopy(new_message)
-        new_message.recipients = [self.message.source_or_group_uuid()]
+        new_message.recipient = self.message.source_or_group_uuid()
         return await self.bot.edit(new_message, original_message)
 
     async def reply(
@@ -40,7 +40,7 @@ class ContextDataMessage(Context):
             self.message.mentions,
         )
         message = deepcopy(message)
-        message.recipients = [self.message.source_or_group_uuid()]
+        message.recipient = self.message.source_or_group_uuid()
         message.quote_mentions = send_mentions
         message.quote_author = self.message.source
         message.quote_message = self.message.text

@@ -31,7 +31,7 @@ class Context:
         """Same as
          [signalbot.SignalBot.send()](bot.md#signalbot.SignalBot.send)
         but with the recipient set to the message's recipient."""
-        data_message.recipients = [self.message.source_or_group_uuid()]
+        data_message.recipient = self.message.source_or_group_uuid()
         return await self.bot.send(data_message)
 
     async def start_typing(self) -> None:

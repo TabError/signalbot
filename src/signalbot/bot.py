@@ -61,6 +61,7 @@ if TYPE_CHECKING:
     from signalbot.api.receive_messages import Attachment
     from signalbot.api.requests import (
         SendMessage,
+        SendMessageMultiple,
         UpdateContactRequest,
         UpdateGroupRequest,
     )
@@ -325,21 +326,41 @@ class SignalBot:
         Returns:
             A SentMessage instance.
         """
-        if data_message.recipients is None:
-            error_msg = "Message must have at least one recipient"
-            raise ValueError(error_msg)
+        data_message.recipient = self._resolve_recipient(data_message.recipient)
+        data_message_v2 = data_message.to_send_message_v2()
 
-        data_message.recipients = [
-            self._resolve_recipient(recipient) for recipient in data_message.recipients
-        ]
-
-        send_message_response = await self._signal.send(data_message)
+        send_message_response = await self._signal.send(data_message_v2)
         timestamp = int(send_message_response.timestamp)
         self._logger.info(
             f"[Bot] New message {timestamp} sent:\n{data_message.text}"  # noqa: G004
         )
 
         return SentMessage.from_send_message(data_message, timestamp)
+
+    async def send_multiple(
+        self,
+        data_message: SendMessageMultiple,
+    ) -> list[SentMessage]:
+        """Send one message to multiple recipients.
+
+        Args:
+            data_message: The message payload with multiple recipients.
+
+        Returns:
+            A list of SentMessage instances, one per recipient.
+        """
+        data_message.recipients = [
+            self._resolve_recipient(recipient) for recipient in data_message.recipients
+        ]
+
+        send_message_response = await self._signal.send(data_message)
+        timestamp = int(send_message_response.timestamp)
+
+        self._logger.info(
+            f"[Bot] New message {timestamp} sent:\n{data_message.text}"  # noqa: G004
+        )
+
+        return SentMessage.from_send_message_multiple(data_message, timestamp)
 
     async def edit(
         self, new_message: SendMessage, original_message: SentMessage
@@ -387,30 +408,30 @@ class SignalBot:
             message: The message to react to.
             emoji: Emoji reaction value.
         """
-        recipients = []
         if isinstance(message, SentMessage):
-            if len(message.recipients) == 0:
-                error_msg = "Message must have at least one recipient"
-                raise ValueError(error_msg)
-            recipients = message.recipients
+            recipient = message.recipient
             target_author = self.config.phone_number
         else:
-            recipients = [message.source_or_group_uuid()]
+            recipient = message.source_or_group_uuid()
             if message.is_group():
                 target_author = message.source_uuid
                 if target_author is None:
                     error_msg = "Cannot react to group message without source uuid"
                     raise ValueError(error_msg)
+            else:
+                target_author = message.source_uuid or message.source_number
+                if target_author is None:
+                    error_msg = "Message does not contain a source"
+                    raise ValueError(error_msg)
 
-        for recipient in recipients:
-            reaction_request = SendReactionRequest(
-                recipient=recipient,
-                reaction=emoji,
-                target_author=target_author,
-                timestamp=message.timestamp,
-            )
-            await self._signal.react(reaction_request)
-            self._logger.info(f"[Bot] New reaction: {emoji}")  # noqa: G004
+        reaction_request = SendReactionRequest(
+            recipient=recipient,
+            reaction=emoji,
+            target_author=target_author,
+            timestamp=message.timestamp,
+        )
+        await self._signal.react(reaction_request)
+        self._logger.info(f"[Bot] New reaction: {emoji}")  # noqa: G004
 
     async def receipt(
         self,

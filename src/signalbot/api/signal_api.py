@@ -18,7 +18,11 @@ from signalbot.api.generated import (
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
-    from signalbot.api.generated import CreatePollRequest, RemoteDeleteRequest
+    from signalbot.api.generated import (
+        CreatePollRequest,
+        RemoteDeleteRequest,
+        SendMessageV2,
+    )
     from signalbot.api.generated.api import (
         Receipt,
         SendReactionRequest,
@@ -26,7 +30,6 @@ if TYPE_CHECKING:
     )
     from signalbot.api.receive_messages import Attachment
     from signalbot.api.requests import (
-        SendMessage,
         UpdateContactRequest,
         UpdateGroupRequest,
     )
@@ -80,7 +83,7 @@ class SignalAPI:
 
     async def send(
         self,
-        data_message: SendMessage,
+        data_message: SendMessageV2,
     ) -> SendMessageResponse:
         uri = self._signal_api_uris.send_rest_uri()
 
