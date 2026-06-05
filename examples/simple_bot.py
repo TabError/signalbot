@@ -9,12 +9,13 @@ from signalbot import (
     enable_console_logging,
     triggered,
 )
+from signalbot.api.requests import SendMessage
 
 
 class PingCommand(Command):
     @triggered("Ping")
     async def handle_data_message(self, context: Context) -> None:
-        await context.send("Pong")
+        await context.send(SendMessage(text="Pong"))
 
 
 if __name__ == "__main__":

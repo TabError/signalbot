@@ -1,5 +1,6 @@
 from examples.commands.help import CommandWithHelpMessage
 from signalbot import Context, reaction_triggered
+from signalbot.api.requests import SendMessage
 
 
 class ReactionCommand(CommandWithHelpMessage):
@@ -10,11 +11,17 @@ class ReactionCommand(CommandWithHelpMessage):
     async def handle_data_message(self, context: Context) -> None:
         reaction = context.message.reaction
         if reaction.is_remove:
-            await context.send(f"You removed your {reaction.emoji} reaction")
+            await context.send(
+                SendMessage(text=f"You removed your {reaction.emoji} reaction")
+            )
             return
         await context.send(
-            f"{reaction.emoji} from {context.message.source} "
-            f"on message at {reaction.target_sent_timestamp}"
+            SendMessage(
+                text=(
+                    f"{reaction.emoji} from {context.message.source} "
+                    f"on message at {reaction.target_sent_timestamp}"
+                )
+            )
         )
 
 
@@ -24,4 +31,4 @@ class ThumbsUpCommand(CommandWithHelpMessage):
 
     @reaction_triggered("👍", "❤️")
     async def handle_data_message(self, context: Context) -> None:
-        await context.send("Thanks for the love!")
+        await context.send(SendMessage(text="Thanks for the love!"))

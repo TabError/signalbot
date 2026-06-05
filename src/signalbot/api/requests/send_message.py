@@ -22,7 +22,7 @@ class SendMessage(BaseModel):
     quote_mentions: list[MessageMention] | None = None
     quote_message: str | None = None
     quote_timestamp: int | None = None
-    recipient: str
+    recipient: str | None = None
     sticker: str | None = None
     text_mode: TextMode | None = None
     view_once: bool | None = None

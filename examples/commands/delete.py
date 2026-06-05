@@ -3,6 +3,7 @@ from datetime import datetime
 
 from examples.commands.help import CommandWithHelpMessage
 from signalbot import triggered
+from signalbot.api.requests import SendMessage
 from signalbot.context import ContextDataMessage, ContextRemoteDelete
 
 
@@ -12,9 +13,11 @@ class DeleteCommand(CommandWithHelpMessage):
 
     @triggered("delete")
     async def handle_data_message(self, context: ContextDataMessage) -> None:
-        timestamp = await context.send("This message will be deleted in two seconds.")
+        sent_message = await context.send(
+            SendMessage(text="This message will be deleted in two seconds.")
+        )
         await asyncio.sleep(2)
-        await context.remote_delete(timestamp=timestamp)
+        await context.remote_delete(timestamp=sent_message.timestamp)
 
 
 class DeleteLocalAttachmentCommand(CommandWithHelpMessage):
@@ -25,7 +28,7 @@ class DeleteLocalAttachmentCommand(CommandWithHelpMessage):
     async def handle_data_message(self, context: ContextDataMessage) -> None:
         attachments = context.message.attachments
         if attachments is None or len(attachments) == 0:
-            await context.send("Please send an attachment to delete.")
+            await context.send(SendMessage(text="Please send an attachment to delete."))
             return
 
         for attachment in attachments:
@@ -52,4 +55,4 @@ class ReceiveDeleteCommand(CommandWithHelpMessage):
             context.message.timestamp / 1000
         )
         message = f"You've deleted a message, which was sent at {deleted_at}."
-        await context.send(message)
+        await context.send(SendMessage(text=message))

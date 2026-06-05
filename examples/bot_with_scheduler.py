@@ -4,13 +4,14 @@ import os
 import typer
 
 from signalbot import SignalBot, enable_console_logging
+from signalbot.api.requests import SendMessage
 
 
 async def send(bot: SignalBot, recipient: str, text: str) -> None:
     # Wait until the bot is fully initialized before sending a message
     await bot.init_task
 
-    await bot.send(recipient=recipient, text=text)
+    await bot.send(SendMessage(recipient=recipient, text=text))
 
 
 def main(

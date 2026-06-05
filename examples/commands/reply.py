@@ -1,5 +1,7 @@
 from examples.commands.help import CommandWithHelpMessage
-from signalbot import Context, triggered
+from signalbot import triggered
+from signalbot.api.requests import SendMessage
+from signalbot.context import ContextDataMessage
 
 
 class ReplyCommand(CommandWithHelpMessage):
@@ -7,5 +9,10 @@ class ReplyCommand(CommandWithHelpMessage):
         return "reply: 💬 Reply to a message."
 
     @triggered("reply")
-    async def handle_data_message(self, context: Context) -> None:
-        await context.reply("This is a reply.")
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
+        await context.reply(
+            SendMessage(
+                recipient=context.message.source_or_group_uuid(),
+                text="This is a reply.",
+            )
+        )

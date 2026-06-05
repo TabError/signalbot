@@ -4,6 +4,7 @@ from anyio import Path
 
 from examples.commands.help import CommandWithHelpMessage
 from signalbot import Context, triggered
+from signalbot.api.requests import SendMessage
 
 
 class AttachmentCommand(CommandWithHelpMessage):
@@ -17,6 +18,8 @@ class AttachmentCommand(CommandWithHelpMessage):
             image = str(base64.b64encode(await f.read()), encoding="utf-8")
 
         await context.send(
-            "https://www.youtube.com/watch?v=pU2SdH1HBuk",
-            base64_attachments=[image],
+            SendMessage(
+                text="https://www.youtube.com/watch?v=pU2SdH1HBuk",
+                base64_attachments=[image],
+            )
         )

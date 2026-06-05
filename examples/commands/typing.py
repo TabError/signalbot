@@ -2,6 +2,7 @@ import asyncio
 
 from examples.commands.help import CommandWithHelpMessage
 from signalbot import Context, triggered
+from signalbot.api.requests import SendMessage
 
 
 class TypingCommand(CommandWithHelpMessage):
@@ -14,4 +15,4 @@ class TypingCommand(CommandWithHelpMessage):
         seconds = 5
         await asyncio.sleep(seconds)
         await context.stop_typing()
-        await context.send(f"Typed for {seconds}s")
+        await context.send(SendMessage(text=f"Typed for {seconds}s"))
