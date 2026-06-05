@@ -18,6 +18,7 @@ from packaging.version import Version
 
 from signalbot.api import ReceiveMessagesError, SignalAPI
 from signalbot.api.generated.api.receipt import Receipt
+from signalbot.api.generated.api.send_reaction_request import SendReactionRequest
 from signalbot.api.generated.api.typing_indicator_request import TypingIndicatorRequest
 from signalbot.api.receive_messages import (
     EditMessage,
@@ -44,7 +45,7 @@ from signalbot.context import (
     ContextRemoteDelete,
     ContextTypingMessage,
 )
-from signalbot.message import Message, UnknownMessageFormatError, parse
+from signalbot.message import UnknownMessageFormatError, parse
 from signalbot.storage import RedisStorage, SQLiteStorage
 
 if TYPE_CHECKING:
@@ -377,19 +378,39 @@ class SignalBot:
 
         return Poll.from_create_poll_request(create_poll_request, timestamp)
 
-    async def react(self, message: Message, emoji: str) -> None:
+    async def react(
+        self, message: SentMessage | ReceiveDataMessage, emoji: str
+    ) -> None:
         """React to a message with an emoji.
 
         Args:
             message: The message to react to.
             emoji: Emoji reaction value.
         """
-        # TODO: check that emoji is really an emoji  # noqa: TD002, TD003
-        recipient = self._resolve_recipient(message.recipient())
-        target_author = message.source
-        timestamp = message.timestamp
-        await self._signal.react(recipient, emoji, target_author, timestamp)
-        self._logger.info(f"[Bot] New reaction: {emoji}")  # noqa: G004
+        recipients = []
+        if isinstance(message, SentMessage):
+            if len(message.recipients) == 0:
+                error_msg = "Message must have at least one recipient"
+                raise ValueError(error_msg)
+            recipients = message.recipients
+            target_author = self.config.phone_number
+        else:
+            recipients = [message.source_or_group_uuid()]
+            if message.is_group():
+                target_author = message.source_uuid
+                if target_author is None:
+                    error_msg = "Cannot react to group message without source uuid"
+                    raise ValueError(error_msg)
+
+        for recipient in recipients:
+            reaction_request = SendReactionRequest(
+                recipient=recipient,
+                reaction=emoji,
+                target_author=target_author,
+                timestamp=message.timestamp,
+            )
+            await self._signal.react(reaction_request)
+            self._logger.info(f"[Bot] New reaction: {emoji}")  # noqa: G004
 
     async def receipt(
         self,

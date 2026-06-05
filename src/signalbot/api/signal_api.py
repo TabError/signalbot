@@ -19,7 +19,11 @@ if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
     from signalbot.api.generated import CreatePollRequest, RemoteDeleteRequest
-    from signalbot.api.generated.api import Receipt, TypingIndicatorRequest
+    from signalbot.api.generated.api import (
+        Receipt,
+        SendReactionRequest,
+        TypingIndicatorRequest,
+    )
     from signalbot.api.receive_messages import Attachment
     from signalbot.api.requests import (
         SendMessage,
@@ -116,18 +120,10 @@ class SignalAPI:
 
     async def react(
         self,
-        recipient: str,
-        reaction: str,
-        target_author: str,
-        timestamp: int,
+        reaction_request: SendReactionRequest,
     ) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.react_rest_uri()
-        payload = {
-            "recipient": recipient,
-            "reaction": reaction,
-            "target_author": target_author,
-            "timestamp": timestamp,
-        }
+        payload = reaction_request.model_dump(exclude_none=True, by_alias=True)
         try:
             async with aiohttp.ClientSession() as session:
                 resp = await session.post(uri, json=payload)
