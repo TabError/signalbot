@@ -18,6 +18,7 @@ from signalbot.api.generated import (
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
+    from signalbot.api.generated import Attachment as BaseAttachment
     from signalbot.api.generated import (
         CreatePollRequest,
         RemoteDeleteRequest,
@@ -210,8 +211,10 @@ class SignalAPI:
         ) as exc:
             raise GroupsError from exc
 
-    async def download_attachment(self, attachment_id: str) -> str:
-        uri = f"{self._signal_api_uris.attachment_rest_uri()}/{attachment_id}"
+    async def download_attachment(self, attachment: BaseAttachment) -> str:
+        uri = (
+            f"{self._signal_api_uris.attachment_rest_uri()}/{attachment.local_filename}"
+        )
         try:
             async with aiohttp.ClientSession() as session:
                 resp = await session.get(uri)
