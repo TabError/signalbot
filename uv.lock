@@ -1918,6 +1918,7 @@ version = "1.2.3.dev1"
 source = { editable = "." }
 dependencies = [
     { name = "aiohttp" },
+    { name = "anyio" },
     { name = "apscheduler" },
     { name = "packaging" },
     { name = "phonenumbers" },
@@ -1956,6 +1957,7 @@ examples = [
 [package.metadata]
 requires-dist = [
     { name = "aiohttp", specifier = ">=3.11.9" },
+    { name = "anyio", specifier = ">=4.13.0" },
     { name = "apscheduler", specifier = ">=3.11.0" },
     { name = "packaging", specifier = ">=25.0" },
     { name = "phonenumbers", specifier = ">=8.13.54" },
@@ -1968,7 +1970,7 @@ provides-extras = ["redis"]
 
 [package.metadata.requires-dev]
 dev = [
-    { name = "datamodel-code-generator", specifier = ">=0.58" },
+    { name = "datamodel-code-generator", specifier = ">=0.58.0" },
     { name = "prek", specifier = ">=0.3.0" },
     { name = "pytest", specifier = ">=8.4.2" },
     { name = "pytest-asyncio", specifier = ">=1.2.0" },
