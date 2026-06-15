@@ -20,6 +20,7 @@ if TYPE_CHECKING:
         ContextDataMessage,
         ContextEditMessage,
         ContextGroupUpdateMessage,
+        ContextReaction,
         ContextRemoteDelete,
         ContextTypingMessage,
     )
@@ -187,6 +188,14 @@ class Command:
 
     async def handle_typing_message(self, context: ContextTypingMessage) -> None:
         """Method to handle a typing message.
+        This method must be implemented by subclasses to define the behavior of the
+            command.
+        Args:
+            context: Chat context containing the received message and other information.
+        """
+
+    async def handle_reaction(self, context: ContextReaction) -> None:
+        """Method to handle a reaction.
         This method must be implemented by subclasses to define the behavior of the
             command.
         Args:

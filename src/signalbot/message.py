@@ -6,6 +6,7 @@ from typing import TYPE_CHECKING
 from signalbot.api.receive_messages import (
     EditMessage,
     GroupUpdateMessage,
+    Reaction,
     ReceiveDataMessage,
     ReceivedMessage,
     ReceivedMessageType,
@@ -30,6 +31,9 @@ async def _parse_sync_messages(
             if sync_message.sent_message.edit_message is not None:
                 return await EditMessage.from_message_envelope(message_envelope, signal)
 
+            if message_envelope.sync_message.sent_message.reaction is not None:
+                return await Reaction.from_message_envelope(message_envelope)
+
             return await ReceiveDataMessage.from_message_envelope(
                 message_envelope, signal
             )
@@ -49,6 +53,8 @@ async def _parse_main_messages(
     if message_envelope.data_message is not None:
         if GroupUpdateMessage.message_envelope_is_group_update(message_envelope):
             return GroupUpdateMessage.from_message_envelope(message_envelope)
+        if message_envelope.data_message.reaction is not None:
+            return await Reaction.from_message_envelope(message_envelope)
         return await ReceiveDataMessage.from_message_envelope(message_envelope, signal)
 
     if message_envelope.edit_message is not None:

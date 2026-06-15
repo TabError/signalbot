@@ -23,6 +23,7 @@ from signalbot.api.generated.api.typing_indicator_request import TypingIndicator
 from signalbot.api.receive_messages import (
     EditMessage,
     GroupUpdateMessage,
+    Reaction,
     ReceiveDataMessage,
     ReceivedMessageType,
     RemoteDelete,
@@ -42,6 +43,7 @@ from signalbot.context import (
     ContextDataMessage,
     ContextEditMessage,
     ContextGroupUpdateMessage,
+    ContextReaction,
     ContextRemoteDelete,
     ContextTypingMessage,
 )
@@ -825,6 +827,8 @@ class SignalBot:
                 await command.handle_remote_delete(ContextRemoteDelete(self, message))
             elif isinstance(message, TypingMessage):
                 await command.handle_typing_message(ContextTypingMessage(self, message))
+            elif isinstance(message, Reaction):
+                await command.handle_reaction(ContextReaction(self, message))
             else:
                 error_msg = f"[Bot] Unknown message type: {type(message)}, "
                 error_msg += "skipping command execution"
