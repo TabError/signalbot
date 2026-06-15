@@ -10,7 +10,6 @@ from signalbot.api.generated import (
     Mention,
     MessageMention,
     Quote,
-    Reaction,
     Sticker,
     TextMode,
     TextStyle,
@@ -37,7 +36,6 @@ class ReceiveDataMessage(BaseMessageWithGroup):
     previews: list[Preview] | None = None
     base64_previews: list[str] | None = None
     quote: Quote | None = None
-    reaction: Reaction | None = None
     sticker: Sticker | None = None
     text_styles: list[TextStyle] | None = None
     timestamp: int
@@ -109,7 +107,6 @@ class ReceiveDataMessage(BaseMessageWithGroup):
             text=data_message.text,
             previews=link_previews,
             quote=data_message.quote,
-            reaction=data_message.reaction,
             sticker=data_message.sticker,
             text_styles=data_message.text_styles,
             view_once=data_message.view_once,
