@@ -21,8 +21,7 @@ nav:
       - Context: reference/context.md
       - LinkPreview: reference/linkpreview.md
       - Command: reference/command.md
-      - Quote: reference/quote.md
-      - Reaction: reference/reaction.md
+      - Logger: reference/logger.md
   - Troubleshooting: troubleshooting.md
   - Contributing: local_development.md
 
