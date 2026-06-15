@@ -3,7 +3,7 @@ import base64
 from anyio import Path
 
 from examples.commands.help import CommandWithHelpMessage
-from signalbot import Context, triggered
+from signalbot import ContextDataMessage, triggered
 from signalbot.api.requests import SendMessage
 
 
@@ -12,7 +12,7 @@ class AttachmentCommand(CommandWithHelpMessage):
         return "friday: 🦀 Send and delete an image."
 
     @triggered("friday")
-    async def handle_data_message(self, context: Context) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         image_path = Path(__file__).parent / "image.jpeg"
         async with await image_path.open(mode="rb") as f:
             image = str(base64.b64encode(await f.read()), encoding="utf-8")

@@ -19,6 +19,13 @@ class DeleteCommand(CommandWithHelpMessage):
         await asyncio.sleep(2)
         await context.remote_delete(timestamp=sent_message.timestamp)
 
+    async def handle_remote_delete(self, context: ContextRemoteDelete) -> None:
+        deleted_at = datetime.fromtimestamp(  # noqa: DTZ006
+            context.message.timestamp / 1000
+        )
+        message = f"You've deleted a message, which was sent at {deleted_at}."
+        await context.send(SendMessage(text=message))
+
 
 class DeleteLocalAttachmentCommand(CommandWithHelpMessage):
     def help_message(self) -> str:
@@ -44,15 +51,3 @@ class DeleteLocalAttachmentCommand(CommandWithHelpMessage):
 
             if not attachment_path.exists():
                 print(f"Deleted file {attachment_path}")  # noqa: T201
-
-
-class ReceiveDeleteCommand(CommandWithHelpMessage):
-    def help_message(self) -> str:
-        return "N/A: 🗑️ Receive a message has been deleted notification."
-
-    async def handle_remote_delete(self, context: ContextRemoteDelete) -> None:
-        deleted_at = datetime.fromtimestamp(  # noqa: DTZ006
-            context.message.timestamp / 1000
-        )
-        message = f"You've deleted a message, which was sent at {deleted_at}."
-        await context.send(SendMessage(text=message))

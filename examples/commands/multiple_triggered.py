@@ -1,5 +1,5 @@
 from examples.commands.help import CommandWithHelpMessage
-from signalbot import Context, triggered
+from signalbot import ContextDataMessage, triggered
 from signalbot.api.requests import SendMessage
 
 
@@ -9,5 +9,5 @@ class TriggeredCommand(CommandWithHelpMessage):
 
     # add case_sensitive=True for case sensitive triggers
     @triggered("command_1", "Command_2", "CoMmAnD_3")
-    async def handle_data_message(self, context: Context) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         await context.send(SendMessage(text="I am triggered"))

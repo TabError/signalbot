@@ -6,6 +6,7 @@ from signalbot.api import (
     SendMessageError,
     SignalAPI,
 )
+from signalbot.api.generated.api import TextMode
 from signalbot.api.receive_messages.link_previews import Preview
 from signalbot.bot import (
     MIN_SIGNAL_CLI_REST_API_VERSION,
@@ -26,7 +27,14 @@ from signalbot.command import (
     regex_triggered,
     triggered,
 )
-from signalbot.context import Context
+from signalbot.context import (
+    ContextDataMessage,
+    ContextEditMessage,
+    ContextGroupUpdateMessage,
+    ContextReaction,
+    ContextRemoteDelete,
+    ContextTypingMessage,
+)
 from signalbot.logger import (
     LOGGER_NAME,
     enable_console_logging,
@@ -42,7 +50,12 @@ __all__ = [
     "CommandError",
     "Config",
     "ConnectionMode",
-    "Context",
+    "ContextDataMessage",
+    "ContextEditMessage",
+    "ContextGroupUpdateMessage",
+    "ContextReaction",
+    "ContextRemoteDelete",
+    "ContextTypingMessage",
     "InMemoryConfig",
     "Preview",
     "ReceiveMessagesError",
@@ -51,6 +64,7 @@ __all__ = [
     "SendMessageError",
     "SignalAPI",
     "SignalBot",
+    "TextMode",
     "UnknownMessageFormatError",
     "enable_console_logging",
     "reaction_triggered",

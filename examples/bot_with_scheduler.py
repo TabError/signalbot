@@ -8,6 +8,10 @@ from signalbot.api.requests import SendMessage
 
 
 async def send(bot: SignalBot, recipient: str, text: str) -> None:
+    if bot.init_task is None:
+        error_msg = "Bot is not initialized yet"
+        raise RuntimeError(error_msg)
+
     # Wait until the bot is fully initialized before sending a message
     await bot.init_task
 

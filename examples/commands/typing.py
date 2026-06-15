@@ -1,7 +1,7 @@
 import asyncio
 
 from examples.commands.help import CommandWithHelpMessage
-from signalbot import Context, triggered
+from signalbot import ContextDataMessage, triggered
 from signalbot.api.requests import SendMessage
 
 
@@ -10,7 +10,7 @@ class TypingCommand(CommandWithHelpMessage):
         return "typing: ⌨️ Demonstrates typing indicator for a few seconds."
 
     @triggered("typing")
-    async def handle_data_message(self, context: Context) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         await context.start_typing()
         seconds = 5
         await asyncio.sleep(seconds)
