@@ -15,7 +15,7 @@ if TYPE_CHECKING:
 
 import logging
 
-from signalbot.bot import LOGGER_NAME
+from signalbot.logger import LOGGER_NAME
 
 
 class ContextDataMessage(Context):

@@ -45,6 +45,7 @@ from signalbot.context import (
     ContextRemoteDelete,
     ContextTypingMessage,
 )
+from signalbot.logger import LOGGER_NAME
 from signalbot.message import UnknownMessageFormatError, parse
 from signalbot.storage import RedisStorage, SQLiteStorage
 
@@ -76,33 +77,10 @@ CommandList: TypeAlias = list[
 ]
 
 
-LOGGER_NAME = "signalbot"
-"""
-The logger name used by signalbot.
-"""
-
 MIN_SIGNAL_CLI_REST_API_VERSION = Version("0.95.0")
 """
 The minimum required version of `signal-cli-rest-api` for this version of `signalbot`.
 """
-
-
-def enable_console_logging(level: int = logging.WARNING) -> None:
-    """Enable console logging for the signalbot logger.
-
-    Args:
-        level: Logging level for the logger.
-    """
-    handler = logging.StreamHandler()
-
-    formatter = logging.Formatter(
-        "%(asctime)s %(name)s [%(levelname)s] - %(funcName)s - %(message)s"
-    )
-    handler.setFormatter(formatter)
-
-    logger = logging.getLogger(LOGGER_NAME)
-    logger.addHandler(handler)
-    logger.setLevel(level)
 
 
 class SignalBot:

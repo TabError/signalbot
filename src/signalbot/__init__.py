@@ -8,10 +8,8 @@ from signalbot.api import (
 )
 from signalbot.api.receive_messages.link_previews import Preview
 from signalbot.bot import (
-    LOGGER_NAME,
     MIN_SIGNAL_CLI_REST_API_VERSION,
     SignalBot,
-    enable_console_logging,
 )
 from signalbot.bot_config import Config, InMemoryConfig, RedisConfig, SQLiteConfig
 from signalbot.command import (
@@ -22,6 +20,10 @@ from signalbot.command import (
     triggered,
 )
 from signalbot.context import Context
+from signalbot.logger import (
+    LOGGER_NAME,
+    enable_console_logging,
+)
 from signalbot.message import UnknownMessageFormatError
 
 __all__ = [
