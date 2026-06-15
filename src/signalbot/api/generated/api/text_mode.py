@@ -7,5 +7,5 @@ from enum import Enum
 
 
 class TextMode(Enum):
-    normal = "normal"
-    styled = "styled"
+    NORMAL = "normal"
+    STYLED = "styled"

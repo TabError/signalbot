@@ -7,15 +7,15 @@ from enum import Enum
 
 
 class Type(Enum):
-    success = "SUCCESS"
-    network_failure = "NETWORK_FAILURE"
-    unregistered_failure = "UNREGISTERED_FAILURE"
-    identity_failure = "IDENTITY_FAILURE"
-    rate_limit_failure = "RATE_LIMIT_FAILURE"
-    invalid_pre_key_failure = "INVALID_PRE_KEY_FAILURE"
+    SUCCESS = "SUCCESS"
+    NETWORK_FAILURE = "NETWORK_FAILURE"
+    UNREGISTERED_FAILURE = "UNREGISTERED_FAILURE"
+    IDENTITY_FAILURE = "IDENTITY_FAILURE"
+    RATE_LIMIT_FAILURE = "RATE_LIMIT_FAILURE"
+    INVALID_PRE_KEY_FAILURE = "INVALID_PRE_KEY_FAILURE"
 
 
 class TypeModel(Enum):
-    contacts_sync = "CONTACTS_SYNC"
-    groups_sync = "GROUPS_SYNC"
-    request_sync = "REQUEST_SYNC"
+    CONTACTS_SYNC = "CONTACTS_SYNC"
+    GROUPS_SYNC = "GROUPS_SYNC"
+    REQUEST_SYNC = "REQUEST_SYNC"

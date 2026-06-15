@@ -7,5 +7,5 @@ from enum import Enum
 
 
 class AddMembers(Enum):
-    only_admins = "only-admins"
-    every_member = "every-member"
+    ONLY_ADMINS = "only-admins"
+    EVERY_MEMBER = "every-member"

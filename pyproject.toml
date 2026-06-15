@@ -114,6 +114,7 @@ snake-case-field = true
 disable-timestamp = true
 use-exact-imports = true
 use-default-kwarg = true
+capitalise-enum-members = true
 module-split-mode = "single"
 no-use-type-checking-imports = true
 all-exports-scope = "recursive"

@@ -7,5 +7,5 @@ from enum import Enum
 
 
 class ReceiptType(Enum):
-    read = "read"
-    viewed = "viewed"
+    READ = "read"
+    VIEWED = "viewed"

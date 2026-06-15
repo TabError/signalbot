@@ -7,6 +7,6 @@ from enum import Enum
 
 
 class GroupLink(Enum):
-    disabled = "disabled"
-    enabled = "enabled"
-    enabled_with_approval = "enabled-with-approval"
+    DISABLED = "disabled"
+    ENABLED = "enabled"
+    ENABLED_WITH_APPROVAL = "enabled-with-approval"

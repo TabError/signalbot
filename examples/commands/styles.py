@@ -10,17 +10,17 @@ class StylesCommand(CommandWithHelpMessage):
     @triggered("styles")
     async def handle_data_message(self, context: ContextDataMessage) -> None:
         await context.send(
-            SendMessage(text="**Bold style**", text_mode=TextMode.styled)
+            SendMessage(text="**Bold style**", text_mode=TextMode.STYLED)
         )
         await context.send(
-            SendMessage(text="*Italic style*", text_mode=TextMode.styled)
+            SendMessage(text="*Italic style*", text_mode=TextMode.STYLED)
         )
         await context.send(
-            SendMessage(text="~Strikethrough style~", text_mode=TextMode.styled)
+            SendMessage(text="~Strikethrough style~", text_mode=TextMode.STYLED)
         )
         await context.send(
-            SendMessage(text="||Spoiler style||", text_mode=TextMode.styled)
+            SendMessage(text="||Spoiler style||", text_mode=TextMode.STYLED)
         )
         await context.send(
-            SendMessage(text="`Monospaced style`", text_mode=TextMode.styled)
+            SendMessage(text="`Monospaced style`", text_mode=TextMode.STYLED)
         )
