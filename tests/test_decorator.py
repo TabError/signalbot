@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import pytest
 from pytest_mock import MockerFixture
 
-from signalbot import Command, Context, triggered
+from signalbot import Command, Context, text_triggered
 from signalbot.command import reaction_triggered, regex_triggered
 from signalbot.utils import (
     ChatTestCase,
@@ -14,13 +14,13 @@ from signalbot.utils import (
 
 
 class TriggeredCommand(Command):
-    @triggered("Trump", "Biden")
+    @text_triggered("Trump", "Biden")
     async def handle_data_message(self, context: Context):
         await context.send("I am triggered")
 
 
 class TriggeredCaseSensitiveCommand(Command):
-    @triggered("Trump", "Biden", case_sensitive=True)
+    @text_triggered("Trump", "Biden", case_sensitive=True)
     async def handle_data_message(self, context: Context):
         await context.send("I am triggered")
 

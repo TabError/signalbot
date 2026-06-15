@@ -4,8 +4,10 @@ import functools
 import re
 from typing import TYPE_CHECKING, ParamSpec, TypeVar
 
-from signalbot.api.receive_messages import (
-    ReceiveDataMessage,
+from signalbot.context import (
+    ContextDataMessage,
+    ContextEditMessage,
+    ContextReaction,
 )
 
 T = TypeVar("T")
@@ -16,11 +18,7 @@ if TYPE_CHECKING:
 
     from signalbot.bot import SignalBot
     from signalbot.context import (
-        Context,
-        ContextDataMessage,
-        ContextEditMessage,
         ContextGroupUpdateMessage,
-        ContextReaction,
         ContextRemoteDelete,
         ContextTypingMessage,
     )
@@ -42,9 +40,12 @@ def regex_triggered(
         async def wrapper_regex_triggered(
             *args: P.args, **kwargs: P.kwargs
         ) -> T | None:
-            context: Context = args[1]
-            if not isinstance(context.message, ReceiveDataMessage):
-                return None
+            context = args[1]
+            if not isinstance(context, (ContextDataMessage, ContextEditMessage)):
+                error_msg = "regex_triggered decorator can only be used with "
+                error_msg += "handle_data_message and handle_edit_message."
+                raise TypeError(error_msg)
+
             text = context.message.text
             if text is None:
                 return None
@@ -58,7 +59,7 @@ def regex_triggered(
     return decorator_regex_triggered
 
 
-def triggered(
+def text_triggered(
     *by: str, case_sensitive: bool = False
 ) -> Callable[[Callable[P, T]], Callable[P, T]]:
     """Decorator to trigger a command if the message text matches any of the provided
@@ -72,9 +73,11 @@ def triggered(
     def decorator_triggered(func: Callable[P, T]) -> Callable[P, T]:
         @functools.wraps(func)
         async def wrapper_triggered(*args: P.args, **kwargs: P.kwargs) -> T | None:
-            context: Context = args[1]
-            if not isinstance(context.message, ReceiveDataMessage):
-                return None
+            context = args[1]
+            if not isinstance(context, (ContextDataMessage, ContextEditMessage)):
+                error_msg = "regex_triggered decorator can only be used with "
+                error_msg += "handle_data_message and handle_edit_message."
+                raise TypeError(error_msg)
 
             text = context.message.text
             if text is None:
@@ -108,10 +111,13 @@ def reaction_triggered(
         async def wrapper_reaction_triggered(
             *args: P.args, **kwargs: P.kwargs
         ) -> T | None:
-            context: Context = args[1]
-            if context.message.reaction is None:
-                return None
-            if by and context.message.reaction.emoji not in by:
+            context = args[1]
+            if not isinstance(context, ContextReaction):
+                error_msg = "regex_triggered decorator can only be used with "
+                error_msg += "handle_reaction."
+                raise TypeError(error_msg)
+
+            if by and context.message.emoji not in by:
                 return None
             return await func(*args, **kwargs)
 

@@ -7,13 +7,13 @@ from signalbot import (
     Context,
     SignalBot,
     enable_console_logging,
-    triggered,
+    text_triggered,
 )
 from signalbot.api.requests import SendMessage
 
 
 class PingCommand(Command):
-    @triggered("Ping")
+    @text_triggered("Ping")
     async def handle_data_message(self, context: Context) -> None:
         await context.send(SendMessage(text="Pong"))
 

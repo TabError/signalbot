@@ -25,7 +25,7 @@ from signalbot.command import (
     CommandError,
     reaction_triggered,
     regex_triggered,
-    triggered,
+    text_triggered,
 )
 from signalbot.context import (
     ContextDataMessage,
@@ -69,7 +69,7 @@ __all__ = [
     "enable_console_logging",
     "reaction_triggered",
     "regex_triggered",
-    "triggered",
+    "text_triggered",
 ]
 
 try:

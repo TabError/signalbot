@@ -1,6 +1,6 @@
 from abc import abstractmethod
 
-from signalbot import Command, ContextDataMessage, triggered
+from signalbot import Command, ContextDataMessage, text_triggered
 from signalbot.api.requests import SendMessage
 
 
@@ -14,7 +14,7 @@ class HelpCommand(CommandWithHelpMessage):
     def help_message(self) -> str:
         return "help: 🆘 Shows information about available commands."
 
-    @triggered("help")
+    @text_triggered("help")
     async def handle_data_message(self, context: ContextDataMessage) -> None:
         help_message = "Available commands:\n"
         for command, _, _, _ in self.bot.commands:
