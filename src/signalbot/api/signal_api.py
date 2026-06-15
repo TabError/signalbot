@@ -95,12 +95,12 @@ class SignalAPI:
         uri = self._signal_api_uris.send_rest_uri()
 
         data_message.number = self.phone_number
-        payload = data_message.model_dump(exclude_none=True, by_alias=True)
+        payload = data_message.model_dump_json(exclude_none=True, by_alias=True)
         headers = self._add_auth()
 
         try:
             async with aiohttp.ClientSession(headers=headers) as session:
-                resp = await session.post(uri, json=payload)
+                resp = await session.post(uri, data=payload)
                 resp.raise_for_status()
                 return SendMessageResponse.model_validate(await resp.json())
         except (
@@ -115,12 +115,12 @@ class SignalAPI:
         create_poll_request: CreatePollRequest,
     ) -> CreatePollResponse:
         uri = self._signal_api_uris.poll_rest_uri()
-        payload = create_poll_request.model_dump(exclude_none=True, by_alias=True)
+        payload = create_poll_request.model_dump_json(exclude_none=True, by_alias=True)
         headers = self._add_auth()
 
         try:
             async with aiohttp.ClientSession(headers=headers) as session:
-                resp = await session.post(uri, json=payload)
+                resp = await session.post(uri, data=payload)
                 resp.raise_for_status()
                 return CreatePollResponse.model_validate(await resp.json())
         except (
@@ -135,11 +135,11 @@ class SignalAPI:
         reaction_request: SendReactionRequest,
     ) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.react_rest_uri()
-        payload = reaction_request.model_dump(exclude_none=True, by_alias=True)
+        payload = reaction_request.model_dump_json(exclude_none=True, by_alias=True)
         headers = self._add_auth()
         try:
             async with aiohttp.ClientSession(headers=headers) as session:
-                resp = await session.post(uri, json=payload)
+                resp = await session.post(uri, data=payload)
                 resp.raise_for_status()
                 return resp
         except (
@@ -150,11 +150,11 @@ class SignalAPI:
 
     async def receipt(self, receipt_request: Receipt) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.receipts_rest_uri()
-        payload = receipt_request.model_dump(exclude_none=True, by_alias=True)
+        payload = receipt_request.model_dump_json(exclude_none=True, by_alias=True)
         headers = self._add_auth()
         try:
             async with aiohttp.ClientSession(headers=headers) as session:
-                resp = await session.post(uri, json=payload)
+                resp = await session.post(uri, data=payload)
                 resp.raise_for_status()
                 return resp
         except (
@@ -167,11 +167,11 @@ class SignalAPI:
         self, typing_request: TypingIndicatorRequest
     ) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.typing_indicator_uri()
-        payload = typing_request.model_dump(exclude_none=True, by_alias=True)
+        payload = typing_request.model_dump_json(exclude_none=True, by_alias=True)
         headers = self._add_auth()
         try:
             async with aiohttp.ClientSession(headers=headers) as session:
-                resp = await session.put(uri, json=payload)
+                resp = await session.put(uri, data=payload)
                 resp.raise_for_status()
                 return resp
         except (
@@ -184,11 +184,11 @@ class SignalAPI:
         self, typing_request: TypingIndicatorRequest
     ) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.typing_indicator_uri()
-        payload = typing_request.model_dump(exclude_none=True, by_alias=True)
+        payload = typing_request.model_dump_json(exclude_none=True, by_alias=True)
         headers = self._add_auth()
         try:
             async with aiohttp.ClientSession(headers=headers) as session:
-                resp = await session.delete(uri, json=payload)
+                resp = await session.delete(uri, data=payload)
                 resp.raise_for_status()
                 return resp
         except (
@@ -273,12 +273,14 @@ class SignalAPI:
         update_contact_request: UpdateContactRequest,
     ) -> None:
         uri = self._signal_api_uris.contacts_uri()
-        payload = update_contact_request.model_dump(exclude_none=True, by_alias=True)
+        payload = update_contact_request.model_dump_json(
+            exclude_none=True, by_alias=True
+        )
         headers = self._add_auth()
 
         try:
             async with aiohttp.ClientSession(headers=headers) as session:
-                resp = await session.put(uri, json=payload)
+                resp = await session.put(uri, data=payload)
                 resp.raise_for_status()
                 return resp
         except (
@@ -289,12 +291,12 @@ class SignalAPI:
 
     async def update_group(self, update_group_request: UpdateGroupRequest) -> None:
         uri = self._signal_api_uris.group_id_uri(update_group_request.group_id_or_name)
-        payload = update_group_request.model_dump(exclude_none=True, by_alias=True)
+        payload = update_group_request.model_dump_json(exclude_none=True, by_alias=True)
         headers = self._add_auth()
 
         try:
             async with aiohttp.ClientSession(headers=headers) as session:
-                resp = await session.put(uri, json=payload)
+                resp = await session.put(uri, data=payload)
                 resp.raise_for_status()
                 return resp
         except (
@@ -355,11 +357,13 @@ class SignalAPI:
         self, remote_delete_request: RemoteDeleteRequest
     ) -> RemoteDeleteResponse:
         uri = self._signal_api_uris.remote_delete_uri()
-        payload = remote_delete_request.model_dump(exclude_none=True, by_alias=True)
+        payload = remote_delete_request.model_dump_json(
+            exclude_none=True, by_alias=True
+        )
         headers = self._add_auth()
         try:
             async with aiohttp.ClientSession(headers=headers) as session:
-                resp = await session.delete(uri, json=payload)
+                resp = await session.delete(uri, data=payload)
                 resp.raise_for_status()
                 return RemoteDeleteResponse.model_validate(await resp.json())
         except (
