@@ -23,8 +23,6 @@ from signalbot.command import (
 )
 from signalbot.context import Context
 from signalbot.message import UnknownMessageFormatError
-from signalbot.quote import Quote
-from signalbot.reaction import Reaction
 
 __all__ = [
     "LOGGER_NAME",
@@ -36,8 +34,6 @@ __all__ = [
     "Context",
     "InMemoryConfig",
     "Preview",
-    "Quote",
-    "Reaction",
     "ReceiveMessagesError",
     "RedisConfig",
     "SQLiteConfig",
