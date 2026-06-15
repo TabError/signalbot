@@ -13,11 +13,16 @@ if TYPE_CHECKING:
     from signalbot.api.requests import SendMessage, SentMessage
     from signalbot.bot import SignalBot
 
+import logging
+
+from signalbot.bot import LOGGER_NAME
+
 
 class ContextDataMessage(Context):
     def __init__(self, bot: SignalBot, message: ReceiveDataMessage) -> None:
         self.bot = bot
         self.message = message
+        self._logger = logging.getLogger(LOGGER_NAME)
 
     async def edit(
         self, new_message: SendMessage, original_message: SentMessage
@@ -77,11 +82,24 @@ class ContextDataMessage(Context):
         if mentions is None:
             return None
 
-        return [
-            MessageMention(
-                author=mention.uuid,
-                length=mention.length,
-                start=mention.start,
+        send_mentions = []
+
+        for mention in mentions:
+            if mention.uuid is None:
+                self._logger.warning(
+                    "Received a mention with no uuid, skipping it.",
+                )
+                continue
+
+            send_mentions.append(
+                MessageMention(
+                    author=mention.uuid,
+                    length=mention.length,
+                    start=mention.start,
+                )
             )
-            for mention in mentions
-        ]
+
+        if len(send_mentions) == 0:
+            return None
+
+        return send_mentions
