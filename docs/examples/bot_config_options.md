@@ -60,8 +60,8 @@ Create a JSON configuration file:
 
 ```json title="config.json"
 {
-    "signal_service": "http://localhost:8080",
-    "phone_number": "+1234567890",
+	"signal_service": "http://localhost:8080",
+	"phone_number": "+1234567890"
 }
 ```
 
@@ -88,7 +88,7 @@ Useful for development and testing.
 signal_service: "http://localhost:8080"
 phone_number: "+1234567890"
 storage:
-    type: "in-memory"
+  type: "in-memory"
 ```
 
 ### SQLite
@@ -100,8 +100,8 @@ Have a look at the [SQLiteStorage](https://github.com/signalbot-org/signalbot/bl
 signal_service: "http://localhost:8080"
 phone_number: "+1234567890"
 storage:
-    type: "sqlite"
-    sqlite_db: "./data/bot.db"
+  type: "sqlite"
+  sqlite_db: "./data/bot.db"
 ```
 
 ### Redis
@@ -113,7 +113,43 @@ Have a look at the [RedisStorage](https://github.com/signalbot-org/signalbot/blo
 signal_service: "http://localhost:8080"
 phone_number: "+1234567890"
 storage:
-    type: "redis"
-    redis_host: "localhost"
-    redis_port: 6379
+  type: "redis"
+  redis_host: "localhost"
+  redis_port: 6379
+```
+
+## Authentication
+
+Enables usage of an auth-enabled `signal-cli-rest-api` instance (behind a proxy).
+
+### User and password
+Username and password based authentication using the [BasicAuth][signalbot.BasicAuth] class.
+
+```python
+from signalbot import BasicAuth, Config, ConnectionMode, SignalBot
+
+config = Config(
+    signal_service="http://localhost:8080",
+    phone_number="+1234567890",
+    auth=BasicAuth(username="user", password="password"),
+)
+
+bot = SignalBot(config)
+bot.start()
+```
+
+### Token
+Token based authentication using the [BearerAuth][signalbot.BearerAuth] class.
+
+```python
+from signalbot import BearerAuth, Config, ConnectionMode, SignalBot
+
+config = Config(
+    signal_service="http://localhost:8080",
+    phone_number="+1234567890",
+    auth=BearerAuth(token="token")
+)
+
+bot = SignalBot(config)
+bot.start()
 ```

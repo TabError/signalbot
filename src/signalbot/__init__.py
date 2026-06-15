@@ -11,7 +11,14 @@ from signalbot.bot import (
     MIN_SIGNAL_CLI_REST_API_VERSION,
     SignalBot,
 )
-from signalbot.bot_config import Config, InMemoryConfig, RedisConfig, SQLiteConfig
+from signalbot.bot_config import (
+    BasicAuth,
+    BearerAuth,
+    Config,
+    InMemoryConfig,
+    RedisConfig,
+    SQLiteConfig,
+)
 from signalbot.command import (
     Command,
     CommandError,
@@ -29,6 +36,8 @@ from signalbot.message import UnknownMessageFormatError
 __all__ = [
     "LOGGER_NAME",
     "MIN_SIGNAL_CLI_REST_API_VERSION",
+    "BasicAuth",
+    "BearerAuth",
     "Command",
     "CommandError",
     "Config",

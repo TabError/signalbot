@@ -31,7 +31,10 @@ from signalbot.api.receive_messages import (
 )
 from signalbot.api.requests import SentMessage
 from signalbot.api.requests.poll import Poll
+from signalbot.auth import BasicAuthentication, BearerAuthentication
 from signalbot.bot_config import (
+    BasicAuth,
+    BearerAuth,
     Config,
     InMemoryConfig,
     RedisConfig,
@@ -120,6 +123,19 @@ class SignalBot:
 
         self.config = load_config(config)
 
+        if isinstance(self.config.auth, BasicAuth):
+            auth = BasicAuthentication(
+                self.config.auth.username, self.config.auth.password
+            )
+        elif isinstance(self.config.auth, BearerAuth):
+            auth = BearerAuthentication(self.config.auth.token)
+        else:
+            if self.config.auth is not None:
+                error_msg = f"Unsupported auth type '{self.config.auth}', "
+                error_msg += "no authentication will be used."
+                self._logger.warning(error_msg)
+            auth = None
+
         self._commands_to_be_registered: CommandList = []  # populated by .register()
         self.commands: CommandList = []  # populated by .start()
 
@@ -134,6 +150,7 @@ class SignalBot:
             self._signal = SignalAPI(
                 self.config.signal_service,
                 self.config.phone_number,
+                auth,
                 self.config.download_attachments,
                 self.config.connection_mode,
             )

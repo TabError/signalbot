@@ -15,7 +15,7 @@ class RedisConfig(BaseModel):
     The configuration for the Redis storage backend.
 
     Attributes:
-        type: The type of storage.
+        type: The type of storage. Defaults to `redis`.
         redis_host: The hostname of the Redis server.
         redis_port: The port number of the Redis server.
         redis_password: The password for Redis authentication. Defaults to `None`.
@@ -32,7 +32,7 @@ class SQLiteConfig(BaseModel):
     The configuration for the SQLite storage backend.
 
     Attributes:
-        type: The type of storage.
+        type: The type of storage. Defaults to `sqlite`.
         sqlite_db: The path to the SQLite database file.
         check_same_thread: Whether to check the same thread when accessing the database.
     """
@@ -47,10 +47,38 @@ class InMemoryConfig(BaseModel):
     The configuration for the in-memory storage backend.
 
     Attributes:
-        type: The type of storage.
+        type: The type of storage. Defaults to `in-memory`.
     """
 
     type: Literal["in-memory"] = "in-memory"
+
+
+class BasicAuth(BaseModel):
+    """
+    The configuration for username and password based authentication.
+
+    Attributes:
+        type: The type of authentication. Defaults to `basic`.
+        username: The username for the authentication.
+        password: The password used for authentication.
+    """
+
+    type: Literal["basic"] = "basic"
+    username: str
+    password: str
+
+
+class BearerAuth(BaseModel):
+    """
+    The configuration for token based authentication.
+
+    Attributes:
+        type: The type of authentication. Defaults to `bearer`.
+        token: The token used for authentication.
+    """
+
+    type: Literal["bearer"] = "bearer"
+    token: str
 
 
 class Config(BaseModel):
@@ -60,6 +88,7 @@ class Config(BaseModel):
     Attributes:
         signal_service: The URL of the `signal-cli-rest-api` service to connect to.
         phone_number: The phone number of the bot.
+        auth: The authentication config used for http requests. Defaults to `None`.
         storage: The configuration for the storage backend to use. Defaults to `None`.
         retry_interval: The interval in seconds to wait before retrying a failed
             connection to the signal service.
@@ -71,6 +100,7 @@ class Config(BaseModel):
 
     signal_service: str
     phone_number: str
+    auth: BasicAuth | BearerAuth | None = None
 
     storage: RedisConfig | SQLiteConfig | InMemoryConfig | None = None
     retry_interval: int = 1
