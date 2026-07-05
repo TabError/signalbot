@@ -9,7 +9,7 @@ from signalbot.api.requests import SendMessage
 
 class AttachmentCommand(CommandWithHelpMessage):
     def help_message(self) -> str:
-        return "friday: 🦀 Send and delete an image."
+        return "friday: 🦀 Send an image."
 
     @text_triggered("friday")
     async def handle_data_message(self, context: ContextDataMessage) -> None:
