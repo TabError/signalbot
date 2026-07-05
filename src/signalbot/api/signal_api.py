@@ -22,7 +22,6 @@ if TYPE_CHECKING:
         Attachment,
         CreatePollRequest,
         RemoteDeleteRequest,
-        SendMessageV2,
     )
     from signalbot.api.generated.api import (
         Receipt,
@@ -32,6 +31,10 @@ if TYPE_CHECKING:
     from signalbot.api.requests import (
         UpdateContactRequest,
         UpdateGroupRequest,
+    )
+    from signalbot.api.requests.send_message import (
+        SendMessage,
+        SendMessageMultiple,
     )
     from signalbot.auth import Authentication
 
@@ -90,12 +93,12 @@ class SignalAPI:
 
     async def send(
         self,
-        data_message: SendMessageV2,
+        data_message: SendMessage | SendMessageMultiple,
     ) -> SendMessageResponse:
         uri = self._signal_api_uris.send_rest_uri()
 
         data_message.number = self.phone_number
-        payload = data_message.model_dump_json(exclude_none=True, by_alias=True)
+        payload = await data_message.model_dump_json_as_send_message_v2()
         headers = self._add_auth()
 
         try:

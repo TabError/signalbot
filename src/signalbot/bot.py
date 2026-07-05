@@ -327,9 +327,8 @@ class SignalBot:
             error_msg = "Recipient must be set in SendMessage"
             raise ValueError(error_msg)
         data_message.recipient = self._resolve_recipient(data_message.recipient)
-        data_message_v2 = data_message.to_send_message_v2()
 
-        send_message_response = await self._signal.send(data_message_v2)
+        send_message_response = await self._signal.send(data_message)
         timestamp = int(send_message_response.timestamp)
         self._logger.info(
             f"[Bot] New message {timestamp} sent:\n{data_message.text}"  # noqa: G004

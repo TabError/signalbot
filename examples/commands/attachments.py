@@ -1,5 +1,3 @@
-import base64
-
 from anyio import Path
 
 from examples.commands.help import CommandWithHelpMessage
@@ -13,13 +11,9 @@ class AttachmentCommand(CommandWithHelpMessage):
 
     @text_triggered("friday")
     async def handle_data_message(self, context: ContextDataMessage) -> None:
-        image_path = Path(__file__).parent / "image.jpeg"
-        async with await image_path.open(mode="rb") as f:
-            image = str(base64.b64encode(await f.read()), encoding="utf-8")
-
         await context.send(
             SendMessage(
                 text="https://www.youtube.com/watch?v=pU2SdH1HBuk",
-                base64_attachments=[image],
+                attachments=[Path(__file__).parent / "image.jpeg"],
             )
         )
