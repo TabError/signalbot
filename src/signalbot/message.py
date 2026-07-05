@@ -31,7 +31,7 @@ async def _parse_sync_messages(
             if sync_message.sent_message.edit_message is not None:
                 return await EditMessage.from_message_envelope(message_envelope, signal)
 
-            if message_envelope.sync_message.sent_message.reaction is not None:
+            if sync_message.sent_message.reaction is not None:
                 return await Reaction.from_message_envelope(message_envelope)
 
             return await ReceiveDataMessage.from_message_envelope(
