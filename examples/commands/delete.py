@@ -44,10 +44,10 @@ class DeleteLocalAttachmentCommand(CommandWithHelpMessage):
             if attachment_path is None:
                 continue
 
-            if attachment_path.exists():
-                print(f"Received file {attachment_path}")  # noqa: T201
+            if await attachment_path.exists():
+                await context.send(SendMessage(text=f"Received file {attachment_path}"))
 
             await context.bot.delete_attachment(attachment)
 
-            if not attachment_path.exists():
-                print(f"Deleted file {attachment_path}")  # noqa: T201
+            if not await attachment_path.exists():
+                await context.send(SendMessage(text=f"Deleted file {attachment_path}"))
