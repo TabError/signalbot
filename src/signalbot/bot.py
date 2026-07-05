@@ -417,7 +417,12 @@ class SignalBot:
         else:
             recipient = message.source_or_group_uuid()
             if message.is_group():
-                target_author = message.source_uuid
+                recipient = self._resolve_group_recipient(recipient)
+                if recipient is None:
+                    error_msg = "Cannot react to group message without group id"
+                    raise ValueError(error_msg)
+
+                target_author = message.source_uuid or message.source_number
                 if target_author is None:
                     error_msg = "Cannot react to group message without source uuid"
                     raise ValueError(error_msg)

@@ -14,8 +14,11 @@ if TYPE_CHECKING:
 
 
 class Reaction(BaseMessageWithGroup):
-    emoji: str | None
+    emoji: str | None = None
     is_remove: bool
+    target_author: str | None = None
+    target_author_number: str | None = None
+    target_author_uuid: str | None = None
 
     @classmethod
     async def _internal_parse(
@@ -29,13 +32,16 @@ class Reaction(BaseMessageWithGroup):
             server_received_timestamp=message_envelope.server_received_timestamp,
             source=message_envelope.source,
             source_device=message_envelope.source_device,
-            source_name=reaction_message.target_author,
-            source_number=reaction_message.target_author_number,
-            source_uuid=reaction_message.target_author_uuid,
+            source_name=message_envelope.source_name,
+            source_number=message_envelope.source_number,
+            source_uuid=message_envelope.source_uuid,
             timestamp=reaction_message.target_sent_timestamp,
             group_info=data_message.group_info,
             emoji=reaction_message.emoji,
             is_remove=reaction_message.is_remove,
+            target_author=reaction_message.target_author,
+            target_author_number=reaction_message.target_author_number,
+            target_author_uuid=reaction_message.target_author_uuid,
         )
 
     @classmethod

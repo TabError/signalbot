@@ -1,20 +1,34 @@
 from examples.commands.help import CommandWithHelpMessage
-from signalbot import ContextReaction, reaction_triggered
+from signalbot import ContextReaction, reaction_triggered, text_triggered
 from signalbot.api.requests import SendMessage
+from signalbot.context.context_data_message import ContextDataMessage
+
+
+class ReactCommand(CommandWithHelpMessage):
+    def help_message(self) -> str:
+        return "send_reaction: 🎉 Send a reaction to a message."
+
+    @text_triggered("send_reaction")
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
+        await context.react("🎉")
 
 
 class ReactionCommand(CommandWithHelpMessage):
     def help_message(self) -> str:
-        return "react with any emoji: 👍 Reaction decorator example."
+        return "react with any emoji: 👍 Reaction received decorator example."
 
-    @reaction_triggered()
     async def handle_reaction(self, context: ContextReaction) -> None:
         reaction = context.message
+
+        if reaction.emoji in ["👍", "❤️"]:
+            return  # ignore thumbs up and heart reactions, handled by ThumbsUpCommand
+
         if reaction.is_remove:
             await context.send(
                 SendMessage(text=f"You removed your {reaction.emoji} reaction")
             )
             return
+
         await context.send(
             SendMessage(
                 text=(
@@ -27,8 +41,17 @@ class ReactionCommand(CommandWithHelpMessage):
 
 class ThumbsUpCommand(CommandWithHelpMessage):
     def help_message(self) -> str:
-        return "react with 👍 or ❤️: 🎯 Filtered reaction decorator example."
+        return "react with 👍 or ❤️: 🎯 Filtered reaction received decorator example."
 
     @reaction_triggered("👍", "❤️")
     async def handle_reaction(self, context: ContextReaction) -> None:
-        await context.send(SendMessage(text="Thanks for the love!"))
+        reaction = context.message
+        if reaction.is_remove:
+            await context.send(
+                SendMessage(text=f"ThumbsUpCommand: {reaction.emoji} removed")
+            )
+            return
+
+        await context.send(
+            SendMessage(text=f"ThumbsUpCommand: {reaction.emoji} received")
+        )

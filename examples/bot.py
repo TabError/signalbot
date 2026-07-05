@@ -8,6 +8,7 @@ from examples.commands import (
     EditCommand,
     HelpCommand,
     PingCommand,
+    ReactCommand,
     ReactionCommand,
     RegexTriggeredCommand,
     ReplyCommand,
@@ -47,8 +48,10 @@ def main() -> None:
     bot.register(TriggeredCommand(), contacts=["+490123456789"], groups=True)
 
     bot.register(RegexTriggeredCommand())
+
     bot.register(ReactionCommand())
     bot.register(ThumbsUpCommand())
+    bot.register(ReactCommand())
 
     bot.register(EditCommand())
     bot.register(DeleteCommand())
