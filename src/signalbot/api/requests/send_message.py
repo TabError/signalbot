@@ -19,6 +19,8 @@ async def _attachments_to_base64(attachments: list[PydanticPath]) -> list[str]:
     base64_attachments: list[str] = []
     for attachment in attachments:
         async with await attachment.open("rb") as f:
+            # Add these extra metadata for better handling of the attachments.
+            # This follows the RFC 2397.
             # data:<MIME-TYPE>;filename=<FILENAME>;base64,<BASE64 ENCODED DATA>
             base64_attachments.append(
                 str(base64.b64encode(await f.read()), encoding="utf-8")
