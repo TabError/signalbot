@@ -1,4 +1,4 @@
-from signalbot.utils.chat_testing import (
+from signalbot.test_utils.chat_testing import (
     ChatTestCase,
     DummyCommand,
     GetGroupsMock,

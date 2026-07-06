@@ -2,7 +2,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from signalbot import Command, Context, text_triggered
-from signalbot.utils import ChatTestCase, mock_chat
+from signalbot.test_utils import ChatTestCase, mock_chat
 
 
 class SchnickSchnackSchnuckCommand(Command):

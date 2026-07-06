@@ -15,7 +15,7 @@ from signalbot import (
 from signalbot.api.generated import CreatePollRequest
 from signalbot.api.requests.poll import Poll
 from signalbot.context import Context
-from signalbot.utils import DummyCommand
+from signalbot.test_utils import DummyCommand
 
 
 class TestCommon:

@@ -2,59 +2,17 @@ from __future__ import annotations
 
 import base64
 import json
-from typing import TYPE_CHECKING, Annotated, Any
+from typing import Any
 
-from anyio import Path
 from pydantic import (
     AliasChoices,
     BaseModel,
     Field,
-    GetCoreSchemaHandler,
-    GetJsonSchemaHandler,
 )
-from pydantic_core import core_schema
 
 from signalbot.api.generated import LinkPreviewType, MessageMention, SendMessageV2
 from signalbot.api.generated.api import TextMode
-
-if TYPE_CHECKING:
-    from pydantic.json_schema import JsonSchemaValue
-
-
-class _PathPydanticAnnotation:
-    @classmethod
-    def __get_pydantic_core_schema__(
-        cls,
-        _source_type: Any,  # noqa: ANN401
-        _handler: GetCoreSchemaHandler,
-    ) -> core_schema.CoreSchema:
-        from_str_schema = core_schema.chain_schema(
-            [
-                core_schema.str_schema(),
-                core_schema.no_info_plain_validator_function(Path),
-            ]
-        )
-        return core_schema.json_or_python_schema(
-            json_schema=from_str_schema,
-            python_schema=core_schema.union_schema(
-                [
-                    # check if it's an instance first before doing any further work
-                    core_schema.is_instance_schema(Path),
-                    from_str_schema,
-                ]
-            ),
-            serialization=core_schema.plain_serializer_function_ser_schema(str),
-        )
-
-    @classmethod
-    def __get_pydantic_json_schema__(
-        cls, _core_schema: core_schema.CoreSchema, handler: GetJsonSchemaHandler
-    ) -> JsonSchemaValue:
-        # Use the same schema that would be used for `str`
-        return handler(core_schema.str_schema())
-
-
-PydanticPath = Annotated[Path, _PathPydanticAnnotation]
+from signalbot.utils.pydantic_anyio_path import PydanticPath
 
 
 async def _attachments_to_base64(attachments: list[PydanticPath]) -> list[str]:

@@ -5,7 +5,7 @@ from pytest_mock import MockerFixture
 
 from signalbot import Command, Context, text_triggered
 from signalbot.command import reaction_triggered, regex_triggered
-from signalbot.utils import (
+from signalbot.test_utils import (
     ChatTestCase,
     GetGroupsMock,
     ReceiveMessagesMock,
