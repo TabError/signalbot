@@ -74,6 +74,22 @@ class TestAPI:
         for i, _ in enumerate(results):
             assert messages[i] == results[i]
 
+    @pytest.mark.asyncio
+    async def test_receive_keepalive_not_disabled(self, mocker: MockerFixture):
+        # The receive websocket must not disable keepalive pings; otherwise a
+        # half-open connection never raises and the bot silently stops receiving.
+        mock_iterator = mocker.AsyncMock()
+        mock_iterator.__aiter__.return_value = []
+        mock = mocker.patch("websockets.connect")
+        mock.return_value.__aenter__.return_value = mock_iterator
+
+        _ = [raw_message async for raw_message in self.signal_api.receive()]
+
+        # Not passing ping_interval keeps the websockets library default (20s).
+        # Passing ping_interval=None would be the regression we guard against.
+        _, kwargs = mock.call_args
+        assert kwargs.get("ping_interval", 20) is not None
+
     def test_receive_uri(self):
         expected_uri = f"wss://{self.signal_service}/v1/receive/{self.phone_number}"
         actual_uri = self.signal_api._signal_api_uris.receive_ws_uri()
