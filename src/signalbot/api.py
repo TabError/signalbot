@@ -55,8 +55,6 @@ class SignalAPI:
 
         try:
             uri = self._signal_api_uris.receive_ws_uri()
-            # Rely on the websockets library's default keepalive pings so a
-            # half-open connection raises and the bot's reconnect logic kicks in.
             self.connection = websockets.connect(uri, additional_headers=headers)
             async with self.connection as websocket:
                 async for raw_message in websocket:
