@@ -15,6 +15,7 @@ from signalbot.api.generated import (
     SendMessageResponse,
     SendMessageV2,
 )
+from signalbot.api.generated import UpdateGroupRequest as _UpdateGroupRequest
 from signalbot.api.requests.send_message import await_items_in_payload
 
 if TYPE_CHECKING:
@@ -306,12 +307,18 @@ class SignalAPI:
 
     async def update_group(self, update_group_request: UpdateGroupRequest) -> None:
         uri = self._signal_api_uris.group_id_uri(update_group_request.group_id_or_name)
-        payload = update_group_request.model_dump_json(exclude_none=True, by_alias=True)
+        payload = update_group_request.model_dump(exclude_none=True, by_alias=True)
+        await await_items_in_payload(payload)
+
+        # Sanity check the custom model_dump before sending it using the original
+        # request type
+        _UpdateGroupRequest.model_validate(payload)
+
         headers = self._add_auth()
 
         try:
             async with aiohttp.ClientSession(headers=headers) as session:
-                resp = await session.put(uri, data=payload)
+                resp = await session.put(uri, json=payload)
                 resp.raise_for_status()
                 return resp
         except (
