@@ -35,10 +35,7 @@ from signalbot.context import (
     ContextRemoteDelete,
     ContextTypingMessage,
 )
-from signalbot.logger import (
-    LOGGER_NAME,
-    enable_console_logging,
-)
+from signalbot.logger import LOGGER_NAME
 from signalbot.message import UnknownMessageFormatError
 
 __all__ = [
@@ -66,7 +63,6 @@ __all__ = [
     "SignalBot",
     "TextMode",
     "UnknownMessageFormatError",
-    "enable_console_logging",
     "reaction_triggered",
     "regex_triggered",
     "text_triggered",

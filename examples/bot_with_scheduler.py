@@ -1,9 +1,8 @@
-import logging
 import os
 
 import typer
 
-from signalbot import SignalBot, enable_console_logging
+from signalbot import SignalBot
 from signalbot.api.requests import SendMessage
 
 
@@ -22,8 +21,6 @@ def main(
     recipient: str = os.environ["PHONE_NUMBER"],
     text: str = "Hello from SignalBot!",
 ) -> None:
-    enable_console_logging(logging.INFO)
-
     config = {
         "signal_service": os.environ["SIGNAL_SERVICE"],
         "phone_number": os.environ["PHONE_NUMBER"],

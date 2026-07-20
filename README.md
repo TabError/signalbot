@@ -22,27 +22,33 @@ See the [getting started](https://signalbot-org.github.io/signalbot/latest/getti
 This is what a minimal bot using signalbot looks like:
 
 ```python
-import os
 import logging
-from signalbot import SignalBot, Config, Command, Context, triggered, enable_console_logging
+import os
+
+from signalbot import (
+    Command,
+    Config,
+    ContextDataMessage,
+    SignalBot,
+    text_triggered,
+)
+from signalbot.api.requests import SendMessage
 
 
 class PingCommand(Command):
-    @triggered("Ping")
-    async def handle(self, context: Context) -> None:
-        await context.send("Pong")
+    @text_triggered("Ping")
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
+        await context.send(SendMessage(text="Pong"))
 
 
 if __name__ == "__main__":
-    enable_console_logging(logging.INFO)
-
     bot = SignalBot(
         Config(
             signal_service=os.environ["SIGNAL_SERVICE"],
             phone_number=os.environ["PHONE_NUMBER"],
         )
     )
-    bot.register(PingCommand()) # Run the command for all contacts and groups
+    bot.register(PingCommand())  # Run the command for all contacts and groups
     bot.start()
 ```
 

@@ -6,11 +6,14 @@ The logger name used by signalbot.
 """
 
 
-def enable_console_logging(level: int = logging.WARNING) -> None:
-    """Enable console logging for the signalbot logger.
+def initialize_logger(level: int = logging.WARNING) -> logging.Logger:
+    """Creates a logger that outputs to console.
 
     Args:
         level: Logging level for the logger.
+
+    Returns:
+        The logger instance.
     """
     handler = logging.StreamHandler()
 
@@ -22,3 +25,5 @@ def enable_console_logging(level: int = logging.WARNING) -> None:
     logger = logging.getLogger(LOGGER_NAME)
     logger.addHandler(handler)
     logger.setLevel(level)
+
+    return logger

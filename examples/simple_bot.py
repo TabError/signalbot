@@ -4,9 +4,8 @@ import os
 from signalbot import (
     Command,
     Config,
-    Context,
+    ContextDataMessage,
     SignalBot,
-    enable_console_logging,
     text_triggered,
 )
 from signalbot.api.requests import SendMessage
@@ -14,17 +13,16 @@ from signalbot.api.requests import SendMessage
 
 class PingCommand(Command):
     @text_triggered("Ping")
-    async def handle_data_message(self, context: Context) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         await context.send(SendMessage(text="Pong"))
 
 
 if __name__ == "__main__":
-    enable_console_logging(logging.INFO)
-
     bot = SignalBot(
         Config(
             signal_service=os.environ["SIGNAL_SERVICE"],
             phone_number=os.environ["PHONE_NUMBER"],
+            logging_level=logging.INFO,
         )
     )
     bot.register(PingCommand())  # Run the command for all contacts and groups

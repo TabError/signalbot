@@ -3,7 +3,6 @@ from __future__ import annotations
 import asyncio
 import copy
 import itertools
-import logging
 import re
 import time
 import traceback
@@ -50,7 +49,7 @@ from signalbot.context import (
     ContextRemoteDelete,
     ContextTypingMessage,
 )
-from signalbot.logger import LOGGER_NAME
+from signalbot.logger import initialize_logger
 from signalbot.message import UnknownMessageFormatError, parse
 from signalbot.storage import RedisStorage, SQLiteStorage
 
@@ -119,9 +118,9 @@ class SignalBot:
         }
         ```
         """
-        self._logger = logging.getLogger(LOGGER_NAME)
-
         self.config = load_config(config)
+
+        self._logger = initialize_logger(self.config.logging_level)
 
         if isinstance(self.config.auth, BasicAuth):
             auth = BasicAuthentication(
@@ -824,7 +823,7 @@ class SignalBot:
         while True:
             try:
                 await self._consume_new_item(name)
-            except Exception:  # noqa: BLE001, PERF203, S112
+            except Exception:  # noqa: BLE001, S112
                 continue
 
     async def _consume_new_item(self, name: int) -> None:

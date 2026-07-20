@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from collections.abc import Mapping
+from logging import WARNING
 from pathlib import Path
 from typing import Literal
 
@@ -96,6 +97,7 @@ class Config(BaseModel):
             `True`.
         connection_mode: The connection mode to use when connecting to the Signal
             service. Defaults to `ConnectionMode.AUTO`.
+        logging_level: The logging level for the bot. Defaults to `logging.WARN`.
     """
 
     signal_service: str
@@ -106,6 +108,7 @@ class Config(BaseModel):
     retry_interval: int = 1
     download_attachments: bool = True
     connection_mode: ConnectionMode = ConnectionMode.AUTO
+    logging_level: int = WARNING
 
 
 def load_config(config: Config | Mapping | Path | str) -> Config:

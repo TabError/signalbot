@@ -1,7 +1,7 @@
 ## Logging
 
 The logger name for the library is `"signalbot"`.
-It does not have any handlers attached, for convenience the [signalbot.enable_console_logging][] function is provided.
+It can be imported as `from signalbot import LOGGER_NAME`
 
 ## Persistent storage
 

@@ -1,4 +1,3 @@
-import logging
 import os
 
 from examples.commands import (
@@ -18,12 +17,10 @@ from examples.commands import (
     TriggeredCommand,
     TypingCommand,
 )
-from signalbot import SignalBot, enable_console_logging
+from signalbot import SignalBot
 
 
 def main() -> None:
-    enable_console_logging(logging.INFO)
-
     signal_service = os.environ["SIGNAL_SERVICE"]
     phone_number = os.environ["PHONE_NUMBER"]
 
