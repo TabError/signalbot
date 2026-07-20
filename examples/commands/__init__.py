@@ -2,6 +2,7 @@ from .attachments import AttachmentCommand
 from .delete import DeleteCommand, DeleteLocalAttachmentCommand
 from .edit import EditCommand
 from .help import HelpCommand
+from .link_preview import LinkPreviewCommand
 from .multiple_triggered import TriggeredCommand
 from .ping import PingCommand
 from .reaction import ReactCommand, ReactionCommand, ThumbsUpCommand
@@ -16,6 +17,7 @@ __all__ = [
     "DeleteLocalAttachmentCommand",
     "EditCommand",
     "HelpCommand",
+    "LinkPreviewCommand",
     "PingCommand",
     "ReactCommand",
     "ReactionCommand",

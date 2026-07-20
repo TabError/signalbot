@@ -7,6 +7,7 @@ from examples.commands import (
     DeleteLocalAttachmentCommand,
     EditCommand,
     HelpCommand,
+    LinkPreviewCommand,
     PingCommand,
     ReactCommand,
     ReactionCommand,
@@ -57,6 +58,7 @@ def main() -> None:
     bot.register(DeleteCommand())
     bot.register(DeleteLocalAttachmentCommand())
     bot.register(StylesCommand())
+    bot.register(LinkPreviewCommand())
     bot.start()
 
 
