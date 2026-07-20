@@ -21,10 +21,7 @@ def main(
     recipient: str = os.environ["PHONE_NUMBER"],
     text: str = "Hello from SignalBot!",
 ) -> None:
-    config = {
-        "signal_service": os.environ["SIGNAL_SERVICE"],
-        "phone_number": os.environ["PHONE_NUMBER"],
-    }
+    config = {"phone_number": os.environ["PHONE_NUMBER"]}
     bot = SignalBot(config)
 
     bot.scheduler.add_job(send, args=[bot, recipient, text])

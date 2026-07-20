@@ -113,7 +113,6 @@ class SignalBot:
         Example config:
         ```python
         {
-            signal_service: "127.0.0.1:8080",
             phone_number: "+49123456789"
         }
         ```

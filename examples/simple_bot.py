@@ -20,7 +20,6 @@ class PingCommand(Command):
 if __name__ == "__main__":
     bot = SignalBot(
         Config(
-            signal_service=os.environ["SIGNAL_SERVICE"],
             phone_number=os.environ["PHONE_NUMBER"],
             logging_level=logging.INFO,
         )

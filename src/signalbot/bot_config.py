@@ -87,8 +87,9 @@ class Config(BaseModel):
     The configuration for SignalBot.
 
     Attributes:
-        signal_service: The URL of the `signal-cli-rest-api` service to connect to.
         phone_number: The phone number of the bot.
+        signal_service: The URL of the `signal-cli-rest-api` service to connect to,
+            without protocol.
         auth: The authentication config used for http requests. Defaults to `None`.
         storage: The configuration for the storage backend to use. Defaults to `None`.
         retry_interval: The interval in seconds to wait before retrying a failed
@@ -100,8 +101,8 @@ class Config(BaseModel):
         logging_level: The logging level for the bot. Defaults to `logging.WARN`.
     """
 
-    signal_service: str
     phone_number: str
+    signal_service: str = "localhost:8080"
     auth: BasicAuth | BearerAuth | None = None
 
     storage: RedisConfig | SQLiteConfig | InMemoryConfig | None = None

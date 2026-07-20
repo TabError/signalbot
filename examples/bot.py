@@ -21,13 +21,9 @@ from signalbot import SignalBot
 
 
 def main() -> None:
-    signal_service = os.environ["SIGNAL_SERVICE"]
     phone_number = os.environ["PHONE_NUMBER"]
 
-    config = {
-        "signal_service": signal_service,
-        "phone_number": phone_number,
-    }
+    config = {"phone_number": phone_number}
     bot = SignalBot(config)
 
     bot.register(HelpCommand())

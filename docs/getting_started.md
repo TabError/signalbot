@@ -57,11 +57,9 @@ Confirm that the server is running in the correct mode by visiting http://127.0.
 
     Pass the following environment variables to make the example run:
 
-    - `SIGNAL_SERVICE`: Address of the signal service without protocol
     - `PHONE_NUMBER`: Phone number of the bot
 
     ```bash
-    export SIGNAL_SERVICE="127.0.0.1:8080"
     export PHONE_NUMBER="+49123456789"
     python bot.py
     ```

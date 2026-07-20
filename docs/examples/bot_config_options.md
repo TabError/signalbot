@@ -11,10 +11,7 @@ Create a [Config][signalbot.Config] instance:
 ```python
 from signalbot import SignalBot, Config, ConnectionMode
 
-config = Config(
-    signal_service="http://localhost:8080",
-    phone_number="+1234567890",
-)
+config = Config(phone_number="+1234567890")
 
 bot = SignalBot(config)
 bot.start()
@@ -27,10 +24,7 @@ Create a python dictionary:
 ```python
 from signalbot import SignalBot, Config
 
-config = {
-    "signal_service": "http://localhost:8080",
-    "phone_number": "+1234567890",
-}
+config = {"phone_number": "+1234567890"}
 
 bot = SignalBot(config)
 bot.start()
@@ -41,7 +35,6 @@ bot.start()
 Create a YAML configuration file:
 
 ```yaml title="config.yml"
-signal_service: "http://localhost:8080"
 phone_number: "+1234567890"
 ```
 
@@ -59,10 +52,7 @@ bot.start()
 Create a JSON configuration file:
 
 ```json title="config.json"
-{
-	"signal_service": "http://localhost:8080",
-	"phone_number": "+1234567890"
-}
+{"phone_number": "+1234567890"}
 ```
 
 Then load it:
@@ -85,7 +75,6 @@ Data is lost when the bot restarts.
 Useful for development and testing.
 
 ```yaml title="config.yml"
-signal_service: "http://localhost:8080"
 phone_number: "+1234567890"
 storage:
   type: "in-memory"
@@ -97,7 +86,6 @@ Persists data to a local SQLite database.
 Have a look at the [SQLiteStorage](https://github.com/signalbot-org/signalbot/blob/b2a2ec15c3632580230e004455815ce509c2666d/src/signalbot/storage.py#L39) class for how to store and retrive the data.
 
 ```yaml title="config.yml"
-signal_service: "http://localhost:8080"
 phone_number: "+1234567890"
 storage:
   type: "sqlite"
@@ -110,7 +98,6 @@ Persists data to Redis database.
 Have a look at the [RedisStorage](https://github.com/signalbot-org/signalbot/blob/b2a2ec15c3632580230e004455815ce509c2666d/src/signalbot/storage.py#L81) class for how to store and retrive the data.
 
 ```yaml title="config.yml"
-signal_service: "http://localhost:8080"
 phone_number: "+1234567890"
 storage:
   type: "redis"
@@ -129,7 +116,6 @@ Username and password based authentication using the [BasicAuth][signalbot.Basic
 from signalbot import BasicAuth, Config, ConnectionMode, SignalBot
 
 config = Config(
-    signal_service="http://localhost:8080",
     phone_number="+1234567890",
     auth=BasicAuth(username="user", password="password"),
 )
@@ -145,7 +131,6 @@ Token based authentication using the [BearerAuth][signalbot.BearerAuth] class.
 from signalbot import BearerAuth, Config, ConnectionMode, SignalBot
 
 config = Config(
-    signal_service="http://localhost:8080",
     phone_number="+1234567890",
     auth=BearerAuth(token="token")
 )
