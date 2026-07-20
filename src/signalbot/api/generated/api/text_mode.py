@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class TextMode(Enum):
+class TextMode(StrEnum):
     NORMAL = "normal"
     STYLED = "styled"

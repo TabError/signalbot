@@ -3,10 +3,10 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class Type(Enum):
+class Type(StrEnum):
     SUCCESS = "SUCCESS"
     NETWORK_FAILURE = "NETWORK_FAILURE"
     UNREGISTERED_FAILURE = "UNREGISTERED_FAILURE"
@@ -15,7 +15,7 @@ class Type(Enum):
     INVALID_PRE_KEY_FAILURE = "INVALID_PRE_KEY_FAILURE"
 
 
-class TypeModel(Enum):
+class TypeModel(StrEnum):
     CONTACTS_SYNC = "CONTACTS_SYNC"
     GROUPS_SYNC = "GROUPS_SYNC"
     REQUEST_SYNC = "REQUEST_SYNC"

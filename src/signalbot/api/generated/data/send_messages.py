@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class SendMessages(Enum):
+class SendMessages(StrEnum):
     ONLY_ADMINS = "only-admins"
     EVERY_MEMBER = "every-member"

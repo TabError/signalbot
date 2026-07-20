@@ -3,10 +3,10 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class GroupLink(Enum):
+class GroupLink(StrEnum):
     DISABLED = "disabled"
     ENABLED = "enabled"
     ENABLED_WITH_APPROVAL = "enabled-with-approval"

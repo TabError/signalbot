@@ -3,9 +3,9 @@
 
 from __future__ import annotations
 
-from enum import Enum
+from enum import StrEnum
 
 
-class ReceiptType(Enum):
+class ReceiptType(StrEnum):
     READ = "read"
     VIEWED = "viewed"
