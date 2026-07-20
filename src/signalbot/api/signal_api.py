@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import base64
-from enum import Enum
+from enum import StrEnum
 from typing import TYPE_CHECKING
 
 import aiohttp
@@ -41,7 +41,7 @@ if TYPE_CHECKING:
     from signalbot.auth import Authentication
 
 
-class ConnectionMode(str, Enum):
+class ConnectionMode(StrEnum):
     """Protocol strategy for connecting to `signal-cli-rest-api`.
 
     Attributes:
