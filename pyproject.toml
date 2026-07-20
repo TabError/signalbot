@@ -13,11 +13,11 @@ keywords = [
   "Home Automation",
 ]
 license = { text = "MIT" }
-maintainers = [{name = "René Filip"}, {name = "Era Dorta"}]
+maintainers = [{name = "René Filip"}, {name = "Gara Dorta"}]
 name = "signalbot"
 readme = "README.md"
 requires-python = ">=3.11"
-version = "1.2.3.dev1"
+version = "1.2.4.dev1"
 dependencies = [
   "APScheduler>=3.11.0",
   "aiohttp>=3.11.9",

@@ -84,9 +84,7 @@ class SignalAPI:
 
         try:
             uri = self._signal_api_uris.receive_ws_uri()
-            self.connection = websockets.connect(
-                uri, ping_interval=None, additional_headers=headers
-            )
+            self.connection = websockets.connect(uri, additional_headers=headers)
             async with self.connection as websocket:
                 async for raw_message in websocket:
                     yield str(raw_message)
