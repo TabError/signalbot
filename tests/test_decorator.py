@@ -14,27 +14,27 @@ from signalbot.test_utils import (
 
 
 class TriggeredCommand(Command):
-    @text_triggered("Trump", "Biden")
+    @text_triggered("Alpha", "Beta")
     async def handle_data_message(self, context: Context):
-        await context.send("I am triggered")
+        await context.send("Base trigger")
 
 
 class TriggeredCaseSensitiveCommand(Command):
-    @text_triggered("Trump", "Biden", case_sensitive=True)
+    @text_triggered("Alpha", "Beta", case_sensitive=True)
     async def handle_data_message(self, context: Context):
-        await context.send("I am triggered")
+        await context.send("Base trigger")
 
 
 class ReactionTriggeredCommand(Command):
     @reaction_triggered()
     async def handle_data_message(self, context: Context):
-        await context.send("I am triggered by reactions")
+        await context.send("Reactions trigger")
 
 
 class ReactionFilteredCommand(Command):
     @reaction_triggered("👍", "❤️")
     async def handle_data_message(self, context: Context):
-        await context.send("I am triggered by specific reactions")
+        await context.send("Specific reactions trigger")
 
 
 class RegexTriggeredCommand(Command):
@@ -76,21 +76,21 @@ class TestTriggered(TestCommon):
 
     async def test_triggered(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
-        mocks.receive_mock.define(["Trump"])
+        mocks.receive_mock.define(["Alpha"])
         await self.signal_bot._resolve_commands()
         await self.run_bot()
         assert mocks.send_mock.call_count == 1
 
     async def test_also_triggered(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
-        mocks.receive_mock.define(["Biden"])
+        mocks.receive_mock.define(["Beta"])
         await self.signal_bot._resolve_commands()
         await self.run_bot()
         assert mocks.send_mock.call_count == 1
 
     async def test_not_triggered(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
-        mocks.receive_mock.define(["Scholz"])
+        mocks.receive_mock.define(["Gamma"])
         await self.signal_bot._resolve_commands()
         await self.run_bot()
         assert mocks.send_mock.call_count == 0
@@ -104,14 +104,14 @@ class TestTriggeredCaseSensitive(TestCommon):
 
     async def test_triggered(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
-        mocks.receive_mock.define(["Trump"])
+        mocks.receive_mock.define(["Alpha"])
         await self.signal_bot._resolve_commands()
         await self.run_bot()
         assert mocks.send_mock.call_count == 1
 
     async def test_not_triggered(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
-        mocks.receive_mock.define(["trump"])
+        mocks.receive_mock.define(["Alpha"])
         await self.signal_bot._resolve_commands()
         await self.run_bot()
         assert mocks.send_mock.call_count == 0
@@ -152,7 +152,7 @@ class TestTriggeredGroups(TestCommon):
 
     async def _test_trigger(self, mocker: MockerFixture, call_count: int) -> None:
         mocks = self.mock_send_receive_get_groups(mocker)
-        mocks.receive_mock.define(["Trump"])
+        mocks.receive_mock.define(["Alpha"])
         await self.signal_bot._detect_groups()
         await self.signal_bot._resolve_commands()
         await self.run_bot()

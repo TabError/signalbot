@@ -10,4 +10,4 @@ class TriggeredCommand(CommandWithHelpMessage):
     # add case_sensitive=True for case sensitive triggers
     @text_triggered("command_1", "Command_2", "CoMmAnD_3")
     async def handle_data_message(self, context: ContextDataMessage) -> None:
-        await context.send(SendMessage(text="I am triggered"))
+        await context.send(SendMessage(text="Multi command trigger"))
