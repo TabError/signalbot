@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from inspect import iscoroutine
-from typing import Any
+from typing import Any, TypeVar
 
 from pydantic import (
     AliasChoices,
@@ -10,6 +10,7 @@ from pydantic import (
     SerializationInfo,
     SerializerFunctionWrapHandler,
     model_serializer,
+    model_validator,
 )
 
 from signalbot.api.generated import MessageMention, SendMessageV2
@@ -106,6 +107,10 @@ class SendMessage(BaseModel):
 
         return payload
 
+    @model_validator(mode="after")
+    def check_link_preview_url_in_text(self) -> SendMessage:
+        return _check_link_preview_url_in_text(self)
+
 
 class SendMessageMultiple(SendMessageV2):
     attachments: list[PydanticPath] | None = None
@@ -124,6 +129,10 @@ class SendMessageMultiple(SendMessageV2):
             )
 
         return payload
+
+    @model_validator(mode="after")
+    def check_link_preview_url_in_text(self) -> SendMessageMultiple:
+        return _check_link_preview_url_in_text(self)
 
 
 class SentMessage(SendMessage):
@@ -145,3 +154,18 @@ class SentMessage(SendMessage):
             )
             for recipient in send_message.recipients
         ]
+
+
+_SendMessageT = TypeVar("_SendMessageT", bound=SendMessage | SendMessageMultiple)
+
+
+def _check_link_preview_url_in_text(send_message: _SendMessageT) -> _SendMessageT:
+    if send_message.link_preview is not None and (
+        send_message.text is None
+        or send_message.link_preview.url not in send_message.text
+    ):
+        error_msg = (
+            "If the link_preview is included, the URL must be present in the text."
+        )
+        raise ValueError(error_msg)
+    return send_message
