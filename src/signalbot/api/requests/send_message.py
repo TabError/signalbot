@@ -1,7 +1,8 @@
 from __future__ import annotations
 
+import asyncio
 from inspect import iscoroutine
-from typing import Any, TypeVar
+from typing import TYPE_CHECKING, Any, TypeVar
 
 from pydantic import (
     AliasChoices,
@@ -18,6 +19,9 @@ from signalbot.api.generated.api import TextMode
 from signalbot.api.requests import LinkPreview
 from signalbot.utils.attachment_base64 import attachment_to_base64
 from signalbot.utils.pydantic_anyio_path import PydanticPath
+
+if TYPE_CHECKING:
+    from collections.abc import Coroutine
 
 
 def _serialize_send_message_v2_payload(
@@ -45,28 +49,21 @@ def _serialize_send_message_v2_payload(
 
 
 async def await_items_in_payload(payload: dict[str, Any]) -> None:
-    await _await_items_in_payload(payload)
+    pending: list[tuple[dict | list, Any, Coroutine]] = []
+    stack: list[dict | list] = [payload]
 
+    while stack:
+        node = stack.pop()
+        items = enumerate(node) if isinstance(node, list) else node.items()
+        for key, value in items:
+            if isinstance(value, (dict, list)):
+                stack.append(value)
+            elif iscoroutine(value):
+                pending.append((node, key, value))
 
-async def _await_items_in_payload(
-    payload: dict[str, Any] | list,
-) -> dict[str, Any] | list:
-    """
-    Replace every coroutine in the dictionary for its value
-    """
-    if isinstance(payload, list):
-        for i, value in enumerate(payload):
-            if isinstance(value, (dict, list)):
-                payload[i] = await _await_items_in_payload(value)
-            elif iscoroutine(value):
-                payload[i] = await value
-    else:
-        for key, value in payload.items():
-            if isinstance(value, (dict, list)):
-                payload[key] = await _await_items_in_payload(value)
-            elif iscoroutine(value):
-                payload[key] = await value
-    return payload
+    results = await asyncio.gather(*(coro for *_, coro in pending))
+    for (node, key, _), result in zip(pending, results, strict=True):
+        node[key] = result
 
 
 class SendMessage(BaseModel):
