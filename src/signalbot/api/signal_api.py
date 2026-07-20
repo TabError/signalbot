@@ -98,7 +98,11 @@ class SignalAPI:
         uri = self._signal_api_uris.send_rest_uri()
 
         data_message.number = self.phone_number
-        payload = await data_message.model_dump_json_as_send_message_v2()
+        payload = data_message.model_dump_json(
+            exclude_none=True,
+            by_alias=True,
+            context={"mode": "sendv2"},
+        )
         headers = self._add_auth()
 
         try:
