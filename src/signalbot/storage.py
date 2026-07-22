@@ -64,7 +64,7 @@ class StorageError(Exception):
 class SQLiteStorage(Storage):
     """SQLite-backed storage."""
 
-    def __init__(self, database: str | Path = ":memory:", **kwargs):  # noqa: ANN003, ANN204
+    def __init__(self, database: str | Path = ":memory:", **kwargs: Any):  # noqa: ANN401, ANN204
         """Initialize SQLite-backed storage.
 
         Args:
