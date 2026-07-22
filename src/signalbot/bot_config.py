@@ -13,7 +13,8 @@ from signalbot.api import ConnectionMode
 
 class RedisConfig(BaseModel):
     """
-    The configuration for the Redis storage backend.
+    The configuration for the
+    [RedisStorage](storage.md#signalbot.storage.RedisStorage) backend.
 
     Attributes:
         type: The type of storage. Defaults to `redis`.
@@ -30,7 +31,8 @@ class RedisConfig(BaseModel):
 
 class SQLiteConfig(BaseModel):
     """
-    The configuration for the SQLite storage backend.
+    The configuration for the
+    [SQLiteStorage](storage.md#signalbot.storage.SQLiteStorage) backend.
 
     Attributes:
         type: The type of storage. Defaults to `sqlite`.
@@ -45,7 +47,8 @@ class SQLiteConfig(BaseModel):
 
 class InMemoryConfig(BaseModel):
     """
-    The configuration for the in-memory storage backend.
+    The configuration for the in-memory storage backend, which defaults to
+    [SQLiteStorage](storage.md#signalbot.storage.SQLiteStorage) with memory storage.
 
     Attributes:
         type: The type of storage. Defaults to `in-memory`.
