@@ -2,6 +2,7 @@ from __future__ import annotations
 
 import functools
 import re
+from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, ParamSpec, TypeVar
 
 from signalbot.context import (
@@ -126,38 +127,49 @@ def reaction_triggered(
     return decorator_reaction_triggered
 
 
-class Command:
-    """Abstract base class for commands.
+class Handler(ABC):  # noqa: B024 -- intentionally has no abstract methods of its own
+    """Shared bot-registration plumbing.
 
-    To create a command, subclass this class and implement the `handle` method.
-    Then, register the command with the bot using `bot.register(CommandSubclass)`.
+    This class only provides bot wiring and the `setup` hook. To actually react to
+    something happening on Signal, subclass one of `Command`, `GroupUpdateHandler`,
+    `RemoteDeleteHandler`, `TypingHandler`, or `ReactionHandler` (or several of them
+    at once via multiple inheritance) rather than this class directly.
     """
 
     def __init__(self) -> None:
-        # The bot attribute is assigned after calling bot.register(Command())
+        # The bot attribute is assigned after calling bot.register(Handler())
         self._bot: SignalBot | None = None
 
     @property
     def bot(self) -> SignalBot:
         if self._bot is None:
-            error_msg = "Command is not registered with a bot."
+            error_msg = "Handler is not registered with a bot."
             raise CommandError(error_msg)
         return self._bot
 
     @bot.setter
     def bot(self, bot: SignalBot) -> None:
         if self._bot is not None:
-            error_msg = "Command is already registered with a bot."
+            error_msg = "Handler is already registered with a bot."
             raise CommandError(error_msg)
         self._bot = bot
 
     def setup(self) -> None:
         """Optional setup method that can be overridden by subclasses.
-        This method is called after the command is registered with the bot but
+        This method is called after the handler is registered with the bot but
         before any data is retrieved, so it cannot access the group ids.
         """
         return
 
+
+class Command(Handler):
+    """Abstract base class for text/edit-triggered commands.
+
+    To create a command, subclass this class and implement `handle_data_message`.
+    Then, register the command with the bot using `bot.register(CommandSubclass)`.
+    """
+
+    @abstractmethod
     async def handle_data_message(self, context: ContextDataMessage) -> None:
         """Method to handle a data message.
         This method must be implemented by subclasses to define the behavior of the
@@ -168,42 +180,85 @@ class Command:
 
     async def handle_edit_message(self, context: ContextEditMessage) -> None:
         """Method to handle an edit message.
-        This method must be implemented by subclasses to define the behavior of the
-            command.
+        Optional to override; the default implementation does nothing.
         Args:
             context: Chat context containing the received message and other information.
         """
 
+
+class GroupUpdateHandler(Handler):
+    """Abstract base class for reacting to group update events.
+
+    Subclass this and implement `handle_group_update_message`, then register the
+    instance with the bot using `bot.register(...)`. Combine with `Command` or the
+    other handler classes via multiple inheritance if a single object should react
+    to more than one kind of event.
+    """
+
+    @abstractmethod
     async def handle_group_update_message(
         self, context: ContextGroupUpdateMessage
     ) -> None:
         """Method to handle a group update message.
         This method must be implemented by subclasses to define the behavior of the
-            command.
+            handler.
         Args:
             context: Chat context containing the received message and other information.
         """
 
+
+class RemoteDeleteHandler(Handler):
+    """Abstract base class for reacting to remote delete events.
+
+    Subclass this and implement `handle_remote_delete`, then register the instance
+    with the bot using `bot.register(...)`. Combine with `Command` or the other
+    handler classes via multiple inheritance if a single object should react to more
+    than one kind of event.
+    """
+
+    @abstractmethod
     async def handle_remote_delete(self, context: ContextRemoteDelete) -> None:
         """Method to handle a remote delete message.
         This method must be implemented by subclasses to define the behavior of the
-            command.
+            handler.
         Args:
             context: Chat context containing the received message and other information.
         """
 
+
+class TypingHandler(Handler):
+    """Abstract base class for reacting to typing indicator events.
+
+    Subclass this and implement `handle_typing_message`, then register the instance
+    with the bot using `bot.register(...)`. Combine with `Command` or the other
+    handler classes via multiple inheritance if a single object should react to more
+    than one kind of event.
+    """
+
+    @abstractmethod
     async def handle_typing_message(self, context: ContextTypingMessage) -> None:
         """Method to handle a typing message.
         This method must be implemented by subclasses to define the behavior of the
-            command.
+            handler.
         Args:
             context: Chat context containing the received message and other information.
         """
 
+
+class ReactionHandler(Handler):
+    """Abstract base class for reacting to reaction events.
+
+    Subclass this and implement `handle_reaction`, then register the instance with
+    the bot using `bot.register(...)`. Combine with `Command` or the other handler
+    classes via multiple inheritance if a single object should react to more than
+    one kind of event.
+    """
+
+    @abstractmethod
     async def handle_reaction(self, context: ContextReaction) -> None:
         """Method to handle a reaction.
         This method must be implemented by subclasses to define the behavior of the
-            command.
+            handler.
         Args:
             context: Chat context containing the received message and other information.
         """

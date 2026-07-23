@@ -40,7 +40,14 @@ from signalbot.bot_config import (
     SQLiteConfig,
     load_config,
 )
-from signalbot.command import Command
+from signalbot.command import (
+    Command,
+    GroupUpdateHandler,
+    Handler,
+    ReactionHandler,
+    RemoteDeleteHandler,
+    TypingHandler,
+)
 from signalbot.context import (
     ContextDataMessage,
     ContextEditMessage,
@@ -71,9 +78,9 @@ if TYPE_CHECKING:
         UpdateGroupRequest,
     )
 
-CommandList: TypeAlias = list[
+HandlerList: TypeAlias = list[
     tuple[
-        Command,
+        Handler,
         list[str] | bool,  # contacts
         list[str] | bool | None,  # groups
         Callable[[ReceivedMessageType], bool] | None,  # lambda filter
@@ -134,8 +141,8 @@ class SignalBot:
                 self._logger.warning(error_msg)
             auth = None
 
-        self._commands_to_be_registered: CommandList = []  # populated by .register()
-        self.commands: CommandList = []  # populated by .start()
+        self._commands_to_be_registered: HandlerList = []  # populated by .register()
+        self.commands: HandlerList = []  # populated by .start()
 
         self.groups: list[GroupEntry] = []  # populated by .start()
         self._groups_by_id = {}
@@ -161,7 +168,7 @@ class SignalBot:
             self._event_loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self._event_loop)
 
-        self._q: asyncio.Queue[tuple[Command, ReceivedMessageType, float]] = (
+        self._q: asyncio.Queue[tuple[Handler, ReceivedMessageType, float]] = (
             asyncio.Queue()
         )
 
@@ -205,15 +212,17 @@ class SignalBot:
 
     def register(
         self,
-        command: Command,
+        command: Handler,
         contacts: list[str] | bool = True,  # noqa: FBT001, FBT002
         groups: list[str] | bool = True,  # noqa: FBT001, FBT002
         f: Callable[[ReceivedMessageType], bool] | None = None,
     ) -> None:
-        """Register a command with optional contact/group filters.
+        """Register a handler with optional contact/group filters.
 
         Args:
-            command: Command instance to register.
+            command: Handler instance to register. This is typically a `Command`,
+                but can be any combination of `Command`, `GroupUpdateHandler`,
+                `RemoteDeleteHandler`, `TypingHandler`, and `ReactionHandler`.
             contacts: Allowed contacts or True for all.
             groups: Allowed groups or True for all.
             f: Optional function to further filter messages.
@@ -831,29 +840,39 @@ class SignalBot:
             except Exception:  # noqa: BLE001, S112
                 continue
 
-    async def _consume_new_item(self, name: int) -> None:
+    async def _consume_new_item(self, name: int) -> None:  # noqa: C901, PLR0912
         command, message, t = await self._q.get()
         now = time.perf_counter()
         self._logger.info(
             f"[Bot] Consumer #{name} got new job in {now - t:0.5f} seconds"  # noqa: G004
         )
 
-        # handle Command
+        # dispatch to whichever handler role(s) `command` implements
         try:
             if isinstance(message, EditMessage):
-                await command.handle_edit_message(ContextEditMessage(self, message))
+                if isinstance(command, Command):
+                    await command.handle_edit_message(ContextEditMessage(self, message))
             elif isinstance(message, ReceiveDataMessage):
-                await command.handle_data_message(ContextDataMessage(self, message))
+                if isinstance(command, Command):
+                    await command.handle_data_message(ContextDataMessage(self, message))
             elif isinstance(message, GroupUpdateMessage):
-                await command.handle_group_update_message(
-                    ContextGroupUpdateMessage(self, message)
-                )
+                if isinstance(command, GroupUpdateHandler):
+                    await command.handle_group_update_message(
+                        ContextGroupUpdateMessage(self, message)
+                    )
             elif isinstance(message, RemoteDelete):
-                await command.handle_remote_delete(ContextRemoteDelete(self, message))
+                if isinstance(command, RemoteDeleteHandler):
+                    await command.handle_remote_delete(
+                        ContextRemoteDelete(self, message)
+                    )
             elif isinstance(message, TypingMessage):
-                await command.handle_typing_message(ContextTypingMessage(self, message))
+                if isinstance(command, TypingHandler):
+                    await command.handle_typing_message(
+                        ContextTypingMessage(self, message)
+                    )
             elif isinstance(message, Reaction):
-                await command.handle_reaction(ContextReaction(self, message))
+                if isinstance(command, ReactionHandler):
+                    await command.handle_reaction(ContextReaction(self, message))
             else:
                 error_msg = f"[Bot] Unknown message type: {type(message)}, "
                 error_msg += "skipping command execution"

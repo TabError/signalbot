@@ -1,13 +1,14 @@
 import pytest
 from pytest_mock import MockerFixture
 
-from signalbot import Command, Context, text_triggered
+from signalbot import Command, text_triggered
+from signalbot.context import ContextDataMessage
 from signalbot.test_utils import ChatTestCase, mock_chat
 
 
 class SchnickSchnackSchnuckCommand(Command):
     @text_triggered("schnick", "schnack")
-    async def handle_data_message(self, context: Context) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         text = context.message.text
         if text == "schnick":
             await context.send("schnack")

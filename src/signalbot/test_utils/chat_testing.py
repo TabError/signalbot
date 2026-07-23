@@ -8,7 +8,9 @@ from unittest.mock import AsyncMock, MagicMock
 import aiohttp
 from pytest_mock import MockerFixture
 
-from signalbot.bot import Command, Context, SignalBot
+from signalbot.bot import SignalBot
+from signalbot.command import Command
+from signalbot.context import ContextDataMessage
 
 
 def mock_chat(*messages: str):  # noqa: ANN201
@@ -214,5 +216,5 @@ class CheckSignalServiceMock(AsyncMock):
 
 
 class DummyCommand(Command):
-    async def handle_data_message(self, context: Context) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         pass
