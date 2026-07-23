@@ -6,9 +6,9 @@ from signalbot.context.context_data_message import ContextDataMessage
 
 class ReactCommand(CommandWithHelpMessage):
     def help_message(self) -> str:
-        return "send_reaction: 🎉 Send a reaction to a message."
+        return "send-reaction: 🎉 Send a reaction to a message."
 
-    @text_triggered("send_reaction")
+    @text_triggered("send-reaction")
     async def handle_data_message(self, context: ContextDataMessage) -> None:
         await context.react("🎉")
 

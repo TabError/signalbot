@@ -29,9 +29,9 @@ class DeleteCommand(CommandWithHelpMessage):
 
 class DeleteLocalAttachmentCommand(CommandWithHelpMessage):
     def help_message(self) -> str:
-        return "delete_attachment: 🗑️ Delete the local copy of an attachment."
+        return "delete-attachment: 🗑️ Delete the local copy of an attachment."
 
-    @text_triggered("delete_attachment")
+    @text_triggered("delete-attachment")
     async def handle_data_message(self, context: ContextDataMessage) -> None:
         attachments = context.message.attachments
         if attachments is None or len(attachments) == 0:
