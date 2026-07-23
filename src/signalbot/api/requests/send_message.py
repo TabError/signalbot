@@ -66,6 +66,18 @@ async def await_items_in_payload(payload: dict[str, Any]) -> None:
         node[key] = result
 
 
+async def to_send_message_v2(
+    send_message: SendMessage | SendMessageMultiple,
+) -> SendMessageV2:
+    payload = send_message.model_dump(
+        exclude_none=True,
+        by_alias=True,
+        context={"mode": "sendv2"},
+    )
+    await await_items_in_payload(payload)
+    return SendMessageV2.model_validate(payload)
+
+
 class SendMessage(BaseModel):
     base64_attachments: list[str] | None = None
     attachments: list[PydanticPath] | None = None

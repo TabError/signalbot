@@ -28,7 +28,7 @@ from signalbot.api.receive_messages import (
     RemoteDelete,
     TypingMessage,
 )
-from signalbot.api.requests import SentMessage
+from signalbot.api.requests import SentMessage, to_send_message_v2
 from signalbot.api.requests.poll import Poll
 from signalbot.auth import BasicAuthentication, BearerAuthentication
 from signalbot.bot_config import (
@@ -326,7 +326,8 @@ class SignalBot:
             raise ValueError(error_msg)
         data_message.recipient = self._resolve_recipient(data_message.recipient)
 
-        send_message_response = await self._signal.send(data_message)
+        send_message_v2 = await to_send_message_v2(data_message)
+        send_message_response = await self._signal.send(send_message_v2)
         timestamp = int(send_message_response.timestamp)
         self._logger.info(
             f"[Bot] New message {timestamp} sent:\n{data_message.text}"  # noqa: G004
@@ -350,7 +351,8 @@ class SignalBot:
             self._resolve_recipient(recipient) for recipient in data_message.recipients
         ]
 
-        send_message_response = await self._signal.send(data_message)
+        send_message_v2 = await to_send_message_v2(data_message)
+        send_message_response = await self._signal.send(send_message_v2)
         timestamp = int(send_message_response.timestamp)
 
         self._logger.info(

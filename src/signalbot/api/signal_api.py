@@ -35,10 +35,6 @@ if TYPE_CHECKING:
         UpdateContactRequest,
         UpdateGroupRequest,
     )
-    from signalbot.api.requests.send_message import (
-        SendMessage,
-        SendMessageMultiple,
-    )
     from signalbot.auth import Authentication
 
 
@@ -94,27 +90,18 @@ class SignalAPI:
 
     async def send(
         self,
-        data_message: SendMessage | SendMessageMultiple,
+        data_message: SendMessageV2,
     ) -> SendMessageResponse:
         uri = self._signal_api_uris.send_rest_uri()
 
         data_message.number = self.phone_number
-        payload = data_message.model_dump(
-            exclude_none=True,
-            by_alias=True,
-            context={"mode": "sendv2"},
-        )
-        await await_items_in_payload(payload)
-
-        # Sanity check the custom model_dump before sending it using
-        # the original request type
-        SendMessageV2.model_validate(payload)
+        payload = data_message.model_dump_json(exclude_none=True, by_alias=True)
 
         headers = self._add_auth()
 
         try:
             async with aiohttp.ClientSession(headers=headers) as session:
-                resp = await session.post(uri, json=payload)
+                resp = await session.post(uri, data=payload)
                 resp.raise_for_status()
                 return SendMessageResponse.model_validate(await resp.json())
         except (
