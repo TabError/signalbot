@@ -1,15 +1,9 @@
 from __future__ import annotations
 
-from typing import Any
-
 from anyio import Path
-from pydantic import (
-    BaseModel,
-    SerializationInfo,
-    SerializerFunctionWrapHandler,
-    model_serializer,
-)
+from pydantic import BaseModel
 
+from signalbot.api.generated.data.link_preview_type import LinkPreviewType
 from signalbot.utils.attachment_base64 import attachment_to_base64
 from signalbot.utils.pydantic_anyio_path import PydanticPath
 
@@ -31,18 +25,15 @@ class LinkPreview(BaseModel):
     url: str
     thumbnail: PydanticPath | str
 
-    @model_serializer(mode="wrap")
-    def serialize_model(
-        self,
-        handler: SerializerFunctionWrapHandler,
-        info: SerializationInfo,
-    ) -> dict[str, Any]:
-        payload: dict[str, Any] = handler(self)
-        if info.context and info.context.get("mode") == "sendv2":
-            base64_thumbnail = payload.get("thumbnail")
-            if isinstance(self.thumbnail, Path):
-                base64_thumbnail = attachment_to_base64(self.thumbnail)
-            payload["base64_thumbnail"] = base64_thumbnail
-            payload.pop("thumbnail", None)
-
-        return payload
+    async def to_link_preview_type(self) -> LinkPreviewType:
+        base64_thumbnail = (
+            await attachment_to_base64(self.thumbnail)
+            if isinstance(self.thumbnail, Path)
+            else self.thumbnail
+        )
+        return LinkPreviewType(
+            base64_thumbnail=base64_thumbnail,
+            description=self.description,
+            title=self.title,
+            url=self.url,
+        )

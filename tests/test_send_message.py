@@ -3,11 +3,7 @@ from pathlib import Path as PathlibPath
 import pytest
 from anyio import Path as AnyIOPath
 
-from signalbot.api.requests.send_message import (
-    SendMessage,
-    SendMessageMultiple,
-    to_send_message_v2,
-)
+from signalbot.api.requests.send_message import SendMessage, SendMessageMultiple
 
 
 @pytest.mark.asyncio
@@ -19,12 +15,12 @@ async def test_send_message_serializes_as_sendv2_with_single_recipient(
 
     message = SendMessage(
         attachments=[AnyIOPath(attachment)],
-        number="+49123456789",
         recipient="group-1",
     )
 
-    result = await to_send_message_v2(message)
+    result = await message.to_send_message_v2("+49123456789")
 
+    assert result.number == "+49123456789"
     assert result.text == ""
     assert result.recipients == ["group-1"]
     assert result.base64_attachments == ["cGF5bG9hZA=="]
@@ -39,13 +35,13 @@ async def test_send_message_multiple_serializes_as_sendv2_with_attachments(
 
     message = SendMessageMultiple(
         attachments=[AnyIOPath(attachment)],
-        number="+49123456789",
         recipients=["group-1", "group-2"],
         text="Hello World!",
     )
 
-    result = await to_send_message_v2(message)
+    result = await message.to_send_message_v2("+49123456789")
 
+    assert result.number == "+49123456789"
     assert result.text == "Hello World!"
     assert result.recipients == ["group-1", "group-2"]
     assert result.base64_attachments == ["cGF5bG9hZA=="]

@@ -28,7 +28,7 @@ from signalbot.api.receive_messages import (
     RemoteDelete,
     TypingMessage,
 )
-from signalbot.api.requests import SentMessage, to_send_message_v2
+from signalbot.api.requests import SentMessage
 from signalbot.api.requests.poll import Poll
 from signalbot.auth import BasicAuthentication, BearerAuthentication
 from signalbot.bot_config import (
@@ -326,7 +326,9 @@ class SignalBot:
             raise ValueError(error_msg)
         data_message.recipient = self._resolve_recipient(data_message.recipient)
 
-        send_message_v2 = await to_send_message_v2(data_message)
+        send_message_v2 = await data_message.to_send_message_v2(
+            self.config.phone_number
+        )
         send_message_response = await self._signal.send(send_message_v2)
         timestamp = int(send_message_response.timestamp)
         self._logger.info(
@@ -351,7 +353,9 @@ class SignalBot:
             self._resolve_recipient(recipient) for recipient in data_message.recipients
         ]
 
-        send_message_v2 = await to_send_message_v2(data_message)
+        send_message_v2 = await data_message.to_send_message_v2(
+            self.config.phone_number
+        )
         send_message_response = await self._signal.send(send_message_v2)
         timestamp = int(send_message_response.timestamp)
 
@@ -503,11 +507,11 @@ class SignalBot:
         Args:
             update_group_request: Group update payload.
         """
-        update_group_request = copy.deepcopy(update_group_request)
-        update_group_request.group_id_or_name = self._resolve_recipient(
+        group_id_or_name = self._resolve_recipient(
             update_group_request.group_id_or_name
         )
-        await self._signal.update_group(update_group_request)
+        wire_request = await update_group_request.to_update_group_request()
+        await self._signal.update_group(group_id_or_name, wire_request)
 
     async def remote_delete(
         self,

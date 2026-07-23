@@ -16,7 +16,6 @@ from signalbot.api.generated import (
     SendMessageV2,
 )
 from signalbot.api.generated import UpdateGroupRequest as _UpdateGroupRequest
-from signalbot.api.requests.send_message import await_items_in_payload
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -31,10 +30,7 @@ if TYPE_CHECKING:
         SendReactionRequest,
         TypingIndicatorRequest,
     )
-    from signalbot.api.requests import (
-        UpdateContactRequest,
-        UpdateGroupRequest,
-    )
+    from signalbot.api.requests import UpdateContactRequest
     from signalbot.auth import Authentication
 
 
@@ -94,7 +90,6 @@ class SignalAPI:
     ) -> SendMessageResponse:
         uri = self._signal_api_uris.send_rest_uri()
 
-        data_message.number = self.phone_number
         payload = data_message.model_dump_json(exclude_none=True, by_alias=True)
 
         headers = self._add_auth()
@@ -290,20 +285,16 @@ class SignalAPI:
         ) as exc:
             raise ContactUpdateError from exc
 
-    async def update_group(self, update_group_request: UpdateGroupRequest) -> None:
-        uri = self._signal_api_uris.group_id_uri(update_group_request.group_id_or_name)
-        payload = update_group_request.model_dump(exclude_none=True, by_alias=True)
-        await await_items_in_payload(payload)
-
-        # Sanity check the custom model_dump before sending it using the original
-        # request type
-        _UpdateGroupRequest.model_validate(payload)
-
+    async def update_group(
+        self, group_id_or_name: str, update_group_request: _UpdateGroupRequest
+    ) -> None:
+        uri = self._signal_api_uris.group_id_uri(group_id_or_name)
+        payload = update_group_request.model_dump_json(exclude_none=True, by_alias=True)
         headers = self._add_auth()
 
         try:
             async with aiohttp.ClientSession(headers=headers) as session:
-                resp = await session.put(uri, json=payload)
+                resp = await session.put(uri, data=payload)
                 resp.raise_for_status()
                 return resp
         except (

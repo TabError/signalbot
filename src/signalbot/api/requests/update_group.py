@@ -1,16 +1,9 @@
 from __future__ import annotations
 
-from typing import Any
-
 from anyio import Path
-from pydantic import (
-    AliasChoices,
-    BaseModel,
-    Field,
-    SerializerFunctionWrapHandler,
-    model_serializer,
-)
+from pydantic import AliasChoices, BaseModel, Field
 
+from signalbot.api.generated import UpdateGroupRequest as _UpdateGroupRequest
 from signalbot.api.generated.api.group_link import GroupLink
 from signalbot.api.generated.data.group_permissions import GroupPermissions
 from signalbot.utils.attachment_base64 import attachment_to_base64
@@ -48,14 +41,10 @@ class UpdateGroupRequest(BaseModel):
     name: str | None = None
     permissions: GroupPermissions | None = None
 
-    @model_serializer(mode="wrap")
-    def serialize_model(self, handler: SerializerFunctionWrapHandler) -> dict[str, Any]:
-        payload: dict[str, Any] = handler(self)
-        if self.avatar is not None:
-            base64_avatar = payload.get("avatar")
-            if isinstance(self.avatar, Path):
-                base64_avatar = attachment_to_base64(self.avatar)
-            payload["base64_avatar"] = base64_avatar
-            payload.pop("avatar", None)
-
-        return payload
+    async def to_update_group_request(self) -> _UpdateGroupRequest:
+        avatar = self.avatar
+        base64_avatar = (
+            await attachment_to_base64(avatar) if isinstance(avatar, Path) else avatar
+        )
+        other_fields = self.model_dump(exclude={"avatar"})
+        return _UpdateGroupRequest(**other_fields, base64_avatar=base64_avatar)
