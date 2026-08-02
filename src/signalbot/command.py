@@ -132,8 +132,7 @@ class Handler(ABC):  # noqa: B024 -- intentionally has no abstract methods of it
     This class only provides bot wiring and the `setup` hook. To actually react to
     something happening on Signal, subclass one of `DataMessageHandler`,
     `GroupUpdateHandler`, `RemoteDeleteHandler`, `TypingHandler`, or
-    `ReactionHandler` (or several of them at once via multiple inheritance) rather
-    than this class directly.
+    `ReactionHandler` rather than this class directly.
     """
 
     def __init__(self) -> None:
@@ -166,7 +165,7 @@ class DataMessageHandler(Handler):
     """Abstract base class for text, attachments and stickers messages.
     It handles both original messages and edited messages.
 
-    To create a command, subclass this class and implement `handle`.
+    To create a command, subclass this class and implement `handle_data_message`.
     Then, register the command with the bot using `bot.register(CommandSubclass)`.
     """
 
@@ -186,9 +185,7 @@ class GroupUpdateHandler(Handler):
     """Abstract base class for reacting to group update events.
 
     Subclass this and implement `handle_group_update_message`, then register the
-    instance with the bot using `bot.register(...)`. Combine with
-    `DataMessageHandler` or the other handler classes via multiple inheritance if a
-    single object should react to more than one kind of event.
+    instance with the bot using `bot.register(...)`.
     """
 
     @abstractmethod
@@ -207,9 +204,7 @@ class RemoteDeleteHandler(Handler):
     """Abstract base class for reacting to remote delete events.
 
     Subclass this and implement `handle_remote_delete`, then register the instance
-    with the bot using `bot.register(...)`. Combine with `DataMessageHandler` or
-    the other handler classes via multiple inheritance if a single object should
-    react to more than one kind of event.
+    with the bot using `bot.register(...)`.
     """
 
     @abstractmethod
@@ -226,9 +221,7 @@ class TypingHandler(Handler):
     """Abstract base class for reacting to typing indicator events.
 
     Subclass this and implement `handle_typing_message`, then register the instance
-    with the bot using `bot.register(...)`. Combine with `DataMessageHandler` or
-    the other handler classes via multiple inheritance if a single object should
-    react to more than one kind of event.
+    with the bot using `bot.register(...)`.
     """
 
     @abstractmethod
@@ -245,9 +238,7 @@ class ReactionHandler(Handler):
     """Abstract base class for reacting to reaction events.
 
     Subclass this and implement `handle_reaction`, then register the instance with
-    the bot using `bot.register(...)`. Combine with `DataMessageHandler` or the
-    other handler classes via multiple inheritance if a single object should react
-    to more than one kind of event.
+    the bot using `bot.register(...)`.
     """
 
     @abstractmethod

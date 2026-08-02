@@ -10,6 +10,7 @@ from examples.commands import (
     PingCommand,
     ReactCommand,
     ReactionCommand,
+    ReceiveDeleteCommand,
     RegexTriggeredCommand,
     ReplyCommand,
     StylesCommand,
@@ -49,6 +50,7 @@ def main() -> None:
 
     bot.register(EditCommand())
     bot.register(DeleteCommand())
+    bot.register(ReceiveDeleteCommand())
     bot.register(DeleteLocalAttachmentCommand())
     bot.register(StylesCommand())
     bot.register(LinkPreviewCommand())

@@ -6,7 +6,7 @@ from signalbot.api.requests import SendMessage
 from signalbot.context import ContextDataMessage, ContextRemoteDelete
 
 
-class DeleteCommand(DataMessageHandler, RemoteDeleteHandler):
+class DeleteCommand(DataMessageHandler):
     def help_message(self) -> str:
         return "delete: 🗑️ Delete a message."
 
@@ -17,6 +17,11 @@ class DeleteCommand(DataMessageHandler, RemoteDeleteHandler):
         )
         await asyncio.sleep(2)
         await context.remote_delete(timestamp=sent_message.timestamp)
+
+
+class ReceiveDeleteCommand(RemoteDeleteHandler):
+    def help_message(self) -> str:
+        return "Remote delete received: 🗑️ Notifies when a message was deleted."
 
     async def handle_remote_delete(self, context: ContextRemoteDelete) -> None:
         deleted_at = datetime.fromtimestamp(  # noqa: DTZ006

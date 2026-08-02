@@ -1,5 +1,5 @@
 from .attachments import AttachmentCommand
-from .delete import DeleteCommand, DeleteLocalAttachmentCommand
+from .delete import DeleteCommand, DeleteLocalAttachmentCommand, ReceiveDeleteCommand
 from .edit import EditCommand
 from .help import HelpCommand
 from .link_preview import LinkPreviewCommand
@@ -21,6 +21,7 @@ __all__ = [
     "PingCommand",
     "ReactCommand",
     "ReactionCommand",
+    "ReceiveDeleteCommand",
     "RegexTriggeredCommand",
     "ReplyCommand",
     "StylesCommand",
