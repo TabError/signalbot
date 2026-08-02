@@ -21,7 +21,10 @@ class ReactCommand(HasHelpMessage, Command):
 
 class ReactionCommand(HasHelpMessage, ReactionHandler):
     def help_message(self) -> str:
-        return "react with any emoji: 👍 Reaction received decorator example."
+        return (
+            "Reaction received (any emoji except 👍/❤️): 🎉 Replies with details "
+            "about the reaction."
+        )
 
     async def handle_reaction(self, context: ContextReaction) -> None:
         reaction = context.message
@@ -47,7 +50,10 @@ class ReactionCommand(HasHelpMessage, ReactionHandler):
 
 class ThumbsUpCommand(HasHelpMessage, ReactionHandler):
     def help_message(self) -> str:
-        return "react with 👍 or ❤️: 🎯 Filtered reaction received decorator example."
+        return (
+            "Reaction received (👍 or ❤️): 🎯 Filtered reaction received "
+            "decorator example."
+        )
 
     @reaction_triggered("👍", "❤️")
     async def handle_reaction(self, context: ContextReaction) -> None:
