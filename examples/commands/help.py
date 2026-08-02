@@ -28,9 +28,9 @@ class HelpCommand(DataMessageHandler):
         sections = []
         if commands:
             entries = "\n".join(f"  {entry}" for entry in commands)
-            sections.append(f"commands:\n{entries}")
+            sections.append(f"Commands:\n{entries}")
         if handlers:
             entries = "\n".join(f"  {entry}" for entry in handlers)
-            sections.append(f"handlers:\n{entries}")
+            sections.append(f"Handlers:\n{entries}")
 
         await context.send(SendMessage(text="\n".join(sections)))
