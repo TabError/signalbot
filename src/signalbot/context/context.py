@@ -1,6 +1,9 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING
+import logging
+from typing import TYPE_CHECKING, Generic, TypeVar
+
+from signalbot.logger import LOGGER_NAME
 
 if TYPE_CHECKING:
     from signalbot.api.receive_messages import ReceivedMessageType
@@ -12,17 +15,20 @@ if TYPE_CHECKING:
     )
     from signalbot.bot import SignalBot
 
+MessageT = TypeVar("MessageT", bound="ReceivedMessageType")
 
-class Context:
+
+class Context(Generic[MessageT]):
     """
     Context is a helper class that provides methods to reply, edit, react, etc. to a
     message. This is useful to avoid having to pass the recipient and other arguments to
     the bot's methods manually.
     """
 
-    def __init__(self, bot: SignalBot, message: ReceivedMessageType) -> None:
+    def __init__(self, bot: SignalBot, message: MessageT) -> None:
         self.bot = bot
         self.message = message
+        self._logger = logging.getLogger(LOGGER_NAME)
 
     async def send(
         self,
