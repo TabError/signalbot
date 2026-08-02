@@ -45,6 +45,7 @@ from signalbot.command import (
     GroupUpdateHandler,
     Handler,
     ReactionHandler,
+    ReadyHandler,
     RemoteDeleteHandler,
     TypingHandler,
 )
@@ -52,6 +53,7 @@ from signalbot.context import (
     ContextDataMessage,
     ContextGroupUpdateMessage,
     ContextReaction,
+    ContextReady,
     ContextRemoteDelete,
     ContextTypingMessage,
 )
@@ -258,7 +260,13 @@ class SignalBot:
         await self._check_signal_cli_rest_api_mode()
         await self._detect_groups()
         await self._resolve_commands()
+        await self._run_ready_handlers()
         await self._create_produce_consume_messages_tasks()
+
+    async def _run_ready_handlers(self) -> None:
+        for command, *_ in self.commands:
+            if isinstance(command, ReadyHandler):
+                await command.handle_ready(ContextReady(self))
 
     async def _check_signal_service(self) -> None:
         while (await self._signal.check_signal_service()) is False:
@@ -313,6 +321,18 @@ class SignalBot:
             self.scheduler.start()
 
             self._event_loop.run_forever()
+
+    async def wait_until_ready(self) -> None:
+        """Wait until the bot has finished connecting and is ready to send messages.
+
+        Useful for code that runs outside of a `ReadyHandler`, e.g. a scheduled job
+        that may execute before `start()` has finished initializing the bot.
+        """
+        if self.init_task is None:
+            error_msg = "Bot is not initialized yet, call .start() first"
+            raise SignalBotError(error_msg)
+
+        await self.init_task
 
     async def signal_cli_rest_api_about(self) -> About:
         """Return the signal-cli-rest-api about information."""

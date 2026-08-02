@@ -2,19 +2,25 @@ import os
 
 import typer
 
-from signalbot import SignalBot
+from signalbot import ContextReady, ReadyHandler, SignalBot
 from signalbot.api.requests import SendMessage
 
 
-async def send(bot: SignalBot, recipient: str, text: str) -> None:
-    if bot.init_task is None:
-        error_msg = "Bot is not initialized yet"
-        raise RuntimeError(error_msg)
+class Welcome(ReadyHandler):
+    def __init__(self, recipient: str, text: str) -> None:
+        super().__init__()
+        self.recipient = recipient
+        self.text = text
 
-    # Wait until the bot is fully initialized before sending a message
-    await bot.init_task
+    async def handle_ready(self, context: ContextReady) -> None:
+        await context.bot.send(SendMessage(recipient=self.recipient, text=self.text))
 
-    await bot.send(SendMessage(recipient=recipient, text=text))
+
+async def ping(bot: SignalBot, recipient: str) -> None:
+    # Scheduled jobs can run before the bot has finished connecting, so wait for it.
+    await bot.wait_until_ready()
+
+    await bot.send(SendMessage(recipient=recipient, text="Ping"))
 
 
 def main(
@@ -24,10 +30,8 @@ def main(
     config = {"phone_number": os.environ["PHONE_NUMBER"]}
     bot = SignalBot(config)
 
-    bot.scheduler.add_job(send, args=[bot, recipient, text])
-    bot.scheduler.add_job(
-        send, args=[bot, recipient, "Ping"], trigger="interval", seconds=5
-    )
+    bot.register(Welcome(recipient, text))
+    bot.scheduler.add_job(ping, args=[bot, recipient], trigger="interval", seconds=5)
     bot.start()
 
 

@@ -20,6 +20,7 @@ if TYPE_CHECKING:
     from signalbot.bot import SignalBot
     from signalbot.context import (
         ContextGroupUpdateMessage,
+        ContextReady,
         ContextRemoteDelete,
         ContextTypingMessage,
     )
@@ -147,8 +148,8 @@ class Handler(ABC):  # noqa: B024 -- intentionally has no abstract methods of it
 
     This class only provides bot wiring and the `setup` hook. To actually react to
     something happening on Signal, subclass one of `DataMessageHandler`,
-    `GroupUpdateHandler`, `RemoteDeleteHandler`, `TypingHandler`, or
-    `ReactionHandler` rather than this class directly.
+    `GroupUpdateHandler`, `RemoteDeleteHandler`, `TypingHandler`, `ReactionHandler`,
+    or `ReadyHandler` rather than this class directly.
     """
 
     def __init__(self) -> None:
@@ -264,6 +265,25 @@ class ReactionHandler(Handler):
             handler.
         Args:
             context: Chat context containing the received message and other information.
+        """
+
+
+class ReadyHandler(Handler):
+    """Abstract base class for reacting to the bot becoming ready.
+
+    Subclass this and implement `handle_ready`, then register the instance with
+    the bot using `bot.register(...)`. `handle_ready` is called exactly once, after
+    the bot has finished connecting and resolving groups, but before it starts
+    processing incoming messages.
+    """
+
+    @abstractmethod
+    async def handle_ready(self, context: ContextReady) -> None:
+        """Method to handle the bot becoming ready.
+        This method must be implemented by subclasses to define the behavior of the
+            handler.
+        Args:
+            context: Context giving access to the bot.
         """
 
 

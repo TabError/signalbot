@@ -9,6 +9,7 @@ from signalbot import (
     MIN_SIGNAL_CLI_REST_API_VERSION,
     ConnectionMode,
     DataMessageHandler,
+    ReadyHandler,
     SignalAPI,
     SignalBot,
 )
@@ -21,7 +22,8 @@ from signalbot.api.generated import (
     SendMessages,
 )
 from signalbot.api.requests.poll import Poll
-from signalbot.context import ContextDataMessage
+from signalbot.bot import SignalBotError
+from signalbot.context import ContextDataMessage, ContextReady
 from signalbot.test_utils import DummyCommand
 
 FULL_GROUP_PERMISSIONS = GroupPermissions(
@@ -359,6 +361,75 @@ class TestRegisterCommand(TestCommon):
         expected_user_chats_cmd1 = [user_number3]
         assert self.signal_bot.commands[0][1] == expected_user_chats_cmd0
         assert self.signal_bot.commands[1][1] == expected_user_chats_cmd1
+
+
+class TrackingReadyHandler(ReadyHandler):
+    def __init__(self):  # noqa: ANN204
+        super().__init__()
+        self.contexts: list[ContextReady] = []
+
+    async def handle_ready(self, context: ContextReady) -> None:
+        self.contexts.append(context)
+
+
+class TestReadyHandler(TestCommon):
+    @pytest.mark.asyncio
+    async def test_run_ready_handlers_calls_handle_ready(self):
+        handler = TrackingReadyHandler()
+        self.signal_bot.register(handler)
+        await self.signal_bot._resolve_commands()
+
+        await self.signal_bot._run_ready_handlers()
+
+        assert len(handler.contexts) == 1
+        assert handler.contexts[0].bot is self.signal_bot
+
+    @pytest.mark.asyncio
+    async def test_run_ready_handlers_skips_non_ready_handlers(self):
+        self.signal_bot.register(DummyCommand())
+        await self.signal_bot._resolve_commands()
+
+        # DummyCommand is a DataMessageHandler, not a ReadyHandler, so this must
+        # not raise (e.g. from trying to call a non-existent handle_ready).
+        await self.signal_bot._run_ready_handlers()
+
+    @pytest.mark.asyncio
+    async def test_run_ready_handlers_calls_multiple_handlers_in_registration_order(
+        self,
+    ):
+        calls = []
+
+        class FirstHandler(ReadyHandler):
+            async def handle_ready(self, context: ContextReady) -> None:  # noqa: ARG002
+                calls.append("first")
+
+        class SecondHandler(ReadyHandler):
+            async def handle_ready(self, context: ContextReady) -> None:  # noqa: ARG002
+                calls.append("second")
+
+        self.signal_bot.register(FirstHandler())
+        self.signal_bot.register(SecondHandler())
+        await self.signal_bot._resolve_commands()
+
+        await self.signal_bot._run_ready_handlers()
+
+        assert calls == ["first", "second"]
+
+    @pytest.mark.asyncio
+    async def test_wait_until_ready_raises_if_bot_not_started(self):
+        with pytest.raises(SignalBotError):
+            await self.signal_bot.wait_until_ready()
+
+    @pytest.mark.asyncio
+    async def test_wait_until_ready_awaits_init_task(self):
+        async def noop() -> None:
+            return None
+
+        self.signal_bot.init_task = asyncio.create_task(noop())
+
+        await self.signal_bot.wait_until_ready()
+
+        assert self.signal_bot.init_task.done()
 
 
 @pytest.mark.asyncio
