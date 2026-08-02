@@ -1,16 +1,15 @@
-from abc import abstractmethod
+from typing import Protocol, runtime_checkable
 
-from signalbot import Command, ContextDataMessage, Handler, text_triggered
+from signalbot import Command, ContextDataMessage, text_triggered
 from signalbot.api.requests import SendMessage
 
 
-class HasHelpMessage(Handler):
-    @abstractmethod
-    def help_message(self) -> str:
-        pass
+@runtime_checkable
+class HasHelpMessage(Protocol):
+    def help_message(self) -> str: ...
 
 
-class HelpCommand(HasHelpMessage, Command):
+class HelpCommand(Command):
     def help_message(self) -> str:
         return "help: 🆘 Shows information about available commands."
 

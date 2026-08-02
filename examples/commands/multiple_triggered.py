@@ -1,9 +1,8 @@
-from examples.commands.help import HasHelpMessage
 from signalbot import Command, ContextDataMessage, text_triggered
 from signalbot.api.requests import SendMessage
 
 
-class TriggeredCommand(HasHelpMessage, Command):
+class TriggeredCommand(Command):
     def help_message(self) -> str:
         return "command-1, command-2 or command-3: 😤😤😤 Decorator example."
 

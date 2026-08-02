@@ -1,11 +1,10 @@
 from anyio import Path
 
-from examples.commands.help import HasHelpMessage
 from signalbot import Command, ContextDataMessage, text_triggered
 from signalbot.api.requests import SendMessage
 
 
-class AttachmentCommand(HasHelpMessage, Command):
+class AttachmentCommand(Command):
     def help_message(self) -> str:
         return "friday: 🦀 Send an image."
 

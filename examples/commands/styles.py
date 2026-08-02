@@ -1,9 +1,8 @@
-from examples.commands.help import HasHelpMessage
 from signalbot import Command, ContextDataMessage, TextMode, text_triggered
 from signalbot.api.requests import SendMessage
 
 
-class StylesCommand(HasHelpMessage, Command):
+class StylesCommand(Command):
     def help_message(self) -> str:
         return "styles: 🎨 Demonstrates different text styles."
 

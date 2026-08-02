@@ -1,9 +1,8 @@
-from examples.commands.help import HasHelpMessage
 from signalbot import Command, ContextDataMessage, regex_triggered
 from signalbot.api.requests import SendMessage
 
 
-class RegexTriggeredCommand(HasHelpMessage, Command):
+class RegexTriggeredCommand(Command):
     def help_message(self) -> str:
         return "^[\\w\\.-]+@gmail\\.com$: 😤 Regular expression decorator example."
 
