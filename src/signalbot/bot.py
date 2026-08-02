@@ -20,10 +20,10 @@ from signalbot.api.generated.api.receipt import Receipt
 from signalbot.api.generated.api.send_reaction_request import SendReactionRequest
 from signalbot.api.generated.api.typing_indicator_request import TypingIndicatorRequest
 from signalbot.api.receive_messages import (
+    DataMessage,
     EditMessage,
     GroupUpdateMessage,
     Reaction,
-    ReceiveDataMessage,
     ReceivedMessageType,
     RemoteDelete,
     TypingMessage,
@@ -437,9 +437,7 @@ class SignalBot:
 
         return Poll.from_create_poll_request(create_poll_request, timestamp)
 
-    async def react(
-        self, message: SentMessage | ReceiveDataMessage, emoji: str
-    ) -> None:
+    async def react(self, message: SentMessage | DataMessage, emoji: str) -> None:
         """React to a message with an emoji.
 
         Args:
@@ -481,7 +479,7 @@ class SignalBot:
 
     async def receipt(
         self,
-        message: ReceiveDataMessage | EditMessage,
+        message: DataMessage | EditMessage,
         receipt_type: ReceiptType,
     ) -> None:
         """Send a read or viewed receipt for a message if supported.
@@ -617,7 +615,7 @@ class SignalBot:
     async def _process_updates(self, message: ReceivedMessageType) -> None:
         # Update groups if message is from an unknown group
         if (
-            isinstance(message, GroupUpdateMessage | ReceiveDataMessage)
+            isinstance(message, GroupUpdateMessage | DataMessage)
             and message.group_info is not None
             and message.group_info.group_id is not None
             and self._groups_by_internal_id.get(message.group_info.group_id) is None
@@ -875,7 +873,7 @@ class SignalBot:
 
         # dispatch to whichever handler role(s) `command` implements
         try:
-            if isinstance(message, ReceiveDataMessage):
+            if isinstance(message, DataMessage):
                 if isinstance(command, DataMessageHandler):
                     await command.handle_data_message(ContextDataMessage(self, message))
             elif isinstance(message, GroupUpdateMessage):

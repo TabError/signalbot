@@ -21,14 +21,14 @@ from signalbot.api.requests import SendMessage
 
 if TYPE_CHECKING:
     from signalbot.api import SignalAPI
+    from signalbot.api.generated import DataMessage as BaseDataMessage
     from signalbot.api.generated import (
-        DataMessage,
         MessageEnvelope,
         SyncDataMessage,
     )
 
 
-class ReceiveDataMessage(BaseMessageWithGroup):
+class DataMessage(BaseMessageWithGroup):
     attachments: list[Attachment] | None = None
     expires_in_seconds: int | None = None
     mentions: list[Mention] | None = None
@@ -68,9 +68,9 @@ class ReceiveDataMessage(BaseMessageWithGroup):
     async def _internal_parse(
         cls,
         message_envelope: MessageEnvelope,
-        data_message: DataMessage | SyncDataMessage,
+        data_message: BaseDataMessage | SyncDataMessage,
         signal: SignalAPI,
-    ) -> ReceiveDataMessage:
+    ) -> DataMessage:
         attachments = None
         if data_message.attachments is not None:
             attachments = [
@@ -91,7 +91,7 @@ class ReceiveDataMessage(BaseMessageWithGroup):
             else message_envelope.timestamp
         )
 
-        received_data_message = ReceiveDataMessage(
+        received_data_message = DataMessage(
             server_delivered_timestamp=message_envelope.server_delivered_timestamp,
             server_received_timestamp=message_envelope.server_received_timestamp,
             source=message_envelope.source,
@@ -134,7 +134,7 @@ class ReceiveDataMessage(BaseMessageWithGroup):
     @classmethod
     async def from_message_envelope(
         cls, message_envelope: MessageEnvelope, signal: SignalAPI
-    ) -> ReceiveDataMessage:
+    ) -> DataMessage:
         if message_envelope.data_message is not None:
             return await cls._internal_parse(
                 message_envelope, message_envelope.data_message, signal

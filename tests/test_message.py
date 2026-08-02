@@ -6,10 +6,10 @@ from pytest_mock import MockerFixture
 
 from signalbot.api import SignalAPI
 from signalbot.api.receive_messages import (
+    DataMessage,
     EditMessage,
     GroupUpdateMessage,
     Reaction,
-    ReceiveDataMessage,
     TypingMessage,
 )
 from signalbot.message import UnknownMessageFormatError, parse
@@ -56,7 +56,7 @@ class TestMessage:
 
     async def test_parse_type_own_message(self):
         message = await parse(self.signal_api, TestMessage.raw_sync_message)
-        assert isinstance(message, ReceiveDataMessage)
+        assert isinstance(message, DataMessage)
 
     async def test_parse_text_own_message(self):
         message = await parse(self.signal_api, TestMessage.raw_sync_message)
@@ -78,7 +78,7 @@ class TestMessage:
 
     async def test_parse_type_foreign_message(self):
         message = await parse(self.signal_api, TestMessage.raw_data_message)
-        assert isinstance(message, ReceiveDataMessage)
+        assert isinstance(message, DataMessage)
 
     async def test_parse_text_foreign_message(self):
         message = await parse(self.signal_api, TestMessage.raw_data_message)
@@ -133,7 +133,7 @@ class TestMessage:
             self.signal_api,
             TestMessage.raw_attachment_message,
         )
-        assert isinstance(message, ReceiveDataMessage)
+        assert isinstance(message, DataMessage)
         assert message.attachments[0].base64_content == expected_base64_str
         assert (
             message.attachments[0].local_filename == TestMessage.expected_local_filename
@@ -153,7 +153,7 @@ class TestMessage:
 
     async def test_preview_no_image(self):
         message = await parse(self.signal_api, TestMessage.raw_preview_no_image_message)
-        assert isinstance(message, ReceiveDataMessage)
+        assert isinstance(message, DataMessage)
         assert isinstance(message.previews, list)
         assert len(message.previews) == 1
 

@@ -3,7 +3,7 @@ from __future__ import annotations
 from anyio import Path
 from pydantic import AliasChoices, BaseModel, Field
 
-from signalbot.api.generated import UpdateGroupRequest as _UpdateGroupRequest
+from signalbot.api.generated import UpdateGroupRequest as BaseUpdateGroupRequest
 from signalbot.api.generated.api.group_link import GroupLink
 from signalbot.api.generated.data.group_permissions import GroupPermissions
 from signalbot.utils.attachment_base64 import attachment_to_base64
@@ -41,10 +41,10 @@ class UpdateGroupRequest(BaseModel):
     name: str | None = None
     permissions: GroupPermissions | None = None
 
-    async def to_update_group_request(self) -> _UpdateGroupRequest:
+    async def to_update_group_request(self) -> BaseUpdateGroupRequest:
         avatar = self.avatar
         base64_avatar = (
             await attachment_to_base64(avatar) if isinstance(avatar, Path) else avatar
         )
         other_fields = self.model_dump(exclude={"avatar"})
-        return _UpdateGroupRequest(**other_fields, base64_avatar=base64_avatar)
+        return BaseUpdateGroupRequest(**other_fields, base64_avatar=base64_avatar)

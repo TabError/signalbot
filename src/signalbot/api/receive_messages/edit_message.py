@@ -2,19 +2,19 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from signalbot.api.receive_messages.data_message import ReceiveDataMessage
+from signalbot.api.receive_messages.data_message import DataMessage
 
 if TYPE_CHECKING:
     from signalbot.api import SignalAPI
     from signalbot.api.generated import MessageEnvelope
 
 
-class EditMessage(ReceiveDataMessage):
+class EditMessage(DataMessage):
     target_sent_timestamp: int
 
     @classmethod
     async def from_data_message(
-        cls, data_message: ReceiveDataMessage, target_sent_timestamp: int
+        cls, data_message: DataMessage, target_sent_timestamp: int
     ) -> EditMessage:
         return cls(
             server_delivered_timestamp=data_message.server_delivered_timestamp,

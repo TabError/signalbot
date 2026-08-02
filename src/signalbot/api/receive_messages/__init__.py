@@ -3,7 +3,7 @@ from signalbot.api.receive_messages.base_message import (
     BaseMessage,
     BaseMessageWithGroup,
 )
-from signalbot.api.receive_messages.data_message import ReceiveDataMessage
+from signalbot.api.receive_messages.data_message import DataMessage
 from signalbot.api.receive_messages.edit_message import EditMessage
 from signalbot.api.receive_messages.group_update_message import GroupUpdateMessage
 from signalbot.api.receive_messages.link_previews import Preview
@@ -13,7 +13,7 @@ from signalbot.api.receive_messages.remote_delete import RemoteDelete
 from signalbot.api.receive_messages.typing_message import TypingMessage
 
 ReceivedMessageType = (
-    ReceiveDataMessage
+    DataMessage
     | GroupUpdateMessage
     | RemoteDelete
     | TypingMessage
@@ -25,11 +25,11 @@ __all__ = [
     "Attachment",
     "BaseMessage",
     "BaseMessageWithGroup",
+    "DataMessage",
     "EditMessage",
     "GroupUpdateMessage",
     "Preview",
     "Reaction",
-    "ReceiveDataMessage",
     "ReceivedMessage",
     "ReceivedMessageType",
     "RemoteDelete",

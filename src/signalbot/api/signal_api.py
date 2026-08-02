@@ -15,7 +15,7 @@ from signalbot.api.generated import (
     SendMessageResponse,
     SendMessageV2,
 )
-from signalbot.api.generated import UpdateGroupRequest as _UpdateGroupRequest
+from signalbot.api.generated import UpdateGroupRequest as BaseUpdateGroupRequest
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -286,7 +286,7 @@ class SignalAPI:
             raise ContactUpdateError from exc
 
     async def update_group(
-        self, group_id_or_name: str, update_group_request: _UpdateGroupRequest
+        self, group_id_or_name: str, update_group_request: BaseUpdateGroupRequest
     ) -> None:
         uri = self._signal_api_uris.group_id_uri(group_id_or_name)
         payload = update_group_request.model_dump_json(exclude_none=True, by_alias=True)

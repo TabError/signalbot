@@ -157,7 +157,7 @@ class DataMessageHandler(ABC):
             command.
         Args:
             context: Chat context containing the received message and other information.
-                `context.message` is an `EditMessage` (a `ReceiveDataMessage` subclass)
+                `context.message` is an `EditMessage` (a `DataMessage` subclass)
                 when the message is an edit of a previously sent message.
         """
 
