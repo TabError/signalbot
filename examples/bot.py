@@ -18,14 +18,13 @@ from examples.commands import (
     TriggeredCommand,
     TypingCommand,
 )
-from signalbot import SignalBot
+from signalbot import Config, SignalBot
 
 
 def main() -> None:
     phone_number = os.environ["PHONE_NUMBER"]
 
-    config = {"phone_number": phone_number}
-    bot = SignalBot(config)
+    bot = SignalBot(Config(phone_number=phone_number))
 
     bot.register(HelpCommand())
 
