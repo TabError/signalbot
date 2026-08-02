@@ -13,6 +13,7 @@ nav:
       - API overview: examples/api_overview.md
       - Bot config: examples/bot_config_options.md
       - Scheduler: examples/bot_with_scheduler.md
+      - Combining handlers: examples/group_activity_bot.md
   - Additional information: additional_information.md
   - Reference:
       - SignalBot: reference/bot.md

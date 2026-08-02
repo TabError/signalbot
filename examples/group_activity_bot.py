@@ -1,0 +1,58 @@
+import os
+from datetime import UTC, datetime
+
+from signalbot import (
+    Config,
+    ContextDataMessage,
+    ContextGroupUpdateMessage,
+    DataMessageHandler,
+    GroupUpdateHandler,
+    SignalBot,
+    text_triggered,
+)
+from signalbot.api.requests import SendMessage
+
+
+class GroupActivityCommand(DataMessageHandler, GroupUpdateHandler):
+    """Tracks the most recent group update and answers a query about it.
+
+    `handle_group_update_message` records who changed the group and when;
+    `handle_data_message` answers the `last-change` command by reading that
+    same cache. Combining both handlers on one instance is what lets them
+    share `_last_update` directly instead of through a database or some other
+    out-of-process channel.
+    """
+
+    def __init__(self) -> None:
+        super().__init__()
+        self._last_update: dict[str, tuple[str, datetime]] = {}
+
+    async def handle_group_update_message(
+        self, context: ContextGroupUpdateMessage
+    ) -> None:
+        group_info = context.message.group_info
+        if group_info.group_id is None:
+            return
+
+        who = context.message.source_name or context.message.source_name
+        when = datetime.fromtimestamp(context.message.timestamp / 1000, tz=UTC)
+        self._last_update[group_info.group_id] = (who or "someone", when)
+
+    @text_triggered("last-change")
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
+        group_info = context.message.group_info
+        group_id = group_info.group_id if group_info is not None else None
+
+        if group_id is None or group_id not in self._last_update:
+            await context.send(SendMessage(text="No group changes seen yet."))
+            return
+
+        who, when = self._last_update[group_id]
+        message = f"{who} last changed this group at {when}."
+        await context.send(SendMessage(text=message))
+
+
+if __name__ == "__main__":
+    bot = SignalBot(Config(phone_number=os.environ["PHONE_NUMBER"]))
+    bot.register(GroupActivityCommand(), contacts=False, groups=True)
+    bot.start()
