@@ -18,15 +18,15 @@ class RedisConfig(BaseModel):
 
     Attributes:
         type: The type of storage. Defaults to `redis`.
-        redis_host: The hostname of the Redis server.
-        redis_port: The port number of the Redis server.
-        redis_password: The password for Redis authentication. Defaults to `None`.
+        host: The hostname of the Redis server.
+        port: The port number of the Redis server.
+        password: The password for Redis authentication. Defaults to `None`.
     """
 
     type: Literal["redis"] = "redis"
-    redis_host: str
-    redis_port: int
-    redis_password: str | None = None
+    host: str
+    port: int
+    password: str | None = None
 
 
 class SQLiteConfig(BaseModel):
@@ -36,12 +36,12 @@ class SQLiteConfig(BaseModel):
 
     Attributes:
         type: The type of storage. Defaults to `sqlite`.
-        sqlite_db: The path to the SQLite database file.
+        db: The path to the SQLite database file.
         check_same_thread: Whether to check the same thread when accessing the database.
     """
 
     type: Literal["sqlite"] = "sqlite"
-    sqlite_db: str | Path
+    db: str | Path
     check_same_thread: bool = True
 
 

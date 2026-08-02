@@ -190,15 +190,15 @@ class SignalBot:
 
         if isinstance(self.config.storage, SQLiteConfig):
             self.storage = SQLiteStorage(
-                self.config.storage.sqlite_db,
+                self.config.storage.db,
                 check_same_thread=self.config.storage.check_same_thread,
             )
             self._logger.info("sqlite storage initilized")
         elif isinstance(self.config.storage, RedisConfig):
             self.storage = RedisStorage(
-                self.config.storage.redis_host,
-                self.config.storage.redis_port,
-                self.config.storage.redis_password,
+                self.config.storage.host,
+                self.config.storage.port,
+                self.config.storage.password,
             )
             self._logger.info("redis storage initilized")
         elif isinstance(self.config.storage, InMemoryConfig):

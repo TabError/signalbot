@@ -42,26 +42,26 @@ class TestLoadConfig:
     def test_load_config_from_dict_with_redis(self):
         self._dict_config["storage"] = {
             "type": "redis",
-            "redis_host": "redis_host",
-            "redis_port": 6379,
+            "host": "redis_host",
+            "port": 6379,
         }
         config = load_config(self._dict_config)
         assert isinstance(config, Config)
         assert isinstance(config.storage, RedisConfig)
-        assert config.storage.redis_host == "redis_host"
-        assert config.storage.redis_password is None
+        assert config.storage.host == "redis_host"
+        assert config.storage.password is None
 
     def test_load_config_from_dict_with_redis_password(self):
         self._dict_config["storage"] = {
             "type": "redis",
-            "redis_host": "redis_host",
-            "redis_port": 6379,
-            "redis_password": "secret",
+            "host": "redis_host",
+            "port": 6379,
+            "password": "secret",
         }
         config = load_config(self._dict_config)
         assert isinstance(config, Config)
         assert isinstance(config.storage, RedisConfig)
-        assert config.storage.redis_password == "secret"  # noqa: S105
+        assert config.storage.password == "secret"  # noqa: S105
 
     def test_load_config_from_json_file(self):
         self._config.retry_interval = 3

@@ -89,7 +89,7 @@ See the [SQLiteStorage][signalbot.storage.SQLiteStorage] API reference for detai
 phone_number: "+1234567890"
 storage:
   type: "sqlite"
-  sqlite_db: "./data/bot.db"
+  db: "./data/bot.db"
 ```
 
 ### Redis
@@ -101,8 +101,8 @@ See the [RedisStorage][signalbot.storage.RedisStorage] API reference for details
 phone_number: "+1234567890"
 storage:
   type: "redis"
-  redis_host: "localhost"
-  redis_port: 6379
+  host: "localhost"
+  port: 6379
 ```
 
 ## Authentication
