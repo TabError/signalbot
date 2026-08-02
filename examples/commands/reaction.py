@@ -1,4 +1,4 @@
-from examples.commands.help import CommandWithHelpMessage
+from examples.commands.help import HasHelpMessage
 from signalbot import (
     Command,
     ContextReaction,
@@ -10,7 +10,7 @@ from signalbot.api.requests import SendMessage
 from signalbot.context.context_data_message import ContextDataMessage
 
 
-class ReactCommand(CommandWithHelpMessage, Command):
+class ReactCommand(HasHelpMessage, Command):
     def help_message(self) -> str:
         return "send-reaction: 🎉 Send a reaction to a message."
 
@@ -19,7 +19,7 @@ class ReactCommand(CommandWithHelpMessage, Command):
         await context.react("🎉")
 
 
-class ReactionCommand(CommandWithHelpMessage, ReactionHandler):
+class ReactionCommand(HasHelpMessage, ReactionHandler):
     def help_message(self) -> str:
         return "react with any emoji: 👍 Reaction received decorator example."
 
@@ -45,7 +45,7 @@ class ReactionCommand(CommandWithHelpMessage, ReactionHandler):
         )
 
 
-class ThumbsUpCommand(CommandWithHelpMessage, ReactionHandler):
+class ThumbsUpCommand(HasHelpMessage, ReactionHandler):
     def help_message(self) -> str:
         return "react with 👍 or ❤️: 🎯 Filtered reaction received decorator example."
 

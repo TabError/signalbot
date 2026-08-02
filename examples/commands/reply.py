@@ -1,10 +1,10 @@
-from examples.commands.help import CommandWithHelpMessage
+from examples.commands.help import HasHelpMessage
 from signalbot import Command, text_triggered
 from signalbot.api.requests import SendMessage
 from signalbot.context import ContextDataMessage
 
 
-class ReplyCommand(CommandWithHelpMessage, Command):
+class ReplyCommand(HasHelpMessage, Command):
     def help_message(self) -> str:
         return "reply: 💬 Reply to a message."
 

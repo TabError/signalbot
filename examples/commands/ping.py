@@ -1,9 +1,9 @@
-from examples.commands.help import CommandWithHelpMessage
+from examples.commands.help import HasHelpMessage
 from signalbot import Command, ContextDataMessage, text_triggered
 from signalbot.api.requests import SendMessage
 
 
-class PingCommand(CommandWithHelpMessage, Command):
+class PingCommand(HasHelpMessage, Command):
     def help_message(self) -> str:
         return "ping: 🏓 Listen for a ping and send a pong reply."
 

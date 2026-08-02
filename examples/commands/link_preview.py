@@ -1,11 +1,11 @@
 from anyio import Path
 
-from examples.commands.help import CommandWithHelpMessage
+from examples.commands.help import HasHelpMessage
 from signalbot import Command, ContextDataMessage, text_triggered
 from signalbot.api.requests import LinkPreview, SendMessage
 
 
-class LinkPreviewCommand(CommandWithHelpMessage, Command):
+class LinkPreviewCommand(HasHelpMessage, Command):
     def help_message(self) -> str:
         return "link-preview: 🧽 Send a link preview."
 
