@@ -49,7 +49,7 @@ class ContextDataMessage(Context):
         message = deepcopy(message)
         message.recipient = self.message.source_or_group_uuid()
         message.quote_mentions = send_mentions
-        message.quote_author = self.message.source
+        message.quote_author = self.message.source_uuid or self.message.source_number
         message.quote_message = self.message.text
         message.quote_timestamp = self.message.timestamp
 

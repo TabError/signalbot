@@ -21,6 +21,6 @@ class TestPingChatTest(ChatTestCase):
         replies = self.signal_bot._signal.send
         assert replies.call_count == 1
         assert len(replies.results()) == 1
-        for recipient, message in replies.results():
-            assert recipient == ChatTestCase.group_id
-            assert message == "pong"
+        for sent in replies.results():
+            assert sent.recipients == [ChatTestCase.group_id]
+            assert sent.message == "pong"

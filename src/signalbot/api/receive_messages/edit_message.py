@@ -19,7 +19,6 @@ class EditMessage(ReceiveDataMessage):
         return cls(
             server_delivered_timestamp=data_message.server_delivered_timestamp,
             server_received_timestamp=data_message.server_received_timestamp,
-            source=data_message.source,
             source_device=data_message.source_device,
             source_name=data_message.source_name,
             source_number=data_message.source_number,

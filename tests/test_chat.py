@@ -2,6 +2,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from signalbot import Command, text_triggered
+from signalbot.api.requests import SendMessage
 from signalbot.context import ContextDataMessage
 from signalbot.test_utils import ChatTestCase, mock_chat
 
@@ -11,10 +12,10 @@ class SchnickSchnackSchnuckCommand(Command):
     async def handle(self, context: ContextDataMessage) -> None:
         text = context.message.text
         if text == "schnick":
-            await context.send("schnack")
+            await context.send(SendMessage(text="schnack"))
 
         if text == "schnack":
-            await context.send("schnuck")
+            await context.send(SendMessage(text="schnuck"))
 
 
 @pytest.mark.asyncio
@@ -35,9 +36,9 @@ class TestSchnickSchnackSchnuckCommand(ChatTestCase):
         replies = self.signal_bot._signal.send
         assert replies.call_count == 1
         assert len(replies.results()) == 1
-        for recipient, message in replies.results():
-            assert recipient == ChatTestCase.group_id
-            assert message == "schnack"
+        for sent in replies.results():
+            assert sent.recipients == [ChatTestCase.group_id]
+            assert sent.message == "schnack"
 
     @mock_chat("schnack")
     async def test_schnack(
@@ -49,6 +50,6 @@ class TestSchnickSchnackSchnuckCommand(ChatTestCase):
         replies = self.signal_bot._signal.send
         assert replies.call_count == 1
         assert len(replies.results()) == 1
-        for recipient, message in replies.results():
-            assert recipient == ChatTestCase.group_id
-            assert message == "schnuck"
+        for sent in replies.results():
+            assert sent.recipients == [ChatTestCase.group_id]
+            assert sent.message == "schnuck"

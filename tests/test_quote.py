@@ -1,6 +1,6 @@
 import json
 
-from signalbot import Quote
+from signalbot.api.generated import Quote
 
 
 class TestQuote:
@@ -21,8 +21,8 @@ class TestQuote:
         assert quote.author_uuid == "<uuid>"
         assert quote.text == ""
         assert len(quote.attachments) == 1
-        assert quote.attachments[0]["contentType"] == "image/jpeg"
-        assert quote.attachments[0]["filename"] == "image.jpg"
+        assert quote.attachments[0].content_type == "image/jpeg"
+        assert quote.attachments[0].filename == "image.jpg"
 
     def test_quote_with_text(self):
         quote_data = json.loads(self.raw_quote_text_message)["envelope"]["syncMessage"][

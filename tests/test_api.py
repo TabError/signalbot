@@ -5,7 +5,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from signalbot import ConnectionMode, SignalAPI
-from signalbot.api.generated import CreatePollRequest
+from signalbot.api.generated import CreatePollRequest, SendMessageV2
 from signalbot.api.signal_api import HEALTH_CHECK_GOOD_STATUS, HealthCheckError
 from signalbot.auth import Authentication, BasicAuthentication, BearerAuthentication
 
@@ -23,8 +23,9 @@ class TestAPI:
     @pytest.mark.asyncio
     async def test_send(self, mocker: MockerFixture):
         status_code = 201
+        expected_timestamp = "1638715559464"
         mock2 = mocker.AsyncMock()
-        mock2.return_value = {"timestamp": "1638715559464"}
+        mock2.return_value = {"timestamp": expected_timestamp}
 
         mock = mocker.patch("aiohttp.ClientSession.post", new_callable=mocker.AsyncMock)
         mock.return_value = mocker.AsyncMock(
@@ -33,11 +34,14 @@ class TestAPI:
             json=mock2,
         )
 
-        recipient = self.group_id
-        message = "Hello World!"
-        resp = await self.signal_api.send(recipient, message)
+        data_message = SendMessageV2(
+            message="Hello World!",
+            number=self.phone_number,
+            recipients=[self.group_id],
+        )
+        resp = await self.signal_api.send(data_message)
 
-        assert resp.status_code == status_code
+        assert resp.timestamp == expected_timestamp
 
     @pytest.mark.asyncio
     async def test_poll(self, mocker: MockerFixture):
@@ -222,14 +226,17 @@ class TestAPI:
         mock = mocker.patch("aiohttp.ClientSession")
         mock.return_value.__aenter__.return_value = mock_session
 
-        receiver = self.group_id
-        message = "Hello World!"
+        data_message = SendMessageV2(
+            message="Hello World!",
+            number=self.phone_number,
+            recipients=[self.group_id],
+        )
 
-        resp = await signal_api.send(receiver, message)
+        resp = await signal_api.send(data_message)
 
         _, kwargs = mock.call_args
 
-        assert resp.status_code == status_code
+        assert resp.timestamp == "1638715559464"
         return kwargs["headers"].get("Authorization")
 
     @pytest.mark.asyncio

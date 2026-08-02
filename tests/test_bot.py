@@ -12,10 +12,23 @@ from signalbot import (
     SignalAPI,
     SignalBot,
 )
-from signalbot.api.generated import CreatePollRequest
+from signalbot.api.generated import (
+    AddMembers,
+    CreatePollRequest,
+    EditGroup,
+    GroupEntry,
+    GroupPermissions,
+    SendMessages,
+)
 from signalbot.api.requests.poll import Poll
 from signalbot.context import ContextDataMessage
 from signalbot.test_utils import DummyCommand
+
+FULL_GROUP_PERMISSIONS = GroupPermissions(
+    add_members=AddMembers.EVERY_MEMBER,
+    edit_group=EditGroup.EVERY_MEMBER,
+    send_messages=SendMessages.EVERY_MEMBER,
+)
 
 
 class TestCommon:
@@ -38,8 +51,8 @@ class TestProducer(TestCommon):
     @pytest.mark.asyncio
     async def test_produce(self, mocker: MockerFixture):
         # Two messages
-        message1 = '{"envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 1","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER"},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
-        message2 = '{"envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 2","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER"},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
+        message1 = '{"account":"+49123456789","envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"serverReceivedTimestamp":1633169000000,"serverDeliveredTimestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 1","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER","revision":1},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
+        message2 = '{"account":"+49123456789","envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"serverReceivedTimestamp":1633169000000,"serverDeliveredTimestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 2","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER","revision":1},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
         messages = [message1, message2]
         mock_iterator = mocker.AsyncMock()
         mock_iterator.__aiter__.return_value = messages
@@ -49,9 +62,17 @@ class TestProducer(TestCommon):
         group_mock = mocker.AsyncMock()
         group_mock.return_value = [
             {
+                "admins": [],
+                "blocked": False,
+                "description": "",
                 "name": "mocked group",
                 "id": self.group_id,
                 "internal_id": self.internal_id,
+                "invite_link": "",
+                "members": [],
+                "pending_invites": [],
+                "pending_requests": [],
+                "permissions": FULL_GROUP_PERMISSIONS.model_dump(),
             },
         ]
         get_group_mock = mocker.patch(
@@ -91,9 +112,11 @@ class TestGetter(TestCommon):
                 self.found_group = None
 
             async def handle(self, context: ContextDataMessage) -> None:
-                self.found_group = self.bot.get_group(context.message.group)
+                self.found_group = self.bot.get_group(
+                    context.message.group_info.group_id
+                )
 
-        message = '{"envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 1","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER"},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
+        message = '{"account":"+49123456789","envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"serverReceivedTimestamp":1633169000000,"serverDeliveredTimestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 1","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER","revision":1},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
         messages = [message]
         mock_iterator = mocker.AsyncMock()
         mock_iterator.__aiter__.return_value = messages
@@ -102,9 +125,17 @@ class TestGetter(TestCommon):
 
         group_mock = mocker.AsyncMock()
         fake_group = {
+            "admins": [],
+            "blocked": False,
+            "description": "",
             "name": "mocked group",
             "id": self.group_id,
             "internal_id": self.internal_id,
+            "invite_link": "",
+            "members": [],
+            "pending_invites": [],
+            "pending_requests": [],
+            "permissions": FULL_GROUP_PERMISSIONS.model_dump(),
         }
         group_mock.return_value = [fake_group]
         get_group_mock = mocker.patch(
@@ -131,8 +162,9 @@ class TestGetter(TestCommon):
 
         await self.signal_bot._consume_new_item(1337)
 
-        assert inspector.found_group == fake_group
-        assert inspector.found_group is not fake_group
+        expected_group = GroupEntry.model_validate(fake_group)
+        assert inspector.found_group == expected_group
+        assert inspector.found_group is not expected_group
 
 
 class TestSignalApiProtocolConfig:
@@ -181,37 +213,41 @@ class TestSignalApiProtocolConfig:
 @pytest.mark.asyncio
 class TestSignalApiVersionCheck(TestCommon):
     async def test_new_version_is_okay(self, mocker: MockerFixture):
-        version_mock = mocker.patch.object(
+        about_mock = mocker.patch.object(
             self.signal_bot,
-            "signal_cli_rest_api_version",
+            "signal_cli_rest_api_about",
             new_callable=mocker.AsyncMock,
         )
-        version_mock.return_value = str(MIN_SIGNAL_CLI_REST_API_VERSION)
+        about_mock.return_value = mocker.Mock(
+            version=str(MIN_SIGNAL_CLI_REST_API_VERSION)
+        )
 
         await self.signal_bot._check_signal_cli_rest_api_version()
 
-        version_mock.return_value = f"{MIN_SIGNAL_CLI_REST_API_VERSION.major + 1}.0.0"
+        about_mock.return_value = mocker.Mock(
+            version=f"{MIN_SIGNAL_CLI_REST_API_VERSION.major + 1}.0.0"
+        )
         await self.signal_bot._check_signal_cli_rest_api_version()
 
     async def test_unset_version(self, mocker: MockerFixture):
-        version_mock = mocker.patch.object(
+        about_mock = mocker.patch.object(
             self.signal_bot,
-            "signal_cli_rest_api_version",
+            "signal_cli_rest_api_about",
             new_callable=mocker.AsyncMock,
         )
-        version_mock.return_value = "unset"
+        about_mock.return_value = mocker.Mock(version="unset")
 
         await self.signal_bot._check_signal_cli_rest_api_version()
 
     async def test_old_version_raises_runtime_error(self, mocker: MockerFixture):
-        version_mock = mocker.patch.object(
+        about_mock = mocker.patch.object(
             self.signal_bot,
-            "signal_cli_rest_api_version",
+            "signal_cli_rest_api_about",
             new_callable=mocker.AsyncMock,
         )
         prev_version = f"{MIN_SIGNAL_CLI_REST_API_VERSION.major}."
         prev_version += f"{MIN_SIGNAL_CLI_REST_API_VERSION.minor - 1}.0"
-        version_mock.return_value = prev_version
+        about_mock.return_value = mocker.Mock(version=prev_version)
 
         with pytest.raises(
             RuntimeError, match="Incompatible signal-cli-rest-api version"
@@ -219,12 +255,12 @@ class TestSignalApiVersionCheck(TestCommon):
             await self.signal_bot._check_signal_cli_rest_api_version()
 
     async def test_invalid_version(self, mocker: MockerFixture):
-        version_mock = mocker.patch.object(
+        about_mock = mocker.patch.object(
             self.signal_bot,
-            "signal_cli_rest_api_version",
+            "signal_cli_rest_api_about",
             new_callable=mocker.AsyncMock,
         )
-        version_mock.return_value = "abc"
+        about_mock.return_value = mocker.Mock(version="abc")
 
         with pytest.raises(InvalidVersion, match="Invalid version: 'abc'"):
             await self.signal_bot._check_signal_cli_rest_api_version()

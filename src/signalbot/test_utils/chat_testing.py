@@ -5,9 +5,17 @@ import uuid
 from types import MappingProxyType
 from unittest.mock import AsyncMock, MagicMock
 
-import aiohttp
 from pytest_mock import MockerFixture
 
+from signalbot.api.generated import (
+    About,
+    AddMembers,
+    EditGroup,
+    GroupEntry,
+    GroupPermissions,
+    SendMessageResponse,
+    SendMessages,
+)
 from signalbot.bot import SignalBot
 from signalbot.command import Command
 from signalbot.context import ContextDataMessage
@@ -74,9 +82,10 @@ class ChatTestCase:
 
     @classmethod
     def new_reaction_message(cls, emoji: str) -> str:
-        timestamp = time.time()
+        timestamp = int(time.time() * 1000)
         new_uuid = str(uuid.uuid4())
         message = {
+            "account": ChatTestCase.phone_number,
             "envelope": {
                 "source": ChatTestCase.phone_number,
                 "sourceNumber": ChatTestCase.phone_number,
@@ -84,6 +93,8 @@ class ChatTestCase:
                 "sourceName": "some_source_name",
                 "sourceDevice": 1,
                 "timestamp": timestamp,
+                "serverReceivedTimestamp": timestamp,
+                "serverDeliveredTimestamp": timestamp,
                 "syncMessage": {
                     "sentMessage": {
                         "timestamp": timestamp,
@@ -95,7 +106,7 @@ class ChatTestCase:
                             "targetAuthor": ChatTestCase.phone_number,
                             "targetAuthorNumber": ChatTestCase.phone_number,
                             "targetAuthorUuid": new_uuid,
-                            "targetSentTimestamp": int(timestamp),
+                            "targetSentTimestamp": timestamp,
                             "isRemove": False,
                         },
                         "mentions": [],
@@ -104,6 +115,7 @@ class ChatTestCase:
                         "groupInfo": {
                             "groupId": ChatTestCase.group_internal_id,
                             "type": "DELIVER",
+                            "revision": 1,
                         },
                         "destination": None,
                         "destinationNumber": None,
@@ -116,9 +128,10 @@ class ChatTestCase:
 
     @classmethod
     def new_message(cls, text) -> str:  # noqa: ANN001
-        timestamp = time.time()
+        timestamp = int(time.time() * 1000)
         new_uuid = str(uuid.uuid4())
         message = {
+            "account": ChatTestCase.phone_number,
             "envelope": {
                 "source": ChatTestCase.phone_number,
                 "sourceNumber": ChatTestCase.phone_number,
@@ -126,6 +139,8 @@ class ChatTestCase:
                 "sourceName": "some_source_name",
                 "sourceDevice": 1,
                 "timestamp": timestamp,
+                "serverReceivedTimestamp": timestamp,
+                "serverDeliveredTimestamp": timestamp,
                 "syncMessage": {
                     "sentMessage": {
                         "timestamp": timestamp,
@@ -138,6 +153,7 @@ class ChatTestCase:
                         "groupInfo": {
                             "groupId": ChatTestCase.group_internal_id,
                             "type": "DELIVER",
+                            "revision": 1,
                         },
                         "destination": None,
                         "destinationNumber": None,
@@ -165,19 +181,13 @@ class ReceiveMessagesMock(MagicMock):
 class SendMessagesMock(AsyncMock):
     def __init__(self, **kwargs: str) -> None:
         super().__init__(**kwargs)
-        mock = AsyncMock()
-        mock.return_value = {"timestamp": "1638715559464"}
-        self.return_value = AsyncMock(
-            spec=aiohttp.ClientResponse,
-            status_code=201,
-            json=mock,
-        )
+        self.return_value = SendMessageResponse(timestamp="1638715559464")
 
     def results(self) -> list:
         return self._extract_responses()
 
     def _extract_responses(self) -> list:
-        return [args[0] for args in self.call_args_list]
+        return [call.args[0] for call in self.call_args_list]
 
 
 class ReactMessageMock(AsyncMock):
@@ -185,28 +195,43 @@ class ReactMessageMock(AsyncMock):
         return self._extract_responses()
 
     def _extract_responses(self) -> list:
-        return [args[0] for args in self.call_args_list]
+        return [call.args[0] for call in self.call_args_list]
 
 
 class GetGroupsMock(AsyncMock):
     def __init__(self, **kwargs: str) -> None:
         super().__init__(**kwargs)
         self.return_value = [
-            {
-                "id": ChatTestCase.group_id,
-                "internal_id": ChatTestCase.group_internal_id,
-                "name": ChatTestCase.group_name,
-            }
+            GroupEntry(
+                admins=[],
+                blocked=False,
+                description="",
+                id=ChatTestCase.group_id,
+                internal_id=ChatTestCase.group_internal_id,
+                invite_link="",
+                members=[],
+                name=ChatTestCase.group_name,
+                pending_invites=[],
+                pending_requests=[],
+                permissions=GroupPermissions(
+                    add_members=AddMembers.EVERY_MEMBER,
+                    edit_group=EditGroup.EVERY_MEMBER,
+                    send_messages=SendMessages.EVERY_MEMBER,
+                ),
+            )
         ]
 
 
 class GetSignalCliAboutMock(AsyncMock):
     def __init__(self, **kwargs: str) -> None:
         super().__init__(**kwargs)
-        self.return_value = {
-            "version": "0.97",
-            "mode": "json-rpc",
-        }
+        self.return_value = About(
+            build=1,
+            capabilities={},
+            mode="json-rpc",
+            version="0.97",
+            versions=["v1"],
+        )
 
 
 class CheckSignalServiceMock(AsyncMock):

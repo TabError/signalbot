@@ -4,21 +4,29 @@ import aiohttp
 import pytest
 from pytest_mock import MockerFixture
 
-from signalbot import Message, MessageType
 from signalbot.api import SignalAPI
+from signalbot.api.receive_messages import (
+    EditMessage,
+    GroupUpdateMessage,
+    Reaction,
+    ReceiveDataMessage,
+    TypingMessage,
+)
+from signalbot.message import UnknownMessageFormatError, parse
 
 
 @pytest.mark.asyncio
 class TestMessage:
-    raw_sync_message = '{"envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"syncMessage":{"sentMessage":{"timestamp":1632576001632,"message":"Uhrzeit","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"<groupid>","type":"DELIVER"},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
-    raw_data_message = '{"envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"dataMessage":{"timestamp":1632576001632,"message":"Uhrzeit","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"<groupid>","type":"DELIVER"}}}}'  # noqa: E501
-    raw_reaction_message = '{"envelope":{"source":"<source>","sourceNumber":"<source>","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"syncMessage":{"sentMessage":{"timestamp":1632576001632,"message":null,"expiresInSeconds":0,"viewOnce":false,"reaction":{"emoji":"👍","targetAuthor":"<target>","targetAuthorNumber":"<target>","targetAuthorUuid":"<uuid>","targetSentTimestamp":1632576001632,"isRemove":false},"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"<groupid>","type":"DELIVER"},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
-    raw_user_chat_message = '{"envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"dataMessage":{"timestamp":1632576001632,"message":"Uhrzeit","expiresInSeconds":0,"viewOnce":false}},"account":"+49987654321","subscription":0}'  # noqa: E501
-    raw_attachment_message = '{"envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"dataMessage":{"timestamp":1632576001632,"message":"Uhrzeit","expiresInSeconds":0,"viewOnce":false, "attachments": [{"contentType": "image/png", "filename": "image.png", "id": "1qeCjjWOOo9Gxv8pfdCw.png","size": 12005}]}},"account":"+49987654321","subscription":0}'  # noqa: E501
-    raw_contact_sync_message = '{"envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632,"syncMessage":{"type":"CONTACTS_SYNC"}},"account":"+49987654321"}'  # noqa: E501
-    raw_preview_no_image_message = '{"envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632,"dataMessage":{"timestamp":1632576001632,"message":"https://example.com is nice","expiresInSeconds":0,"viewOnce":false,"previews":[{"url":"https://example.com","title":"Example.com - Super example","description":"","image":null}],"account":"+41774289587"}}}'  # noqa: E501
-    raw_user_read_message = '{"envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632,"syncMessage":{"readMessages":[{"sender":"+49987654321","senderNumber":"+49987654321","senderUuid":"<uuid>","timestamp":1632576001632}]}},"account":"+49987654321"}'  # noqa: E501
-    raw_group_update_message = '{"envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1768100104294,"serverReceivedTimestamp":1768100103544,"serverDeliveredTimestamp":1768100103588,"dataMessage":{"timestamp":1768100104294,"message":null,"expiresInSeconds":86400,"isExpirationUpdate":false,"viewOnce":false,"groupInfo":{"groupId":"<groupid>","groupName":"<name>","revision":100,"type":"UPDATE"}}},"account":"+49987654321"}'  # noqa: E501
+    raw_sync_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632,"syncMessage":{"sentMessage":{"timestamp":1632576001632,"message":"Uhrzeit","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"<groupid>","type":"DELIVER","revision":1},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
+    raw_data_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632,"dataMessage":{"timestamp":1632576001632,"message":"Uhrzeit","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"<groupid>","type":"DELIVER","revision":1}}}}'  # noqa: E501
+    raw_reaction_message = '{"account":"+49987654321","envelope":{"source":"<source>","sourceNumber":"<source>","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632,"syncMessage":{"sentMessage":{"timestamp":1632576001632,"message":null,"expiresInSeconds":0,"viewOnce":false,"reaction":{"emoji":"👍","targetAuthor":"<target>","targetAuthorNumber":"<target>","targetAuthorUuid":"<uuid>","targetSentTimestamp":1632576001632,"isRemove":false},"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"<groupid>","type":"DELIVER","revision":1},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
+    raw_edit_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001700,"serverReceivedTimestamp":1632576001700,"serverDeliveredTimestamp":1632576001700,"editMessage":{"targetSentTimestamp":1632576001632,"dataMessage":{"timestamp":1632576001700,"message":"Uhrzeit!","expiresInSeconds":0,"viewOnce":false}}}}'  # noqa: E501
+    raw_typing_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632,"typingMessage":{"action":"STARTED","timestamp":1632576001632,"groupId":null}}}'  # noqa: E501
+    raw_user_chat_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632,"dataMessage":{"timestamp":1632576001632,"message":"Uhrzeit","expiresInSeconds":0,"viewOnce":false}}}'  # noqa: E501
+    raw_attachment_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632,"dataMessage":{"timestamp":1632576001632,"message":"Uhrzeit","expiresInSeconds":0,"viewOnce":false, "attachments": [{"contentType": "image/png", "filename": "image.png", "id": "1qeCjjWOOo9Gxv8pfdCw.png","size": 12005}]}}}'  # noqa: E501
+    raw_preview_no_image_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632,"dataMessage":{"timestamp":1632576001632,"message":"https://example.com is nice","expiresInSeconds":0,"viewOnce":false,"previews":[{"url":"https://example.com","title":"Example.com - Super example","description":"","image":null}]}}}'  # noqa: E501
+    raw_group_update_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1768100104294,"serverReceivedTimestamp":1768100103544,"serverDeliveredTimestamp":1768100103588,"dataMessage":{"timestamp":1768100104294,"message":null,"expiresInSeconds":86400,"isExpirationUpdate":false,"viewOnce":false,"groupInfo":{"groupId":"<groupid>","groupName":"<name>","revision":100,"type":"UPDATE"}}}}'  # noqa: E501
+    raw_unknown_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632}}'  # noqa: E501
 
     expected_source = "+490123456789"
     expected_timestamp = 1632576001632
@@ -39,59 +47,70 @@ class TestMessage:
     # Own Message
 
     async def test_parse_source_own_message(self):
-        message = await Message.parse(self.signal_api, TestMessage.raw_sync_message)
+        message = await parse(self.signal_api, TestMessage.raw_sync_message)
         assert message.timestamp == TestMessage.expected_timestamp
 
     async def test_parse_timestamp_own_message(self):
-        message = await Message.parse(self.signal_api, TestMessage.raw_sync_message)
-        assert message.source == TestMessage.expected_source
+        message = await parse(self.signal_api, TestMessage.raw_sync_message)
+        assert message.source_number == TestMessage.expected_source
 
     async def test_parse_type_own_message(self):
-        message = await Message.parse(self.signal_api, TestMessage.raw_sync_message)
-        assert message.type == MessageType.SYNC_MESSAGE
+        message = await parse(self.signal_api, TestMessage.raw_sync_message)
+        assert isinstance(message, ReceiveDataMessage)
 
     async def test_parse_text_own_message(self):
-        message = await Message.parse(self.signal_api, TestMessage.raw_sync_message)
+        message = await parse(self.signal_api, TestMessage.raw_sync_message)
         assert message.text == TestMessage.expected_text
 
     async def test_parse_group_own_message(self):
-        message = await Message.parse(self.signal_api, TestMessage.raw_sync_message)
-        assert message.group == TestMessage.expected_group
+        message = await parse(self.signal_api, TestMessage.raw_sync_message)
+        assert message.group_info.group_id == TestMessage.expected_group
 
     # Foreign Messages
 
     async def test_parse_source_foreign_message(self):
-        message = await Message.parse(self.signal_api, TestMessage.raw_data_message)
+        message = await parse(self.signal_api, TestMessage.raw_data_message)
         assert message.timestamp == TestMessage.expected_timestamp
 
     async def test_parse_timestamp_foreign_message(self):
-        message = await Message.parse(self.signal_api, TestMessage.raw_data_message)
-        assert message.source == TestMessage.expected_source
+        message = await parse(self.signal_api, TestMessage.raw_data_message)
+        assert message.source_number == TestMessage.expected_source
 
     async def test_parse_type_foreign_message(self):
-        message = await Message.parse(self.signal_api, TestMessage.raw_data_message)
-        assert message.type == MessageType.DATA_MESSAGE
+        message = await parse(self.signal_api, TestMessage.raw_data_message)
+        assert isinstance(message, ReceiveDataMessage)
 
     async def test_parse_text_foreign_message(self):
-        message = await Message.parse(self.signal_api, TestMessage.raw_data_message)
+        message = await parse(self.signal_api, TestMessage.raw_data_message)
         assert message.text == TestMessage.expected_text
 
     async def test_parse_group_foreign_message(self):
-        message = await Message.parse(self.signal_api, TestMessage.raw_data_message)
-        assert message.group == TestMessage.expected_group
+        message = await parse(self.signal_api, TestMessage.raw_data_message)
+        assert message.group_info.group_id == TestMessage.expected_group
 
     async def test_read_reaction(self):
-        message = await Message.parse(self.signal_api, TestMessage.raw_reaction_message)
-        assert message.type == MessageType.REACTION_MESSAGE
-        assert message.reaction.emoji == "👍"
-        assert message.reaction.target_sent_timestamp == TestMessage.expected_timestamp
-        assert message.reaction.is_remove is False
+        message = await parse(self.signal_api, TestMessage.raw_reaction_message)
+        assert isinstance(message, Reaction)
+        assert message.emoji == "👍"
+        assert message.timestamp == TestMessage.expected_timestamp
+        assert message.is_remove is False
+
+    async def test_edit_message(self):
+        message = await parse(self.signal_api, TestMessage.raw_edit_message)
+        assert isinstance(message, EditMessage)
+        assert message.target_sent_timestamp == TestMessage.expected_timestamp
+        assert message.text == "Uhrzeit!"
+
+    async def test_typing_message(self):
+        message = await parse(self.signal_api, TestMessage.raw_typing_message)
+        assert isinstance(message, TypingMessage)
+        assert message.timestamp == TestMessage.expected_timestamp
+        assert message.is_private()
 
     async def test_group_update(self):
-        message = await Message.parse(
-            self.signal_api, TestMessage.raw_group_update_message
-        )
-        assert message.updated_group_id == TestMessage.expected_group
+        message = await parse(self.signal_api, TestMessage.raw_group_update_message)
+        assert isinstance(message, GroupUpdateMessage)
+        assert message.group_info.group_id == TestMessage.expected_group
 
     async def test_attachments(self, mocker: MockerFixture):
         attachment_bytes_str = b"test"
@@ -110,64 +129,44 @@ class TestMessage:
         expected_base64_bytes = base64.b64encode(attachment_bytes_str)
         expected_base64_str = str(expected_base64_bytes, encoding="utf-8")
 
-        message = await Message.parse(
+        message = await parse(
             self.signal_api,
             TestMessage.raw_attachment_message,
         )
-        assert message.base64_attachments == [expected_base64_str]
-
-        assert len(message.attachments_local_filenames) == 1
+        assert isinstance(message, ReceiveDataMessage)
+        assert message.attachments[0].base64_content == expected_base64_str
         assert (
-            message.attachments_local_filenames[0]
-            == TestMessage.expected_local_filename
+            message.attachments[0].local_filename == TestMessage.expected_local_filename
         )
 
     # User Chats
 
     async def test_parse_user_chat_message(self):
-        message = await Message.parse(
+        message = await parse(
             self.signal_api,
             TestMessage.raw_user_chat_message,
         )
-        assert message.source == TestMessage.expected_source
+        assert message.source_number == TestMessage.expected_source
         assert message.text == TestMessage.expected_text
         assert message.timestamp == TestMessage.expected_timestamp
-        assert message.group is None
+        assert message.is_private()
 
     async def test_preview_no_image(self):
-        message = await Message.parse(
-            self.signal_api, TestMessage.raw_preview_no_image_message
-        )
-        assert isinstance(message.link_previews, list)
-        assert len(message.link_previews) == 1
+        message = await parse(self.signal_api, TestMessage.raw_preview_no_image_message)
+        assert isinstance(message, ReceiveDataMessage)
+        assert isinstance(message.previews, list)
+        assert len(message.previews) == 1
 
-        lp = message.link_previews[0]
-        assert lp.id is None
+        lp = message.previews[0]
         assert lp.base64_thumbnail is None
         assert lp.url == "https://example.com"
         assert lp.title == "Example.com - Super example"
         assert lp.description == ""
 
-    async def test_contacts_sync_message(self):
-        message = await Message.parse(
-            self.signal_api, TestMessage.raw_contact_sync_message
-        )
+    async def test_unknown_message_format(self):
+        with pytest.raises(UnknownMessageFormatError):
+            await parse(self.signal_api, TestMessage.raw_unknown_message)
 
-        assert message.type == MessageType.CONTACT_SYNC_MESSAGE
-        assert message.text == ""
-
-    async def test_message_read(self):
-        message = await Message.parse(
-            self.signal_api, TestMessage.raw_user_read_message
-        )
-
-        assert message.type == MessageType.READ_MESSAGE
-        assert message.text == ""
-        assert isinstance(message.read_messages, list)
-        assert len(message.read_messages) == 1
-
-        rm = message.read_messages[0]
-        assert rm.get("sender") == "+49987654321"
-        assert rm.get("senderNumber") == "+49987654321"
-        assert rm.get("timestamp") == TestMessage.expected_timestamp
-        assert "senderUuid" in rm
+    async def test_unparseable_json_raises(self):
+        with pytest.raises(UnknownMessageFormatError):
+            await parse(self.signal_api, "not json")
