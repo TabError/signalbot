@@ -9,7 +9,7 @@ class LinkPreviewCommand(DataMessageHandler):
         return "link-preview: 🧽 Send a link preview."
 
     @text_triggered("link-preview")
-    async def handle(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         await context.send(
             SendMessage(
                 text="This is the link preview for https://www.youtube.com/watch?v=pU2SdH1HBuk",

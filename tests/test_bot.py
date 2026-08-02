@@ -111,7 +111,7 @@ class TestGetter(TestCommon):
                 super().__init__()
                 self.found_group = None
 
-            async def handle(self, context: ContextDataMessage) -> None:
+            async def handle_data_message(self, context: ContextDataMessage) -> None:
                 self.found_group = self.bot.get_group(
                     context.message.group_info.group_id
                 )
@@ -318,7 +318,7 @@ class TestRegisterCommand(TestCommon):
             def setup(self):  # noqa: ANN202
                 self.state = True
 
-            def handle(self, context: ContextDataMessage):  # noqa: ANN202
+            def handle_data_message(self, context: ContextDataMessage):  # noqa: ANN202
                 pass
 
         cmd = SomeTestCommand()

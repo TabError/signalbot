@@ -9,7 +9,7 @@ from signalbot.test_utils import ChatTestCase, mock_chat
 
 class SchnickSchnackSchnuckCommand(DataMessageHandler):
     @text_triggered("schnick", "schnack")
-    async def handle(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         text = context.message.text
         if text == "schnick":
             await context.send(SendMessage(text="schnack"))

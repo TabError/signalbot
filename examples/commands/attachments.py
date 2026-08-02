@@ -9,7 +9,7 @@ class AttachmentCommand(DataMessageHandler):
         return "friday: 🦀 Send an image."
 
     @text_triggered("friday")
-    async def handle(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         await context.send(
             SendMessage(
                 text="https://www.youtube.com/watch?v=pU2SdH1HBuk",

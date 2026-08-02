@@ -9,7 +9,7 @@ class TypingCommand(DataMessageHandler):
         return "typing: ⌨️ Demonstrates typing indicator for a few seconds."
 
     @text_triggered("typing")
-    async def handle(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         await context.start_typing()
         seconds = 5
         await asyncio.sleep(seconds)

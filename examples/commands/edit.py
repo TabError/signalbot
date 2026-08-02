@@ -10,7 +10,7 @@ class EditCommand(DataMessageHandler):
         return "edit: ✏️ Edit a message."
 
     @text_triggered("edit")
-    async def handle(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         sent_message = await context.send(
             SendMessage(text="This message will be edited in two seconds.")
         )

@@ -7,5 +7,5 @@ class PingCommand(DataMessageHandler):
         return "ping: 🏓 Listen for a ping and send a pong reply."
 
     @text_triggered("ping")
-    async def handle(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         await context.send(SendMessage(text="pong"))

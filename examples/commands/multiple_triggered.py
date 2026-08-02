@@ -8,5 +8,5 @@ class TriggeredCommand(DataMessageHandler):
 
     # add case_sensitive=True for case sensitive triggers
     @text_triggered("command-1", "Command-2", "CoMmAnD-3")
-    async def handle(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         await context.send(SendMessage(text="Multi command trigger"))

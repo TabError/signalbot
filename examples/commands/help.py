@@ -14,7 +14,7 @@ class HelpCommand(DataMessageHandler):
         return "help: 🆘 Shows information about available commands."
 
     @text_triggered("help")
-    async def handle(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         commands = []
         handlers = []
         for registered, _, _, _ in self.bot.commands:

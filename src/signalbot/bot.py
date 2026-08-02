@@ -851,7 +851,7 @@ class SignalBot:
         try:
             if isinstance(message, ReceiveDataMessage):
                 if isinstance(command, DataMessageHandler):
-                    await command.handle(ContextDataMessage(self, message))
+                    await command.handle_data_message(ContextDataMessage(self, message))
             elif isinstance(message, GroupUpdateMessage):
                 if isinstance(command, GroupUpdateHandler):
                     await command.handle_group_update_message(

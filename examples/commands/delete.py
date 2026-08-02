@@ -11,7 +11,7 @@ class DeleteCommand(DataMessageHandler, RemoteDeleteHandler):
         return "delete: 🗑️ Delete a message."
 
     @text_triggered("delete")
-    async def handle(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         sent_message = await context.send(
             SendMessage(text="This message will be deleted in two seconds.")
         )
@@ -31,7 +31,7 @@ class DeleteLocalAttachmentCommand(DataMessageHandler):
         return "delete-attachment: 🗑️ Delete the local copy of an attachment."
 
     @text_triggered("delete-attachment")
-    async def handle(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         attachments = context.message.attachments
         if attachments is None or len(attachments) == 0:
             await context.send(SendMessage(text="Please send an attachment to delete."))

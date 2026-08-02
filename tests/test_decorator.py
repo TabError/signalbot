@@ -17,13 +17,13 @@ from signalbot.test_utils import (
 
 class TriggeredCommand(DataMessageHandler):
     @text_triggered("Alpha", "Beta")
-    async def handle(self, context: ContextDataMessage):
+    async def handle_data_message(self, context: ContextDataMessage):
         await context.send(SendMessage(text="Base trigger"))
 
 
 class TriggeredCaseSensitiveCommand(DataMessageHandler):
     @text_triggered("Alpha", "Beta", case_sensitive=True)
-    async def handle(self, context: ContextDataMessage):
+    async def handle_data_message(self, context: ContextDataMessage):
         await context.send(SendMessage(text="Base trigger"))
 
 
@@ -41,7 +41,7 @@ class ReactionFilteredCommand(ReactionHandler):
 
 class RegexTriggeredCommand(DataMessageHandler):
     @regex_triggered(r"\w+@\w+\.\w+", r"\d{3}-\d{3}-\d{4}")
-    async def handle(self, context: ContextDataMessage):
+    async def handle_data_message(self, context: ContextDataMessage):
         await context.send(SendMessage(text="I am triggered by regular expressions"))
 
 

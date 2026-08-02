@@ -171,7 +171,7 @@ class DataMessageHandler(Handler):
     """
 
     @abstractmethod
-    async def handle(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: ContextDataMessage) -> None:
         """Method to handle a data or edit message.
         This method must be implemented by subclasses to define the behavior of the
             command.
