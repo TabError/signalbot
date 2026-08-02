@@ -14,7 +14,8 @@ T = TypeVar("T")
 P = ParamSpec("P")
 
 if TYPE_CHECKING:
-    from collections.abc import Callable, Coroutine
+    from collections.abc import Callable
+    from types import CoroutineType
 
     from signalbot.bot import SignalBot
     from signalbot.context import (
@@ -27,7 +28,8 @@ if TYPE_CHECKING:
 def regex_triggered(
     *by: str | re.Pattern[str],
 ) -> Callable[
-    [Callable[P, Coroutine[Any, Any, T]]], Callable[P, Coroutine[Any, Any, T | None]]
+    [Callable[P, CoroutineType[Any, Any, T]]],
+    Callable[P, CoroutineType[Any, Any, T | None]],
 ]:
     """Decorator to trigger a command if the message text matches any of the provided
     regex patterns.
@@ -38,8 +40,8 @@ def regex_triggered(
     """
 
     def decorator_regex_triggered(
-        func: Callable[P, Coroutine[Any, Any, T]],
-    ) -> Callable[P, Coroutine[Any, Any, T | None]]:
+        func: Callable[P, CoroutineType[Any, Any, T]],
+    ) -> Callable[P, CoroutineType[Any, Any, T | None]]:
         @functools.wraps(func)
         async def wrapper_regex_triggered(
             *args: P.args, **kwargs: P.kwargs
@@ -66,7 +68,8 @@ def regex_triggered(
 def text_triggered(
     *by: str, case_sensitive: bool = False
 ) -> Callable[
-    [Callable[P, Coroutine[Any, Any, T]]], Callable[P, Coroutine[Any, Any, T | None]]
+    [Callable[P, CoroutineType[Any, Any, T]]],
+    Callable[P, CoroutineType[Any, Any, T | None]],
 ]:
     """Decorator to trigger a command if the message text matches any of the provided
     strings.
@@ -77,8 +80,8 @@ def text_triggered(
     """
 
     def decorator_triggered(
-        func: Callable[P, Coroutine[Any, Any, T]],
-    ) -> Callable[P, Coroutine[Any, Any, T | None]]:
+        func: Callable[P, CoroutineType[Any, Any, T]],
+    ) -> Callable[P, CoroutineType[Any, Any, T | None]]:
         @functools.wraps(func)
         async def wrapper_triggered(*args: P.args, **kwargs: P.kwargs) -> T | None:
             context = args[1]
@@ -108,7 +111,8 @@ def text_triggered(
 def reaction_triggered(
     *by: str,
 ) -> Callable[
-    [Callable[P, Coroutine[Any, Any, T]]], Callable[P, Coroutine[Any, Any, T | None]]
+    [Callable[P, CoroutineType[Any, Any, T]]],
+    Callable[P, CoroutineType[Any, Any, T | None]],
 ]:
     """Decorator to trigger a command when a reaction is received.
 
@@ -117,8 +121,8 @@ def reaction_triggered(
     """
 
     def decorator_reaction_triggered(
-        func: Callable[P, Coroutine[Any, Any, T]],
-    ) -> Callable[P, Coroutine[Any, Any, T | None]]:
+        func: Callable[P, CoroutineType[Any, Any, T]],
+    ) -> Callable[P, CoroutineType[Any, Any, T | None]]:
         @functools.wraps(func)
         async def wrapper_reaction_triggered(
             *args: P.args, **kwargs: P.kwargs
