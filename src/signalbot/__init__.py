@@ -21,10 +21,8 @@ from signalbot.bot_config import (
     SQLiteConfig,
 )
 from signalbot.command import (
-    CommandError,
     DataMessageHandler,
     GroupUpdateHandler,
-    Handler,
     ReactionHandler,
     ReadyHandler,
     RemoteDeleteHandler,
@@ -49,7 +47,6 @@ __all__ = [
     "MIN_SIGNAL_CLI_REST_API_VERSION",
     "BasicAuth",
     "BearerAuth",
-    "CommandError",
     "Config",
     "ConnectionMode",
     "ContextDataMessage",
@@ -60,7 +57,6 @@ __all__ = [
     "ContextTypingMessage",
     "DataMessageHandler",
     "GroupUpdateHandler",
-    "Handler",
     "InMemoryConfig",
     "Preview",
     "ReactionHandler",

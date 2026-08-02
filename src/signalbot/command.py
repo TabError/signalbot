@@ -17,7 +17,6 @@ if TYPE_CHECKING:
     from collections.abc import Callable
     from types import CoroutineType
 
-    from signalbot.bot import SignalBot
     from signalbot.context import (
         ContextGroupUpdateMessage,
         ContextReady,
@@ -143,42 +142,7 @@ def reaction_triggered(
     return decorator_reaction_triggered
 
 
-class Handler(ABC):  # noqa: B024 -- intentionally has no abstract methods of its own
-    """Shared bot-registration plumbing.
-
-    This class only provides bot wiring and the `setup` hook. To actually react to
-    something happening on Signal, subclass one of `DataMessageHandler`,
-    `GroupUpdateHandler`, `RemoteDeleteHandler`, `TypingHandler`, `ReactionHandler`,
-    or `ReadyHandler` rather than this class directly.
-    """
-
-    def __init__(self) -> None:
-        # The bot attribute is assigned after calling bot.register(Handler())
-        self._bot: SignalBot | None = None
-
-    @property
-    def bot(self) -> SignalBot:
-        if self._bot is None:
-            error_msg = "Handler is not registered with a bot."
-            raise CommandError(error_msg)
-        return self._bot
-
-    @bot.setter
-    def bot(self, bot: SignalBot) -> None:
-        if self._bot is not None:
-            error_msg = "Handler is already registered with a bot."
-            raise CommandError(error_msg)
-        self._bot = bot
-
-    def setup(self) -> None:
-        """Optional setup method that can be overridden by subclasses.
-        This method is called after the handler is registered with the bot but
-        before any data is retrieved, so it cannot access the group ids.
-        """
-        return
-
-
-class DataMessageHandler(Handler):
+class DataMessageHandler(ABC):
     """Abstract base class for text, attachments and stickers messages.
     It handles both original messages and edited messages.
 
@@ -198,7 +162,7 @@ class DataMessageHandler(Handler):
         """
 
 
-class GroupUpdateHandler(Handler):
+class GroupUpdateHandler(ABC):
     """Abstract base class for reacting to group update events.
 
     Subclass this and implement `handle_group_update_message`, then register the
@@ -217,7 +181,7 @@ class GroupUpdateHandler(Handler):
         """
 
 
-class RemoteDeleteHandler(Handler):
+class RemoteDeleteHandler(ABC):
     """Abstract base class for reacting to remote delete events.
 
     Subclass this and implement `handle_remote_delete`, then register the instance
@@ -234,7 +198,7 @@ class RemoteDeleteHandler(Handler):
         """
 
 
-class TypingHandler(Handler):
+class TypingHandler(ABC):
     """Abstract base class for reacting to typing indicator events.
 
     Subclass this and implement `handle_typing_message`, then register the instance
@@ -251,7 +215,7 @@ class TypingHandler(Handler):
         """
 
 
-class ReactionHandler(Handler):
+class ReactionHandler(ABC):
     """Abstract base class for reacting to reaction events.
 
     Subclass this and implement `handle_reaction`, then register the instance with
@@ -268,7 +232,7 @@ class ReactionHandler(Handler):
         """
 
 
-class ReadyHandler(Handler):
+class ReadyHandler(ABC):
     """Abstract base class for reacting to the bot becoming ready.
 
     Subclass this and implement `handle_ready`, then register the instance with
@@ -285,7 +249,3 @@ class ReadyHandler(Handler):
         Args:
             context: Context giving access to the bot.
         """
-
-
-class CommandError(Exception):
-    pass

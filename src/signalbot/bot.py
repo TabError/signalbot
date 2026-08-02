@@ -43,7 +43,6 @@ from signalbot.bot_config import (
 from signalbot.command import (
     DataMessageHandler,
     GroupUpdateHandler,
-    Handler,
     ReactionHandler,
     ReadyHandler,
     RemoteDeleteHandler,
@@ -79,9 +78,18 @@ if TYPE_CHECKING:
         UpdateGroupRequest,
     )
 
+AnyHandler: TypeAlias = (
+    DataMessageHandler
+    | GroupUpdateHandler
+    | RemoteDeleteHandler
+    | TypingHandler
+    | ReactionHandler
+    | ReadyHandler
+)
+
 HandlerList: TypeAlias = list[
     tuple[
-        Handler,
+        AnyHandler,
         list[str] | bool,  # contacts
         list[str] | bool | None,  # groups
         Callable[[ReceivedMessageType], bool] | None,  # lambda filter
@@ -169,7 +177,7 @@ class SignalBot:
             self._event_loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self._event_loop)
 
-        self._q: asyncio.Queue[tuple[Handler, ReceivedMessageType, float]] = (
+        self._q: asyncio.Queue[tuple[AnyHandler, ReceivedMessageType, float]] = (
             asyncio.Queue()
         )
 
@@ -213,7 +221,7 @@ class SignalBot:
 
     def register(
         self,
-        command: Handler,
+        command: AnyHandler,
         contacts: list[str] | bool = True,  # noqa: FBT001, FBT002
         groups: list[str] | bool = True,  # noqa: FBT001, FBT002
         f: Callable[[ReceivedMessageType], bool] | None = None,
@@ -229,8 +237,6 @@ class SignalBot:
             groups: Allowed groups or True for all.
             f: Optional function to further filter messages.
         """
-        command.bot = self
-        command.setup()
         self._commands_to_be_registered.append((command, contacts, groups, f))
 
     async def _resolve_commands(self) -> None:

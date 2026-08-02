@@ -17,7 +17,7 @@ class HelpCommand(DataMessageHandler):
     async def handle_data_message(self, context: ContextDataMessage) -> None:
         commands = []
         handlers = []
-        for registered, _, _, _ in self.bot.commands:
+        for registered, _, _, _ in context.bot.commands:
             if not isinstance(registered, HasHelpMessage):
                 continue
             if isinstance(registered, DataMessageHandler):

@@ -114,7 +114,7 @@ class TestGetter(TestCommon):
                 self.found_group = None
 
             async def handle_data_message(self, context: ContextDataMessage) -> None:
-                self.found_group = self.bot.get_group(
+                self.found_group = context.bot.get_group(
                     context.message.group_info.group_id
                 )
 
@@ -310,24 +310,6 @@ class TestRegisterCommand(TestCommon):
         self.signal_bot.register(DummyCommand())
         self.signal_bot.register(DummyCommand())
         assert len(self.signal_bot._commands_to_be_registered) == 3  # noqa: PLR2004
-
-    def test_register_calls_setup_of_command(self):
-        class SomeTestCommand(DataMessageHandler):
-            def __init__(self):  # noqa: ANN204
-                super().__init__()
-                self.state = False
-
-            def setup(self):  # noqa: ANN202
-                self.state = True
-
-            def handle_data_message(self, context: ContextDataMessage):  # noqa: ANN202
-                pass
-
-        cmd = SomeTestCommand()
-        assert cmd.state is False
-
-        self.signal_bot.register(cmd)
-        assert cmd.state is True
 
     @pytest.mark.asyncio
     async def test_register_single_contact(self):
