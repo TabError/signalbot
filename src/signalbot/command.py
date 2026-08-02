@@ -162,7 +162,8 @@ class Handler(ABC):  # noqa: B024 -- intentionally has no abstract methods of it
 
 
 class Command(Handler):
-    """Abstract base class for text/edit-triggered commands.
+    """Abstract base class for text, attachments and stickers messages.
+    It handles both original messages and edited messages.
 
     To create a command, subclass this class and implement `handle`.
     Then, register the command with the bot using `bot.register(CommandSubclass)`.
