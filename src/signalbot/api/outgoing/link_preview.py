@@ -25,7 +25,7 @@ class LinkPreview(BaseModel):
     url: str
     thumbnail: PydanticPath | str
 
-    async def to_link_preview_type(self) -> LinkPreviewType:
+    async def to_generated(self) -> LinkPreviewType:
         base64_thumbnail = (
             await attachment_to_base64(self.thumbnail)
             if isinstance(self.thumbnail, Path)

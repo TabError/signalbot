@@ -27,17 +27,17 @@ import os
 
 from signalbot import (
     Config,
-    ContextDataMessage,
+    DataMessageContext,
     DataMessageHandler,
     SignalBot,
     text_triggered,
 )
-from signalbot.api.requests import SendMessage
+from signalbot.api.outgoing import SendMessage
 
 
 class PingCommand(DataMessageHandler):
     @text_triggered("Ping")
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: DataMessageContext) -> None:
         await context.send(SendMessage(text="Pong"))
 
 

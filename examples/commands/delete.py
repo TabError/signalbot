@@ -2,8 +2,8 @@ import asyncio
 from datetime import datetime
 
 from signalbot import DataMessageHandler, RemoteDeleteHandler, text_triggered
-from signalbot.api.requests import SendMessage
-from signalbot.context import ContextDataMessage, ContextRemoteDelete
+from signalbot.api.outgoing import SendMessage
+from signalbot.context import DataMessageContext, RemoteDeleteContext
 
 
 class DeleteCommand(DataMessageHandler):
@@ -11,7 +11,7 @@ class DeleteCommand(DataMessageHandler):
         return "delete: 🗑️ Delete a message."
 
     @text_triggered("delete")
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: DataMessageContext) -> None:
         sent_message = await context.send(
             SendMessage(text="This message will be deleted in two seconds.")
         )
@@ -23,7 +23,7 @@ class ReceiveDeleteCommand(RemoteDeleteHandler):
     def help_message(self) -> str:
         return "Remote delete received: 🗑️ Notifies when a message was deleted."
 
-    async def handle_remote_delete(self, context: ContextRemoteDelete) -> None:
+    async def handle_remote_delete(self, context: RemoteDeleteContext) -> None:
         deleted_at = datetime.fromtimestamp(  # noqa: DTZ006
             context.message.timestamp / 1000
         )
@@ -36,7 +36,7 @@ class DeleteLocalAttachmentCommand(DataMessageHandler):
         return "delete-attachment: 🗑️ Delete the local copy of an attachment."
 
     @text_triggered("delete-attachment")
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: DataMessageContext) -> None:
         attachments = context.message.attachments
         if attachments is None or len(attachments) == 0:
             await context.send(SendMessage(text="Please send an attachment to delete."))

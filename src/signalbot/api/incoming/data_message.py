@@ -14,14 +14,13 @@ from signalbot.api.generated import (
     TextMode,
     TextStyle,
 )
-from signalbot.api.receive_messages.attachments import Attachment
-from signalbot.api.receive_messages.base_message import BaseMessageWithGroup
-from signalbot.api.receive_messages.link_previews import Preview
-from signalbot.api.requests import SendMessage
+from signalbot.api.incoming.attachment import Attachment
+from signalbot.api.incoming.base_message import BaseMessageWithGroup
+from signalbot.api.incoming.link_preview import LinkPreview
+from signalbot.api.outgoing import SendMessage
 
 if TYPE_CHECKING:
-    from signalbot.api import SignalAPI
-    from signalbot.api.generated import DataMessage as BaseDataMessage
+    from signalbot.api import SignalAPI, generated
     from signalbot.api.generated import (
         MessageEnvelope,
         SyncDataMessage,
@@ -33,7 +32,7 @@ class DataMessage(BaseMessageWithGroup):
     expires_in_seconds: int | None = None
     mentions: list[Mention] | None = None
     text: str | None = None
-    previews: list[Preview] | None = None
+    previews: list[LinkPreview] | None = None
     base64_previews: list[str] | None = None
     quote: Quote | None = None
     sticker: Sticker | None = None
@@ -54,7 +53,7 @@ class DataMessage(BaseMessageWithGroup):
 
     @classmethod
     async def _download_thumbnails(
-        cls, signal: SignalAPI, link_previews: list[Preview]
+        cls, signal: SignalAPI, link_previews: list[LinkPreview]
     ) -> list[str | None]:
         return [
             await signal.download_attachment(link_preview.image)
@@ -68,7 +67,7 @@ class DataMessage(BaseMessageWithGroup):
     async def _internal_parse(
         cls,
         message_envelope: MessageEnvelope,
-        data_message: BaseDataMessage | SyncDataMessage,
+        data_message: generated.DataMessage | SyncDataMessage,
         signal: SignalAPI,
     ) -> DataMessage:
         attachments = None
@@ -81,7 +80,7 @@ class DataMessage(BaseMessageWithGroup):
         link_previews = None
         if data_message.previews is not None:
             link_previews = [
-                Preview.model_validate(preview.model_dump())
+                LinkPreview.model_validate(preview.model_dump())
                 for preview in data_message.previews
             ]
 

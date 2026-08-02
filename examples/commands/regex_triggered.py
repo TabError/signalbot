@@ -1,5 +1,5 @@
-from signalbot import ContextDataMessage, DataMessageHandler, regex_triggered
-from signalbot.api.requests import SendMessage
+from signalbot import DataMessageContext, DataMessageHandler, regex_triggered
+from signalbot.api.outgoing import SendMessage
 
 
 class RegexTriggeredCommand(DataMessageHandler):
@@ -7,5 +7,5 @@ class RegexTriggeredCommand(DataMessageHandler):
         return "^[\\w\\.-]+@gmail\\.com$: 😤 Regular expression decorator example."
 
     @regex_triggered(r"^[\w\.-]+@gmail\.com$")
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: DataMessageContext) -> None:
         await context.send(SendMessage(text="Detected a Gmail address!"))

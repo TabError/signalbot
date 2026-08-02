@@ -1,6 +1,6 @@
 from signalbot import DataMessageHandler, text_triggered
-from signalbot.api.requests import SendMessage
-from signalbot.context import ContextDataMessage
+from signalbot.api.outgoing import SendMessage
+from signalbot.context import DataMessageContext
 
 
 class ReplyCommand(DataMessageHandler):
@@ -8,5 +8,5 @@ class ReplyCommand(DataMessageHandler):
         return "reply: 💬 Reply to a message."
 
     @text_triggered("reply")
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: DataMessageContext) -> None:
         await context.reply(SendMessage(text="This is a reply."))

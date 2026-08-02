@@ -17,8 +17,8 @@ from signalbot.api.generated import (
     SendMessages,
 )
 from signalbot.bot import SignalBot
-from signalbot.command import DataMessageHandler
-from signalbot.context import ContextDataMessage
+from signalbot.context import DataMessageContext
+from signalbot.handlers import DataMessageHandler
 
 
 def mock_chat(*messages: str):  # noqa: ANN201
@@ -36,8 +36,8 @@ def mock_chat(*messages: str):  # noqa: ANN201
                 new_callable=GetGroupsMock,
             )
             mocker.patch(
-                "signalbot.SignalAPI.get_signal_cli_about",
-                new_callable=GetSignalCliAboutMock,
+                "signalbot.SignalAPI.about",
+                new_callable=AboutMock,
             )
             mocker.patch(
                 "signalbot.SignalAPI.check_signal_service",
@@ -222,7 +222,7 @@ class GetGroupsMock(AsyncMock):
         ]
 
 
-class GetSignalCliAboutMock(AsyncMock):
+class AboutMock(AsyncMock):
     def __init__(self, **kwargs: str) -> None:
         super().__init__(**kwargs)
         self.return_value = About(
@@ -240,6 +240,6 @@ class CheckSignalServiceMock(AsyncMock):
         self.return_value = True
 
 
-class DummyCommand(DataMessageHandler):
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+class DummyHandler(DataMessageHandler):
+    async def handle_data_message(self, context: DataMessageContext) -> None:
         pass

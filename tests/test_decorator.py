@@ -4,9 +4,9 @@ import pytest
 from pytest_mock import MockerFixture
 
 from signalbot import DataMessageHandler, text_triggered
-from signalbot.api.requests import SendMessage
-from signalbot.command import ReactionHandler, reaction_triggered, regex_triggered
-from signalbot.context import ContextDataMessage, ContextReaction
+from signalbot.api.outgoing import SendMessage
+from signalbot.context import DataMessageContext, ReactionContext
+from signalbot.handlers import ReactionHandler, reaction_triggered, regex_triggered
 from signalbot.test_utils import (
     ChatTestCase,
     GetGroupsMock,
@@ -17,31 +17,31 @@ from signalbot.test_utils import (
 
 class TriggeredCommand(DataMessageHandler):
     @text_triggered("Alpha", "Beta")
-    async def handle_data_message(self, context: ContextDataMessage):
+    async def handle_data_message(self, context: DataMessageContext):
         await context.send(SendMessage(text="Base trigger"))
 
 
 class TriggeredCaseSensitiveCommand(DataMessageHandler):
     @text_triggered("Alpha", "Beta", case_sensitive=True)
-    async def handle_data_message(self, context: ContextDataMessage):
+    async def handle_data_message(self, context: DataMessageContext):
         await context.send(SendMessage(text="Base trigger"))
 
 
 class ReactionTriggeredCommand(ReactionHandler):
     @reaction_triggered()
-    async def handle_reaction(self, context: ContextReaction):
+    async def handle_reaction(self, context: ReactionContext):
         await context.send(SendMessage(text="Reactions trigger"))
 
 
 class ReactionFilteredCommand(ReactionHandler):
     @reaction_triggered("👍", "❤️")
-    async def handle_reaction(self, context: ContextReaction):
+    async def handle_reaction(self, context: ReactionContext):
         await context.send(SendMessage(text="Specific reactions trigger"))
 
 
 class RegexTriggeredCommand(DataMessageHandler):
     @regex_triggered(r"\w+@\w+\.\w+", r"\d{3}-\d{3}-\d{4}")
-    async def handle_data_message(self, context: ContextDataMessage):
+    async def handle_data_message(self, context: DataMessageContext):
         await context.send(SendMessage(text="I am triggered by regular expressions"))
 
 
@@ -79,21 +79,21 @@ class TestTriggered(TestCommon):
     async def test_triggered(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
         mocks.receive_mock.define(["Alpha"])
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._resolve_handlers()
         await self.run_bot()
         assert mocks.send_mock.call_count == 1
 
     async def test_also_triggered(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
         mocks.receive_mock.define(["Beta"])
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._resolve_handlers()
         await self.run_bot()
         assert mocks.send_mock.call_count == 1
 
     async def test_not_triggered(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
         mocks.receive_mock.define(["Gamma"])
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._resolve_handlers()
         await self.run_bot()
         assert mocks.send_mock.call_count == 0
 
@@ -107,14 +107,14 @@ class TestTriggeredCaseSensitive(TestCommon):
     async def test_triggered(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
         mocks.receive_mock.define(["Alpha"])
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._resolve_handlers()
         await self.run_bot()
         assert mocks.send_mock.call_count == 1
 
     async def test_not_triggered(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
         mocks.receive_mock.define(["alpha"])
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._resolve_handlers()
         await self.run_bot()
         assert mocks.send_mock.call_count == 0
 
@@ -128,21 +128,21 @@ class TestRegexTriggered(TestCommon):
     async def test_regex_triggered_email(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
         mocks.receive_mock.define(["potus@whitehouse.tld"])
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._resolve_handlers()
         await self.run_bot()
         assert mocks.send_mock.call_count == 1
 
     async def test_regex_triggered_phone(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
         mocks.receive_mock.define(["123-555-1234"])
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._resolve_handlers()
         await self.run_bot()
         assert mocks.send_mock.call_count == 1
 
     async def test_not_regex_triggered(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
         mocks.receive_mock.define(["11-222"])
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._resolve_handlers()
         await self.run_bot()
         assert mocks.send_mock.call_count == 0
 
@@ -155,8 +155,8 @@ class TestTriggeredGroups(TestCommon):
     async def _test_trigger(self, mocker: MockerFixture, call_count: int) -> None:
         mocks = self.mock_send_receive_get_groups(mocker)
         mocks.receive_mock.define(["Alpha"])
-        await self.signal_bot._detect_groups()
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._refresh_groups()
+        await self.signal_bot._resolve_handlers()
         await self.run_bot()
         assert mocks.send_mock.call_count == call_count
 
@@ -202,15 +202,15 @@ class TestReactionTriggered(TestCommon):
     async def test_reaction_triggered(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
         mocks.receive_mock.define_raw([ChatTestCase.new_reaction_message("👍")])
-        await self.signal_bot._detect_groups()
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._refresh_groups()
+        await self.signal_bot._resolve_handlers()
         await self.run_bot()
         assert mocks.send_mock.call_count == 1
 
     async def test_non_reaction_skipped(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
         mocks.receive_mock.define(["hello"])
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._resolve_handlers()
         await self.run_bot()
         assert mocks.send_mock.call_count == 0
 
@@ -224,14 +224,14 @@ class TestReactionFiltered(TestCommon):
     async def test_matching_emoji(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
         mocks.receive_mock.define_raw([ChatTestCase.new_reaction_message("👍")])
-        await self.signal_bot._detect_groups()
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._refresh_groups()
+        await self.signal_bot._resolve_handlers()
         await self.run_bot()
         assert mocks.send_mock.call_count == 1
 
     async def test_non_matching_emoji(self, mocker: MockerFixture):
         mocks = self.mock_send_receive_get_groups(mocker)
         mocks.receive_mock.define_raw([ChatTestCase.new_reaction_message("😂")])
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._resolve_handlers()
         await self.run_bot()
         assert mocks.send_mock.call_count == 0

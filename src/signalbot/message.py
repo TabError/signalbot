@@ -3,13 +3,13 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
-from signalbot.api.receive_messages import (
+from signalbot.api.incoming import (
     DataMessage,
     EditMessage,
     GroupUpdateMessage,
     Reaction,
+    ReceivedEnvelope,
     ReceivedMessage,
-    ReceivedMessageType,
     TypingMessage,
 )
 
@@ -20,7 +20,7 @@ if TYPE_CHECKING:
 
 async def _parse_sync_messages(
     signal: SignalAPI, message_envelope: MessageEnvelope
-) -> ReceivedMessageType | None:
+) -> ReceivedMessage | None:
 
     if message_envelope.sync_message is not None:
         sync_message = message_envelope.sync_message
@@ -47,7 +47,7 @@ async def _parse_sync_messages(
 
 async def _parse_main_messages(
     signal: SignalAPI, message_envelope: MessageEnvelope
-) -> ReceivedMessageType | None:
+) -> ReceivedMessage | None:
     if message_envelope.data_message is not None:
         if GroupUpdateMessage.message_envelope_is_group_update(message_envelope):
             return GroupUpdateMessage.from_message_envelope(message_envelope)
@@ -67,7 +67,7 @@ async def _parse_main_messages(
     return None
 
 
-async def parse(signal: SignalAPI, raw_message_str: str) -> ReceivedMessageType:
+async def parse(signal: SignalAPI, raw_message_str: str) -> ReceivedMessage:
     """Parse a raw JSON message string from the Signal API into a Message object.
 
     Args:
@@ -88,13 +88,13 @@ async def parse(signal: SignalAPI, raw_message_str: str) -> ReceivedMessageType:
     except Exception as exc:
         raise UnknownMessageFormatError from exc
 
-    message = ReceivedMessage.model_validate(raw_message)
+    envelope = ReceivedEnvelope.model_validate(raw_message)
 
-    parsed_message = await _parse_main_messages(signal, message.envelope)
+    parsed_message = await _parse_main_messages(signal, envelope.envelope)
     if parsed_message is not None:
         return parsed_message
 
-    parsed_message = await _parse_sync_messages(signal, message.envelope)
+    parsed_message = await _parse_sync_messages(signal, envelope.envelope)
     if parsed_message is not None:
         return parsed_message
 

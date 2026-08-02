@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from signalbot.api.receive_messages.data_message import DataMessage
+from signalbot.api.incoming.data_message import DataMessage
 
 if TYPE_CHECKING:
     from signalbot.api import SignalAPI

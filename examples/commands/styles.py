@@ -1,5 +1,5 @@
-from signalbot import ContextDataMessage, DataMessageHandler, TextMode, text_triggered
-from signalbot.api.requests import SendMessage
+from signalbot import DataMessageContext, DataMessageHandler, TextMode, text_triggered
+from signalbot.api.outgoing import SendMessage
 
 
 class StylesCommand(DataMessageHandler):
@@ -7,7 +7,7 @@ class StylesCommand(DataMessageHandler):
         return "styles: 🎨 Demonstrates different text styles."
 
     @text_triggered("styles")
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: DataMessageContext) -> None:
         await context.send(
             SendMessage(text="**Bold style**", text_mode=TextMode.STYLED)
         )

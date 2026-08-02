@@ -5,6 +5,6 @@ from pydantic import BaseModel
 from signalbot.api.generated import MessageEnvelope
 
 
-class ReceivedMessage(BaseModel):
+class ReceivedEnvelope(BaseModel):
     envelope: MessageEnvelope
     account: str

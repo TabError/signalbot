@@ -15,11 +15,11 @@ from signalbot.api.generated import (
     SendMessageResponse,
     SendMessageV2,
 )
-from signalbot.api.generated import UpdateGroupRequest as BaseUpdateGroupRequest
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
 
+    from signalbot.api import generated
     from signalbot.api.generated import (
         Attachment,
         CreatePollRequest,
@@ -30,7 +30,7 @@ if TYPE_CHECKING:
         SendReactionRequest,
         TypingIndicatorRequest,
     )
-    from signalbot.api.requests import UpdateContactRequest
+    from signalbot.api.outgoing import UpdateContact
     from signalbot.auth import Authentication
 
 
@@ -82,13 +82,13 @@ class SignalAPI:
                     yield str(raw_message)
 
         except Exception as e:
-            raise ReceiveMessagesError from e
+            raise ReceiveError from e
 
     async def send(
         self,
         data_message: SendMessageV2,
     ) -> SendMessageResponse:
-        uri = self._signal_api_uris.send_rest_uri()
+        uri = self._signal_api_uris.send_uri()
 
         payload = data_message.model_dump_json(exclude_none=True, by_alias=True)
 
@@ -104,13 +104,13 @@ class SignalAPI:
             aiohttp.http_exceptions.HttpProcessingError,
             KeyError,
         ) as exc:
-            raise SendMessageError from exc
+            raise SendError from exc
 
     async def poll(
         self,
         create_poll_request: CreatePollRequest,
     ) -> CreatePollResponse:
-        uri = self._signal_api_uris.poll_rest_uri()
+        uri = self._signal_api_uris.poll_uri()
         payload = create_poll_request.model_dump_json(exclude_none=True, by_alias=True)
         headers = self._add_auth()
 
@@ -124,13 +124,13 @@ class SignalAPI:
             aiohttp.http_exceptions.HttpProcessingError,
             KeyError,
         ) as exc:
-            raise SendMessageError from exc
+            raise PollError from exc
 
     async def react(
         self,
         reaction_request: SendReactionRequest,
     ) -> aiohttp.ClientResponse:
-        uri = self._signal_api_uris.react_rest_uri()
+        uri = self._signal_api_uris.react_uri()
         payload = reaction_request.model_dump_json(exclude_none=True, by_alias=True)
         headers = self._add_auth()
         try:
@@ -145,7 +145,7 @@ class SignalAPI:
             raise ReactionError from exc
 
     async def receipt(self, receipt_request: Receipt) -> aiohttp.ClientResponse:
-        uri = self._signal_api_uris.receipts_rest_uri()
+        uri = self._signal_api_uris.receipts_uri()
         payload = receipt_request.model_dump_json(exclude_none=True, by_alias=True)
         headers = self._add_auth()
         try:
@@ -157,7 +157,7 @@ class SignalAPI:
             aiohttp.ClientError,
             aiohttp.http_exceptions.HttpProcessingError,
         ) as exc:
-            raise ReactionError from exc
+            raise ReceiptError from exc
 
     async def start_typing(
         self, typing_request: TypingIndicatorRequest
@@ -224,9 +224,7 @@ class SignalAPI:
             raise GroupsError from exc
 
     async def download_attachment(self, attachment: Attachment) -> str:
-        uri = (
-            f"{self._signal_api_uris.attachment_rest_uri()}/{attachment.local_filename}"
-        )
+        uri = f"{self._signal_api_uris.attachment_uri()}/{attachment.local_filename}"
         headers = self._add_auth()
         try:
             async with aiohttp.ClientSession(headers=headers) as session:
@@ -237,7 +235,7 @@ class SignalAPI:
             aiohttp.ClientError,
             aiohttp.http_exceptions.HttpProcessingError,
         ) as exc:
-            raise GetAttachmentError from exc
+            raise DownloadAttachmentError from exc
 
         base64_bytes = base64.b64encode(content)
         base64_string = str(base64_bytes, encoding="utf-8")
@@ -250,7 +248,7 @@ class SignalAPI:
             error_msg = "Attachment has no local filename"
             raise ValueError(error_msg)
 
-        uri = f"{self._signal_api_uris.attachment_rest_uri()}/{attachment_id}"
+        uri = f"{self._signal_api_uris.attachment_uri()}/{attachment_id}"
         headers = self._add_auth()
 
         try:
@@ -262,16 +260,14 @@ class SignalAPI:
             aiohttp.ClientError,
             aiohttp.http_exceptions.HttpProcessingError,
         ) as exc:
-            raise GetAttachmentError from exc
+            raise DeleteAttachmentError from exc
 
     async def update_contact(
         self,
-        update_contact_request: UpdateContactRequest,
+        update_contact: UpdateContact,
     ) -> None:
         uri = self._signal_api_uris.contacts_uri()
-        payload = update_contact_request.model_dump_json(
-            exclude_none=True, by_alias=True
-        )
+        payload = update_contact.model_dump_json(exclude_none=True, by_alias=True)
         headers = self._add_auth()
 
         try:
@@ -283,10 +279,10 @@ class SignalAPI:
             aiohttp.ClientError,
             aiohttp.http_exceptions.HttpProcessingError,
         ) as exc:
-            raise ContactUpdateError from exc
+            raise UpdateContactError from exc
 
     async def update_group(
-        self, group_id_or_name: str, update_group_request: BaseUpdateGroupRequest
+        self, group_id_or_name: str, update_group_request: generated.UpdateGroupRequest
     ) -> None:
         uri = self._signal_api_uris.group_id_uri(group_id_or_name)
         payload = update_group_request.model_dump_json(exclude_none=True, by_alias=True)
@@ -301,7 +297,7 @@ class SignalAPI:
             aiohttp.ClientError,
             aiohttp.http_exceptions.HttpProcessingError,
         ) as exc:
-            raise ContactUpdateError from exc
+            raise UpdateGroupError from exc
 
     async def health_check(self) -> aiohttp.ClientResponse:
         uri = self._signal_api_uris.health_check_uri()
@@ -336,8 +332,8 @@ class SignalAPI:
         self._signal_api_uris.use_https = False
         return await self._is_signal_service_available()
 
-    async def get_signal_cli_about(self) -> About:
-        uri = self._signal_api_uris.about_rest_uri()
+    async def about(self) -> About:
+        uri = self._signal_api_uris.about_uri()
         headers = self._add_auth()
 
         try:
@@ -392,7 +388,7 @@ class SignalAPIURIs:
     def wss_or_ws(self) -> str:
         return "wss" if self.use_https else "ws"
 
-    def attachment_rest_uri(self) -> str:
+    def attachment_uri(self) -> str:
         return f"{self.https_or_http}://{self.signal_service}/v1/attachments"
 
     def receive_ws_uri(self) -> str:
@@ -400,15 +396,15 @@ class SignalAPIURIs:
             f"{self.wss_or_ws}://{self.signal_service}/v1/receive/{self.phone_number}"
         )
 
-    def send_rest_uri(self) -> str:
+    def send_uri(self) -> str:
         return f"{self.https_or_http}://{self.signal_service}/v2/send"
 
-    def poll_rest_uri(self) -> str:
+    def poll_uri(self) -> str:
         return (
             f"{self.https_or_http}://{self.signal_service}/v1/polls/{self.phone_number}"
         )
 
-    def react_rest_uri(self) -> str:
+    def react_uri(self) -> str:
         return f"{self.https_or_http}://{self.signal_service}/v1/reactions/{self.phone_number}"
 
     def typing_indicator_uri(self) -> str:
@@ -426,21 +422,25 @@ class SignalAPIURIs:
     def health_check_uri(self) -> str:
         return f"{self.https_or_http}://{self.signal_service}/v1/health"
 
-    def receipts_rest_uri(self) -> str:
+    def receipts_uri(self) -> str:
         return f"{self.https_or_http}://{self.signal_service}/v1/receipts/{self.phone_number}"
 
     def remote_delete_uri(self) -> str:
         return f"{self.https_or_http}://{self.signal_service}/v1/remote-delete/{self.phone_number}"
 
-    def about_rest_uri(self) -> str:
+    def about_uri(self) -> str:
         return f"{self.https_or_http}://{self.signal_service}/v1/about"
 
 
-class ReceiveMessagesError(Exception):
+class ReceiveError(Exception):
     pass
 
 
-class SendMessageError(Exception):
+class SendError(Exception):
+    pass
+
+
+class PollError(Exception):
     pass
 
 
@@ -460,15 +460,27 @@ class ReactionError(Exception):
     pass
 
 
+class ReceiptError(Exception):
+    pass
+
+
 class GroupsError(Exception):
     pass
 
 
-class GetAttachmentError(Exception):
+class DownloadAttachmentError(Exception):
     pass
 
 
-class ContactUpdateError(Exception):
+class DeleteAttachmentError(Exception):
+    pass
+
+
+class UpdateContactError(Exception):
+    pass
+
+
+class UpdateGroupError(Exception):
     pass
 
 

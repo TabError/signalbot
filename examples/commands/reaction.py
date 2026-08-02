@@ -1,12 +1,12 @@
 from signalbot import (
-    ContextReaction,
     DataMessageHandler,
+    ReactionContext,
     ReactionHandler,
     reaction_triggered,
     text_triggered,
 )
-from signalbot.api.requests import SendMessage
-from signalbot.context.context_data_message import ContextDataMessage
+from signalbot.api.outgoing import SendMessage
+from signalbot.context.data_message_context import DataMessageContext
 
 
 class ReactCommand(DataMessageHandler):
@@ -14,7 +14,7 @@ class ReactCommand(DataMessageHandler):
         return "send-reaction: 🎉 Send a reaction to a message."
 
     @text_triggered("send-reaction")
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: DataMessageContext) -> None:
         await context.react("🎉")
 
 
@@ -25,7 +25,7 @@ class ReactionCommand(ReactionHandler):
             "about the reaction."
         )
 
-    async def handle_reaction(self, context: ContextReaction) -> None:
+    async def handle_reaction(self, context: ReactionContext) -> None:
         reaction = context.message
 
         if reaction.emoji in ["👍", "❤️"]:
@@ -55,7 +55,7 @@ class ThumbsUpCommand(ReactionHandler):
         )
 
     @reaction_triggered("👍", "❤️")
-    async def handle_reaction(self, context: ContextReaction) -> None:
+    async def handle_reaction(self, context: ReactionContext) -> None:
         reaction = context.message
         if reaction.is_remove:
             await context.send(

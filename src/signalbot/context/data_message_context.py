@@ -4,16 +4,16 @@ from copy import deepcopy
 from typing import TYPE_CHECKING
 
 from signalbot.api.generated import MessageMention, RemoteDeleteRequest
-from signalbot.api.receive_messages import DataMessage, EditMessage
+from signalbot.api.incoming import DataMessage, EditMessage
 from signalbot.context.context import Context
 
 if TYPE_CHECKING:
     from signalbot.api.generated.api.receipt_type import ReceiptType
     from signalbot.api.generated.receive import Mention
-    from signalbot.api.requests import SendMessage, SentMessage
+    from signalbot.api.outgoing import SendMessage, SentMessage
 
 
-class ContextDataMessage(Context[DataMessage | EditMessage]):
+class DataMessageContext(Context[DataMessage | EditMessage]):
     async def edit(
         self, new_message: SendMessage, original_message: SentMessage
     ) -> SentMessage:

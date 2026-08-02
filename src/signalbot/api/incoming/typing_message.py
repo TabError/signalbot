@@ -3,11 +3,11 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from signalbot.api.receive_messages.base_message import BaseMessage
+from signalbot.api.incoming.base_message import BaseMessage
 
 if TYPE_CHECKING:
+    from signalbot.api import generated
     from signalbot.api.generated import MessageEnvelope
-    from signalbot.api.generated import TypingMessage as BaseTypingMessage
 
 
 class TypingAction(StrEnum):
@@ -24,7 +24,7 @@ class TypingMessage(BaseMessage):
     async def _internal_parse(
         cls,
         message_envelope: MessageEnvelope,
-        typing_message: BaseTypingMessage,
+        typing_message: generated.TypingMessage,
     ) -> TypingMessage:
         if typing_message.action is None:
             error_msg = "TypingMessage is missing required field: action"

@@ -57,7 +57,7 @@ class InMemoryConfig(BaseModel):
     type: Literal["in-memory"] = "in-memory"
 
 
-class BasicAuth(BaseModel):
+class BasicAuthConfig(BaseModel):
     """
     The configuration for username and password based authentication.
 
@@ -72,7 +72,7 @@ class BasicAuth(BaseModel):
     password: str
 
 
-class BearerAuth(BaseModel):
+class BearerAuthConfig(BaseModel):
     """
     The configuration for token based authentication.
 
@@ -106,7 +106,7 @@ class Config(BaseModel):
 
     phone_number: str
     signal_service: str = "localhost:8080"
-    auth: BasicAuth | BearerAuth | None = None
+    auth: BasicAuthConfig | BearerAuthConfig | None = None
 
     storage: RedisConfig | SQLiteConfig | InMemoryConfig | None = None
     retry_interval: int = 1

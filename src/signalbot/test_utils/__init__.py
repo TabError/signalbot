@@ -1,6 +1,6 @@
 from signalbot.test_utils.chat_testing import (
     ChatTestCase,
-    DummyCommand,
+    DummyHandler,
     GetGroupsMock,
     ReactMessageMock,
     ReceiveMessagesMock,
@@ -10,7 +10,7 @@ from signalbot.test_utils.chat_testing import (
 
 __all__ = [
     "ChatTestCase",
-    "DummyCommand",
+    "DummyHandler",
     "GetGroupsMock",
     "ReactMessageMock",
     "ReceiveMessagesMock",

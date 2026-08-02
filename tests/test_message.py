@@ -5,7 +5,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from signalbot.api import SignalAPI
-from signalbot.api.receive_messages import (
+from signalbot.api.incoming import (
     DataMessage,
     EditMessage,
     GroupUpdateMessage,

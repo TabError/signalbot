@@ -4,11 +4,11 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel
 
-from signalbot.api.receive_messages.base_message import BaseMessage
+from signalbot.api.incoming.base_message import BaseMessage
 
 if TYPE_CHECKING:
+    from signalbot.api import generated
     from signalbot.api.generated import DataMessage, MessageEnvelope, SyncDataMessage
-    from signalbot.api.generated import GroupInfo as BaseGroupInfo
 
 
 class GroupInfo(BaseModel):
@@ -18,7 +18,7 @@ class GroupInfo(BaseModel):
     type: Literal["UPDATE"]
 
     @staticmethod
-    def from_base(group_info: BaseGroupInfo) -> GroupInfo:
+    def from_base(group_info: generated.GroupInfo) -> GroupInfo:
         if group_info.group_id is None:
             error_msg = "group_id cannot be None"
             raise ValueError(error_msg)

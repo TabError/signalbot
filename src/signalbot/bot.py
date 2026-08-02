@@ -15,46 +15,45 @@ import phonenumbers
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from packaging.version import Version
 
-from signalbot.api import ReceiveMessagesError, SignalAPI
+from signalbot.api import ReceiveError, SignalAPI
 from signalbot.api.generated.api.receipt import Receipt
 from signalbot.api.generated.api.send_reaction_request import SendReactionRequest
 from signalbot.api.generated.api.typing_indicator_request import TypingIndicatorRequest
-from signalbot.api.receive_messages import (
+from signalbot.api.incoming import (
     DataMessage,
     EditMessage,
     GroupUpdateMessage,
     Reaction,
-    ReceivedMessageType,
+    ReceivedMessage,
     RemoteDelete,
     TypingMessage,
 )
-from signalbot.api.requests import SentMessage
-from signalbot.api.requests.poll import Poll
+from signalbot.api.outgoing import CreatedPoll, SentMessage
 from signalbot.auth import BasicAuthentication, BearerAuthentication
 from signalbot.bot_config import (
-    BasicAuth,
-    BearerAuth,
+    BasicAuthConfig,
+    BearerAuthConfig,
     Config,
     InMemoryConfig,
     RedisConfig,
     SQLiteConfig,
     load_config,
 )
-from signalbot.command import (
+from signalbot.context import (
+    DataMessageContext,
+    GroupUpdateContext,
+    ReactionContext,
+    ReadyContext,
+    RemoteDeleteContext,
+    TypingContext,
+)
+from signalbot.handlers import (
     DataMessageHandler,
     GroupUpdateHandler,
     ReactionHandler,
     ReadyHandler,
     RemoteDeleteHandler,
     TypingHandler,
-)
-from signalbot.context import (
-    ContextDataMessage,
-    ContextGroupUpdateMessage,
-    ContextReaction,
-    ContextReady,
-    ContextRemoteDelete,
-    ContextTypingMessage,
 )
 from signalbot.logger import initialize_logger
 from signalbot.message import UnknownMessageFormatError, parse
@@ -70,12 +69,12 @@ if TYPE_CHECKING:
         RemoteDeleteRequest,
     )
     from signalbot.api.generated.api.receipt_type import ReceiptType
-    from signalbot.api.receive_messages import Attachment
-    from signalbot.api.requests import (
+    from signalbot.api.incoming import Attachment
+    from signalbot.api.outgoing import (
         SendMessage,
         SendMessageMultiple,
-        UpdateContactRequest,
-        UpdateGroupRequest,
+        UpdateContact,
+        UpdateGroup,
     )
 
 AnyHandler: TypeAlias = (
@@ -92,7 +91,7 @@ HandlerList: TypeAlias = list[
         AnyHandler,
         list[str] | bool,  # contacts
         list[str] | bool | None,  # groups
-        Callable[[ReceivedMessageType], bool] | None,  # lambda filter
+        Callable[[ReceivedMessage], bool] | None,  # lambda filter
     ]
 ]
 
@@ -105,12 +104,12 @@ The minimum required version of `signal-cli-rest-api` for this version of `signa
 
 class SignalBot:
     """
-    SignalBot is the main class for the bot. It provides methods to register commands,
+    SignalBot is the main class for the bot. It provides methods to register handlers,
     start the bot, and interact with messages.
 
     Attributes:
         config (Config): The configuration for the bot.
-        commands: A list of registered commands with their filters.
+        handlers: A list of registered handlers with their filters.
             Only available after `.start()` is called and `init_task` is done.
         groups (list): A list of groups the bot is a member of.
             Only available after `.start()` is called and `init_task` is done.
@@ -137,11 +136,11 @@ class SignalBot:
 
         self._logger = initialize_logger(self.config.logging_level)
 
-        if isinstance(self.config.auth, BasicAuth):
+        if isinstance(self.config.auth, BasicAuthConfig):
             auth = BasicAuthentication(
                 self.config.auth.username, self.config.auth.password
             )
-        elif isinstance(self.config.auth, BearerAuth):
+        elif isinstance(self.config.auth, BearerAuthConfig):
             auth = BearerAuthentication(self.config.auth.token)
         else:
             if self.config.auth is not None:
@@ -150,8 +149,8 @@ class SignalBot:
                 self._logger.warning(error_msg)
             auth = None
 
-        self._commands_to_be_registered: HandlerList = []  # populated by .register()
-        self.commands: HandlerList = []  # populated by .start()
+        self._handlers_to_register: HandlerList = []  # populated by .register()
+        self.handlers: HandlerList = []  # populated by .start()
 
         self.groups: list[GroupEntry] = []  # populated by .start()
         self._groups_by_id = {}
@@ -177,7 +176,7 @@ class SignalBot:
             self._event_loop = asyncio.new_event_loop()
             asyncio.set_event_loop(self._event_loop)
 
-        self._q: asyncio.Queue[tuple[AnyHandler, ReceivedMessageType, float]] = (
+        self._q: asyncio.Queue[tuple[AnyHandler, ReceivedMessage, float]] = (
             asyncio.Queue()
         )
 
@@ -221,15 +220,15 @@ class SignalBot:
 
     def register(
         self,
-        command: AnyHandler,
+        handler: AnyHandler,
         contacts: list[str] | bool = True,  # noqa: FBT001, FBT002
         groups: list[str] | bool = True,  # noqa: FBT001, FBT002
-        f: Callable[[ReceivedMessageType], bool] | None = None,
+        f: Callable[[ReceivedMessage], bool] | None = None,
     ) -> None:
         """Register a handler with optional contact/group filters.
 
         Args:
-            command: Handler instance to register. This is typically a
+            handler: Handler instance to register. This is typically a
                 `DataMessageHandler`, but can be any combination of
                 `DataMessageHandler`, `GroupUpdateHandler`,
                 `RemoteDeleteHandler`, `TypingHandler`, and `ReactionHandler`.
@@ -237,11 +236,11 @@ class SignalBot:
             groups: Allowed groups or True for all.
             f: Optional function to further filter messages.
         """
-        self._commands_to_be_registered.append((command, contacts, groups, f))
+        self._handlers_to_register.append((handler, contacts, groups, f))
 
-    async def _resolve_commands(self) -> None:
-        self.commands = []
-        for command, contacts, groups, f in self._commands_to_be_registered:
+    async def _resolve_handlers(self) -> None:
+        self.handlers = []
+        for handler, contacts, groups, f in self._handlers_to_register:
             group_ids = None
 
             if isinstance(groups, bool):
@@ -254,25 +253,25 @@ class SignalBot:
                     if group_id is not None:
                         group_ids.append(group_id)
                     else:
-                        error_msg = f"[Bot] [{command.__class__.__name__}] '{group}' "
+                        error_msg = f"[Bot] [{handler.__class__.__name__}] '{group}' "
                         error_msg += "is not a valid group name or id"
                         self._logger.warning(error_msg)
 
-            self.commands.append((command, contacts, group_ids, f))
+            self.handlers.append((handler, contacts, group_ids, f))
 
     async def _async_post_init(self) -> None:
         await self._check_signal_service()
         await self._check_signal_cli_rest_api_version()
         await self._check_signal_cli_rest_api_mode()
-        await self._detect_groups()
-        await self._resolve_commands()
+        await self._refresh_groups()
+        await self._resolve_handlers()
         await self._run_ready_handlers()
         await self._create_produce_consume_messages_tasks()
 
     async def _run_ready_handlers(self) -> None:
-        for command, *_ in self.commands:
-            if isinstance(command, ReadyHandler):
-                await command.handle_ready(ContextReady(self))
+        for handler, *_ in self.handlers:
+            if isinstance(handler, ReadyHandler):
+                await handler.handle_ready(ReadyContext(self))
 
     async def _check_signal_service(self) -> None:
         while (await self._signal.check_signal_service()) is False:
@@ -282,7 +281,7 @@ class SignalBot:
             await asyncio.sleep(self.config.retry_interval)
 
     async def _check_signal_cli_rest_api_version(self) -> None:
-        version = (await self.signal_cli_rest_api_about()).version
+        version = (await self.about()).version
 
         # `unset` version is for preview versions of signal-cli-rest-api
         if version == "unset":
@@ -297,7 +296,7 @@ class SignalBot:
             raise RuntimeError(error_msg)
 
     async def _check_signal_cli_rest_api_mode(self) -> None:
-        mode = (await self.signal_cli_rest_api_about()).mode
+        mode = (await self.about()).mode
         if mode != "json-rpc":
             error_msg = (
                 f"Wrong signal-cli-rest-api mode, found '{mode}', expected 'json-rpc'"
@@ -340,65 +339,61 @@ class SignalBot:
 
         await self.init_task
 
-    async def signal_cli_rest_api_about(self) -> About:
+    async def about(self) -> About:
         """Return the signal-cli-rest-api about information."""
-        return await self._signal.get_signal_cli_about()
+        return await self._signal.about()
 
     async def send(
         self,
-        data_message: SendMessage,
+        message: SendMessage,
     ) -> SentMessage:
         """Send or edit a message.
 
         Args:
-            data_message: The message to send.
+            message: The message to send.
 
         Returns:
             A SentMessage instance.
         """
-        if data_message.recipient is None:
+        if message.recipient is None:
             error_msg = "Recipient must be set in SendMessage"
             raise ValueError(error_msg)
-        data_message.recipient = self._resolve_recipient(data_message.recipient)
+        message.recipient = self._resolve_recipient(message.recipient)
 
-        send_message_v2 = await data_message.to_send_message_v2(
-            self.config.phone_number
-        )
+        send_message_v2 = await message.to_generated(self.config.phone_number)
         send_message_response = await self._signal.send(send_message_v2)
         timestamp = int(send_message_response.timestamp)
         self._logger.info(
-            f"[Bot] New message {timestamp} sent:\n{data_message.text}"  # noqa: G004
+            f"[Bot] New message {timestamp} sent:\n{message.text}"  # noqa: G004
         )
 
-        return SentMessage.from_send_message(data_message, timestamp)
+        return SentMessage.from_send_message(message, timestamp)
 
     async def send_multiple(
         self,
-        data_message: SendMessageMultiple,
+        message: SendMessageMultiple,
     ) -> list[SentMessage]:
         """Send one message to multiple recipients.
 
         Args:
-            data_message: The message payload with multiple recipients.
+            message: The message payload with multiple recipients.
 
         Returns:
             A list of SentMessage instances, one per recipient.
         """
-        data_message.recipients = [
-            self._resolve_recipient(recipient) for recipient in data_message.recipients
+        message.recipients = [
+            self._resolve_recipient(recipient) for recipient in message.recipients
         ]
 
-        send_message_v2 = await data_message.to_send_message_v2(
-            self.config.phone_number
-        )
+        send_message_v2 = await message.to_generated(self.config.phone_number)
         send_message_response = await self._signal.send(send_message_v2)
         timestamp = int(send_message_response.timestamp)
 
         self._logger.info(
-            f"[Bot] New message {timestamp} sent:\n{data_message.text}"  # noqa: G004
+            f"[Bot] New message {timestamp} sent:\n{message.text}"  # noqa: G004
         )
 
-        return SentMessage.from_send_message_multiple(data_message, timestamp)
+        return SentMessage.from_send_message_multiple(message, timestamp)
 
     async def edit(
         self, new_message: SendMessage, original_message: SentMessage
@@ -418,14 +413,14 @@ class SignalBot:
     async def create_poll(
         self,
         create_poll_request: CreatePollRequest,
-    ) -> Poll:
+    ) -> CreatedPoll:
         """Create a poll.
 
         Args:
             create_poll_request: Request payload for poll creation.
 
         Returns:
-            A Poll instance.
+            A CreatedPoll instance.
         """
         create_poll_request.recipient = self._resolve_recipient(
             create_poll_request.recipient
@@ -435,7 +430,7 @@ class SignalBot:
         timestamp = int(created_poll.timestamp)
         self._logger.info("[Bot] New poll created:\n%s", create_poll_request.question)
 
-        return Poll.from_create_poll_request(create_poll_request, timestamp)
+        return CreatedPoll.from_create_poll_request(create_poll_request, timestamp)
 
     async def react(self, message: SentMessage | DataMessage, emoji: str) -> None:
         """React to a message with an emoji.
@@ -488,7 +483,7 @@ class SignalBot:
             message: The message to acknowledge.
             receipt_type: The receipt type to send.
         """
-        if message.is_group() is not None:
+        if message.is_group():
             self._logger.warning("[Bot] Receipts are not supported for groups")
             return
 
@@ -519,31 +514,27 @@ class SignalBot:
 
     async def update_contact(
         self,
-        update_contact_request: UpdateContactRequest,
+        update_contact: UpdateContact,
     ) -> None:
         """Update a contact's metadata.
 
         Args:
-            update_contact_request: Contact update payload.
+            update_contact: Contact update payload.
         """
-        update_contact_request.recipient = self._resolve_recipient(
-            update_contact_request.recipient
-        )
-        await self._signal.update_contact(update_contact_request)
+        update_contact.recipient = self._resolve_recipient(update_contact.recipient)
+        await self._signal.update_contact(update_contact)
 
     async def update_group(
         self,
-        update_group_request: UpdateGroupRequest,
+        update_group: UpdateGroup,
     ) -> None:
         """Update a group's metadata.
 
         Args:
-            update_group_request: Group update payload.
+            update_group: Group update payload.
         """
-        group_id_or_name = self._resolve_recipient(
-            update_group_request.group_id_or_name
-        )
-        wire_request = await update_group_request.to_update_group_request()
+        group_id_or_name = self._resolve_recipient(update_group.group_id_or_name)
+        wire_request = await update_group.to_generated()
         await self._signal.update_group(group_id_or_name, wire_request)
 
     async def remote_delete(
@@ -578,7 +569,7 @@ class SignalBot:
         """
         await self._signal.delete_attachment(attachment)
 
-    async def _detect_groups(self) -> None:
+    async def _refresh_groups(self) -> None:
         # reset group lookups to avoid stale data
         self.groups = await self._signal.get_groups()
 
@@ -592,7 +583,7 @@ class SignalBot:
 
         self._logger.info(f"[Bot] {len(self.groups)} groups detected")  # noqa: G004
 
-    async def _update_group(self, group_internal_id: str) -> None:
+    async def _refresh_group_cache(self, group_internal_id: str) -> None:
         # look up group that requires update
         group = await self._signal.get_group(
             self._groups_by_internal_id[group_internal_id].id
@@ -612,7 +603,7 @@ class SignalBot:
 
         self._logger.info("[Bot] Group updated")
 
-    async def _process_updates(self, message: ReceivedMessageType) -> None:
+    async def _process_updates(self, message: ReceivedMessage) -> None:
         # Update groups if message is from an unknown group
         if (
             isinstance(message, GroupUpdateMessage | DataMessage)
@@ -620,10 +611,10 @@ class SignalBot:
             and message.group_info.group_id is not None
             and self._groups_by_internal_id.get(message.group_info.group_id) is None
         ):
-            await self._detect_groups()
+            await self._refresh_groups()
 
         if isinstance(message, GroupUpdateMessage):
-            await self._update_group(message.group_info.group_id)
+            await self._refresh_group_cache(message.group_info.group_id)
 
     def _resolve_recipient(self, recipient: str) -> str:
         if self._is_phone_number(recipient):
@@ -796,19 +787,19 @@ class SignalBot:
 
                 await self._process_updates(message)
 
-                await self._ask_commands_to_handle(message)
+                await self._dispatch_to_handlers(message)
 
-        except ReceiveMessagesError as e:
+        except ReceiveError as e:
             # TODO: retry strategy  # noqa: TD002, TD003
             raise SignalBotError(f"Cannot receive messages: {e}")  # noqa: B904, EM102, TRY003
 
     def _should_react_for_contact(
         self,
-        message: ReceivedMessageType,
+        message: ReceivedMessage,
         contacts: list[str] | bool,  # noqa: FBT001
         group_ids: list[str] | bool,  # noqa: FBT001
     ) -> bool:
-        """Is the command activated for a certain chat or group?"""
+        """Is the handler activated for a certain chat or group?"""
         # Case 1: Private message
         if message.is_private():
             # a) registered for all numbers
@@ -838,23 +829,23 @@ class SignalBot:
 
     def _should_react_for_lambda(
         self,
-        message: ReceivedMessageType,
-        f: Callable[[ReceivedMessageType], bool] | None = None,
+        message: ReceivedMessage,
+        f: Callable[[ReceivedMessage], bool] | None = None,
     ) -> bool:
         if f is None:
             return True
 
         return f(message)
 
-    async def _ask_commands_to_handle(self, message: ReceivedMessageType) -> None:
-        for command, contacts, group_ids, f in self.commands:
+    async def _dispatch_to_handlers(self, message: ReceivedMessage) -> None:
+        for handler, contacts, group_ids, f in self.handlers:
             if not self._should_react_for_contact(message, contacts, group_ids):
                 continue
 
             if not self._should_react_for_lambda(message, f):
                 continue
 
-            await self._q.put((command, message, time.perf_counter()))
+            await self._q.put((handler, message, time.perf_counter()))
 
     async def _consume(self, name: int) -> None:
         self._logger.info(f"[Bot] Consumer #{name} started")  # noqa: G004
@@ -865,41 +856,37 @@ class SignalBot:
                 continue
 
     async def _consume_new_item(self, name: int) -> None:  # noqa: C901
-        command, message, t = await self._q.get()
+        handler, message, t = await self._q.get()
         now = time.perf_counter()
         self._logger.info(
             f"[Bot] Consumer #{name} got new job in {now - t:0.5f} seconds"  # noqa: G004
         )
 
-        # dispatch to whichever handler role(s) `command` implements
+        # dispatch to whichever handler role(s) `handler` implements
         try:
             if isinstance(message, DataMessage):
-                if isinstance(command, DataMessageHandler):
-                    await command.handle_data_message(ContextDataMessage(self, message))
+                if isinstance(handler, DataMessageHandler):
+                    await handler.handle_data_message(DataMessageContext(self, message))
             elif isinstance(message, GroupUpdateMessage):
-                if isinstance(command, GroupUpdateHandler):
-                    await command.handle_group_update_message(
-                        ContextGroupUpdateMessage(self, message)
-                    )
+                if isinstance(handler, GroupUpdateHandler):
+                    await handler.handle_group_update(GroupUpdateContext(self, message))
             elif isinstance(message, RemoteDelete):
-                if isinstance(command, RemoteDeleteHandler):
-                    await command.handle_remote_delete(
-                        ContextRemoteDelete(self, message)
+                if isinstance(handler, RemoteDeleteHandler):
+                    await handler.handle_remote_delete(
+                        RemoteDeleteContext(self, message)
                     )
             elif isinstance(message, TypingMessage):
-                if isinstance(command, TypingHandler):
-                    await command.handle_typing_message(
-                        ContextTypingMessage(self, message)
-                    )
+                if isinstance(handler, TypingHandler):
+                    await handler.handle_typing(TypingContext(self, message))
             elif isinstance(message, Reaction):
-                if isinstance(command, ReactionHandler):
-                    await command.handle_reaction(ContextReaction(self, message))
+                if isinstance(handler, ReactionHandler):
+                    await handler.handle_reaction(ReactionContext(self, message))
             else:
                 error_msg = f"[Bot] Unknown message type: {type(message)}, "
-                error_msg += "skipping command execution"
+                error_msg += "skipping handler execution"
                 self._logger.warning(error_msg)
         except Exception:
-            self._logger.exception(f"[{command.__class__.__name__}]")  # noqa: G004
+            self._logger.exception(f"[{handler.__class__.__name__}]")  # noqa: G004
             raise
 
         # done

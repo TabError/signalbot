@@ -3,20 +3,20 @@ from datetime import UTC, datetime
 
 from signalbot import (
     Config,
-    ContextDataMessage,
-    ContextGroupUpdateMessage,
+    DataMessageContext,
     DataMessageHandler,
+    GroupUpdateContext,
     GroupUpdateHandler,
     SignalBot,
     text_triggered,
 )
-from signalbot.api.requests import SendMessage
+from signalbot.api.outgoing import SendMessage
 
 
 class GroupActivityCommand(DataMessageHandler, GroupUpdateHandler):
     """Tracks the most recent group update and answers a query about it.
 
-    `handle_group_update_message` records who changed the group and when;
+    `handle_group_update` records who changed the group and when;
     `handle_data_message` answers the `last-change` command by reading that
     same cache. Combining both handlers on one instance is what lets them
     share `_last_update` directly instead of through a database or some other
@@ -27,9 +27,7 @@ class GroupActivityCommand(DataMessageHandler, GroupUpdateHandler):
         super().__init__()
         self._last_update: dict[str, tuple[str, datetime]] = {}
 
-    async def handle_group_update_message(
-        self, context: ContextGroupUpdateMessage
-    ) -> None:
+    async def handle_group_update(self, context: GroupUpdateContext) -> None:
         group_info = context.message.group_info
         if group_info.group_id is None:
             return
@@ -39,7 +37,7 @@ class GroupActivityCommand(DataMessageHandler, GroupUpdateHandler):
         self._last_update[group_info.group_id] = (who or "someone", when)
 
     @text_triggered("last-change")
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: DataMessageContext) -> None:
         group_info = context.message.group_info
         group_id = group_info.group_id if group_info is not None else None
 

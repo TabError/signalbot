@@ -2,8 +2,8 @@ import os
 
 import typer
 
-from signalbot import ContextReady, ReadyHandler, SignalBot
-from signalbot.api.requests import SendMessage
+from signalbot import ReadyContext, ReadyHandler, SignalBot
+from signalbot.api.outgoing import SendMessage
 
 
 class Welcome(ReadyHandler):
@@ -12,7 +12,7 @@ class Welcome(ReadyHandler):
         self.recipient = recipient
         self.text = text
 
-    async def handle_ready(self, context: ContextReady) -> None:
+    async def handle_ready(self, context: ReadyContext) -> None:
         await context.bot.send(SendMessage(recipient=self.recipient, text=self.text))
 
 

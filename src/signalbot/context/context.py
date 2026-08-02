@@ -6,16 +6,16 @@ from typing import TYPE_CHECKING, Generic, TypeVar
 from signalbot.logger import LOGGER_NAME
 
 if TYPE_CHECKING:
-    from signalbot.api.receive_messages import ReceivedMessageType
-    from signalbot.api.requests import (
+    from signalbot.api.incoming import ReceivedMessage
+    from signalbot.api.outgoing import (
         SendMessage,
         SentMessage,
-        UpdateContactRequest,
-        UpdateGroupRequest,
+        UpdateContact,
+        UpdateGroup,
     )
     from signalbot.bot import SignalBot
 
-MessageT = TypeVar("MessageT", bound="ReceivedMessageType")
+MessageT = TypeVar("MessageT", bound="ReceivedMessage")
 
 
 class Context(Generic[MessageT]):
@@ -32,13 +32,13 @@ class Context(Generic[MessageT]):
 
     async def send(
         self,
-        data_message: SendMessage,
+        message: SendMessage,
     ) -> SentMessage:
         """Same as
          [signalbot.SignalBot.send()](bot.md#signalbot.SignalBot.send)
         but with the recipient set to the message's recipient."""
-        data_message.recipient = self.message.source_or_group_uuid()
-        return await self.bot.send(data_message)
+        message.recipient = self.message.source_or_group_uuid()
+        return await self.bot.send(message)
 
     async def start_typing(self) -> None:
         """Same as
@@ -52,21 +52,19 @@ class Context(Generic[MessageT]):
          but with the recipient set to the message's recipient."""
         await self.bot.stop_typing(self.message.source_or_group_uuid())
 
-    async def update_contact(
-        self, update_contact_request: UpdateContactRequest
-    ) -> None:
+    async def update_contact(self, update_contact: UpdateContact) -> None:
         """Same as
         [signalbot.SignalBot.update_contact()](bot.md#signalbot.SignalBot.update_contact)
          but with the recipient set to the message's recipient."""
         if self.message.is_group():
             error_msg = "Cannot update contact for a group message"
             raise ValueError(error_msg)
-        update_contact_request.recipient = self.message.source_or_group_uuid()
-        await self.bot.update_contact(update_contact_request)
+        update_contact.recipient = self.message.source_or_group_uuid()
+        await self.bot.update_contact(update_contact)
 
     async def update_group(
         self,
-        update_group_request: UpdateGroupRequest,
+        update_group: UpdateGroup,
     ) -> None:
         """Same as
         [signalbot.SignalBot.update_group()](bot.md#signalbot.SignalBot.update_group)
@@ -74,5 +72,5 @@ class Context(Generic[MessageT]):
         if self.message.is_private():
             error_msg = "Cannot update group for a private message"
             raise ValueError(error_msg)
-        update_group_request.group_id_or_name = self.message.source_or_group_uuid()
-        await self.bot.update_group(update_group_request)
+        update_group.group_id_or_name = self.message.source_or_group_uuid()
+        await self.bot.update_group(update_group)

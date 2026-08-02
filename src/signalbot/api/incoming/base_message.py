@@ -4,7 +4,7 @@ from abc import ABC, abstractmethod
 
 from pydantic import BaseModel, Field
 
-from signalbot.api.generated import GroupInfo
+from signalbot.api import generated
 
 
 class BaseMessage(ABC, BaseModel):
@@ -44,7 +44,7 @@ class BaseMessage(ABC, BaseModel):
 
 
 class BaseMessageWithGroup(BaseMessage):
-    group_info: GroupInfo | None = None
+    group_info: generated.GroupInfo | None = None
 
     def is_group(self) -> bool:
 

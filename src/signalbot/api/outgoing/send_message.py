@@ -12,7 +12,7 @@ from pydantic import (
 
 from signalbot.api.generated import MessageMention, SendMessageV2
 from signalbot.api.generated.api import TextMode
-from signalbot.api.requests.link_preview import LinkPreview
+from signalbot.api.outgoing.link_preview import LinkPreview
 from signalbot.utils.attachment_base64 import attachment_to_base64
 from signalbot.utils.pydantic_anyio_path import PydanticPath
 
@@ -36,7 +36,7 @@ async def _resolve_link_preview(
 ) -> LinkPreviewType | None:
     if link_preview is None:
         return None
-    return await link_preview.to_link_preview_type()
+    return await link_preview.to_generated()
 
 
 def _check_link_preview_url_in_text(send_message: BaseSendMessage) -> None:
@@ -79,7 +79,7 @@ class BaseSendMessage(BaseModel):
 class SendMessage(BaseSendMessage):
     recipient: str | None = None
 
-    async def to_send_message_v2(self, number: str) -> SendMessageV2:
+    async def to_generated(self, number: str) -> SendMessageV2:
         base64_attachments = await _resolve_base64_attachments(self)
         link_preview = await _resolve_link_preview(self.link_preview)
 
@@ -109,7 +109,7 @@ class SendMessage(BaseSendMessage):
 class SendMessageMultiple(BaseSendMessage):
     recipients: list[str]
 
-    async def to_send_message_v2(self, number: str) -> SendMessageV2:
+    async def to_generated(self, number: str) -> SendMessageV2:
         base64_attachments = await _resolve_base64_attachments(self)
         link_preview = await _resolve_link_preview(self.link_preview)
 

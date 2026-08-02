@@ -21,10 +21,10 @@ from signalbot.api.generated import (
     GroupPermissions,
     SendMessages,
 )
-from signalbot.api.requests.poll import Poll
+from signalbot.api.outgoing.poll import CreatedPoll
 from signalbot.bot import SignalBotError
-from signalbot.context import ContextDataMessage, ContextReady
-from signalbot.test_utils import DummyCommand
+from signalbot.context import DataMessageContext, ReadyContext
+from signalbot.test_utils import DummyHandler
 
 FULL_GROUP_PERMISSIONS = GroupPermissions(
     add_members=AddMembers.EVERY_MEMBER,
@@ -93,9 +93,9 @@ class TestProducer(TestCommon):
         )
 
         # Any two commands
-        self.signal_bot.register(DummyCommand())
-        self.signal_bot.register(DummyCommand())
-        await self.signal_bot._resolve_commands()
+        self.signal_bot.register(DummyHandler())
+        self.signal_bot.register(DummyHandler())
+        await self.signal_bot._resolve_handlers()
 
         await self.signal_bot._produce(1337)
 
@@ -113,7 +113,7 @@ class TestGetter(TestCommon):
                 super().__init__()
                 self.found_group = None
 
-            async def handle_data_message(self, context: ContextDataMessage) -> None:
+            async def handle_data_message(self, context: DataMessageContext) -> None:
                 self.found_group = context.bot.get_group(
                     context.message.group_info.group_id
                 )
@@ -158,7 +158,7 @@ class TestGetter(TestCommon):
         inspector = GroupInspector()
         self.signal_bot.register(inspector)
 
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._resolve_handlers()
 
         await self.signal_bot._produce(1337)
 
@@ -217,7 +217,7 @@ class TestSignalApiVersionCheck(TestCommon):
     async def test_new_version_is_okay(self, mocker: MockerFixture):
         about_mock = mocker.patch.object(
             self.signal_bot,
-            "signal_cli_rest_api_about",
+            "about",
             new_callable=mocker.AsyncMock,
         )
         about_mock.return_value = mocker.Mock(
@@ -234,7 +234,7 @@ class TestSignalApiVersionCheck(TestCommon):
     async def test_unset_version(self, mocker: MockerFixture):
         about_mock = mocker.patch.object(
             self.signal_bot,
-            "signal_cli_rest_api_about",
+            "about",
             new_callable=mocker.AsyncMock,
         )
         about_mock.return_value = mocker.Mock(version="unset")
@@ -244,7 +244,7 @@ class TestSignalApiVersionCheck(TestCommon):
     async def test_old_version_raises_runtime_error(self, mocker: MockerFixture):
         about_mock = mocker.patch.object(
             self.signal_bot,
-            "signal_cli_rest_api_about",
+            "about",
             new_callable=mocker.AsyncMock,
         )
         prev_version = f"{MIN_SIGNAL_CLI_REST_API_VERSION.major}."
@@ -259,7 +259,7 @@ class TestSignalApiVersionCheck(TestCommon):
     async def test_invalid_version(self, mocker: MockerFixture):
         about_mock = mocker.patch.object(
             self.signal_bot,
-            "signal_cli_rest_api_about",
+            "about",
             new_callable=mocker.AsyncMock,
         )
         about_mock.return_value = mocker.Mock(version="abc")
@@ -300,23 +300,23 @@ class TestUsernameValidation(TestCommon):
             assert not self.signal_bot._is_username(invalid_username)
 
 
-class TestRegisterCommand(TestCommon):
-    def test_register_one_command(self):
-        self.signal_bot.register(DummyCommand())
-        assert len(self.signal_bot._commands_to_be_registered) == 1
+class TestRegisterHandler(TestCommon):
+    def test_register_one_handler(self):
+        self.signal_bot.register(DummyHandler())
+        assert len(self.signal_bot._handlers_to_register) == 1
 
-    def test_register_three_commands(self):
-        self.signal_bot.register(DummyCommand())
-        self.signal_bot.register(DummyCommand())
-        self.signal_bot.register(DummyCommand())
-        assert len(self.signal_bot._commands_to_be_registered) == 3  # noqa: PLR2004
+    def test_register_three_handlers(self):
+        self.signal_bot.register(DummyHandler())
+        self.signal_bot.register(DummyHandler())
+        self.signal_bot.register(DummyHandler())
+        assert len(self.signal_bot._handlers_to_register) == 3  # noqa: PLR2004
 
     @pytest.mark.asyncio
     async def test_register_single_contact(self):
         user_number = "+49987654321"
-        self.signal_bot.register(DummyCommand(), contacts=[user_number])
-        await self.signal_bot._resolve_commands()
-        assert self.signal_bot.commands[0][1] == [user_number]
+        self.signal_bot.register(DummyHandler(), contacts=[user_number])
+        await self.signal_bot._resolve_handlers()
+        assert self.signal_bot.handlers[0][1] == [user_number]
 
     @pytest.mark.asyncio
     async def test_register_multiple_contacts(self):
@@ -324,33 +324,33 @@ class TestRegisterCommand(TestCommon):
         user_number2 = "+49987654322"
         user_number3 = "+49987654323"
         self.signal_bot.register(
-            DummyCommand(),
+            DummyHandler(),
             contacts=[user_number1, user_number2, user_number3],
         )
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._resolve_handlers()
         expected_user_chats = [user_number1, user_number2, user_number3]
-        assert self.signal_bot.commands[0][1] == expected_user_chats
+        assert self.signal_bot.handlers[0][1] == expected_user_chats
 
     @pytest.mark.asyncio
-    async def test_register_multiple_contacts_multiple_commands(self):
+    async def test_register_multiple_contacts_multiple_handlers(self):
         user_number1 = "+49987654321"
         user_number2 = "+49987654322"
         user_number3 = "+49987654323"
-        self.signal_bot.register(DummyCommand(), contacts=[user_number1, user_number2])
-        self.signal_bot.register(DummyCommand(), contacts=[user_number3])
-        await self.signal_bot._resolve_commands()
-        expected_user_chats_cmd0 = [user_number1, user_number2]
-        expected_user_chats_cmd1 = [user_number3]
-        assert self.signal_bot.commands[0][1] == expected_user_chats_cmd0
-        assert self.signal_bot.commands[1][1] == expected_user_chats_cmd1
+        self.signal_bot.register(DummyHandler(), contacts=[user_number1, user_number2])
+        self.signal_bot.register(DummyHandler(), contacts=[user_number3])
+        await self.signal_bot._resolve_handlers()
+        expected_user_chats_handler0 = [user_number1, user_number2]
+        expected_user_chats_handler1 = [user_number3]
+        assert self.signal_bot.handlers[0][1] == expected_user_chats_handler0
+        assert self.signal_bot.handlers[1][1] == expected_user_chats_handler1
 
 
 class TrackingReadyHandler(ReadyHandler):
     def __init__(self):  # noqa: ANN204
         super().__init__()
-        self.contexts: list[ContextReady] = []
+        self.contexts: list[ReadyContext] = []
 
-    async def handle_ready(self, context: ContextReady) -> None:
+    async def handle_ready(self, context: ReadyContext) -> None:
         self.contexts.append(context)
 
 
@@ -359,7 +359,7 @@ class TestReadyHandler(TestCommon):
     async def test_run_ready_handlers_calls_handle_ready(self):
         handler = TrackingReadyHandler()
         self.signal_bot.register(handler)
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._resolve_handlers()
 
         await self.signal_bot._run_ready_handlers()
 
@@ -368,10 +368,10 @@ class TestReadyHandler(TestCommon):
 
     @pytest.mark.asyncio
     async def test_run_ready_handlers_skips_non_ready_handlers(self):
-        self.signal_bot.register(DummyCommand())
-        await self.signal_bot._resolve_commands()
+        self.signal_bot.register(DummyHandler())
+        await self.signal_bot._resolve_handlers()
 
-        # DummyCommand is a DataMessageHandler, not a ReadyHandler, so this must
+        # DummyHandler is a DataMessageHandler, not a ReadyHandler, so this must
         # not raise (e.g. from trying to call a non-existent handle_ready).
         await self.signal_bot._run_ready_handlers()
 
@@ -382,16 +382,16 @@ class TestReadyHandler(TestCommon):
         calls = []
 
         class FirstHandler(ReadyHandler):
-            async def handle_ready(self, context: ContextReady) -> None:  # noqa: ARG002
+            async def handle_ready(self, context: ReadyContext) -> None:  # noqa: ARG002
                 calls.append("first")
 
         class SecondHandler(ReadyHandler):
-            async def handle_ready(self, context: ContextReady) -> None:  # noqa: ARG002
+            async def handle_ready(self, context: ReadyContext) -> None:  # noqa: ARG002
                 calls.append("second")
 
         self.signal_bot.register(FirstHandler())
         self.signal_bot.register(SecondHandler())
-        await self.signal_bot._resolve_commands()
+        await self.signal_bot._resolve_handlers()
 
         await self.signal_bot._run_ready_handlers()
 
@@ -435,7 +435,7 @@ class TestPoll(TestCommon):
         )
         result = await self.signal_bot.create_poll(create_poll_request)
 
-        assert isinstance(result, Poll)
+        assert isinstance(result, CreatedPoll)
         assert result.timestamp == timestamp
         poll_mock.assert_called_once_with(create_poll_request)
 
@@ -458,7 +458,7 @@ class TestPoll(TestCommon):
         )
         result = await self.signal_bot.create_poll(create_poll_request)
 
-        assert isinstance(result, Poll)
+        assert isinstance(result, CreatedPoll)
         assert result.timestamp == timestamp
         poll_mock.assert_called_once_with(create_poll_request)
 
@@ -482,6 +482,6 @@ class TestPoll(TestCommon):
         )
         result = await self.signal_bot.create_poll(create_poll_request)
 
-        assert isinstance(result, Poll)
+        assert isinstance(result, CreatedPoll)
         assert result.timestamp == timestamp
         poll_mock.assert_called_once_with(create_poll_request)

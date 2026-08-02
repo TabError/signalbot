@@ -1,13 +1,13 @@
 from signalbot.api.signal_api import (
     ConnectionMode,
-    ReceiveMessagesError,
-    SendMessageError,
+    ReceiveError,
+    SendError,
     SignalAPI,
 )
 
 __all__ = [
     "ConnectionMode",
-    "ReceiveMessagesError",
-    "SendMessageError",
+    "ReceiveError",
+    "SendError",
     "SignalAPI",
 ]

@@ -1,7 +1,7 @@
 from anyio import Path
 
-from signalbot import ContextDataMessage, DataMessageHandler, text_triggered
-from signalbot.api.requests import SendMessage
+from signalbot import DataMessageContext, DataMessageHandler, text_triggered
+from signalbot.api.outgoing import SendMessage
 
 
 class AttachmentCommand(DataMessageHandler):
@@ -9,7 +9,7 @@ class AttachmentCommand(DataMessageHandler):
         return "friday: 🦀 Send an image."
 
     @text_triggered("friday")
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: DataMessageContext) -> None:
         await context.send(
             SendMessage(
                 text="https://www.youtube.com/watch?v=pU2SdH1HBuk",

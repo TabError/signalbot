@@ -1,7 +1,7 @@
 from typing import Protocol, runtime_checkable
 
-from signalbot import ContextDataMessage, DataMessageHandler, text_triggered
-from signalbot.api.requests import SendMessage
+from signalbot import DataMessageContext, DataMessageHandler, text_triggered
+from signalbot.api.outgoing import SendMessage
 
 
 @runtime_checkable
@@ -14,10 +14,10 @@ class HelpCommand(DataMessageHandler):
         return "help: 🆘 Shows information about available commands."
 
     @text_triggered("help")
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: DataMessageContext) -> None:
         commands = []
         handlers = []
-        for registered, _, _, _ in context.bot.commands:
+        for registered, _, _, _ in context.bot.handlers:
             if not isinstance(registered, HasHelpMessage):
                 continue
             if isinstance(registered, DataMessageHandler):

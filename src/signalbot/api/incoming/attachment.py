@@ -2,10 +2,10 @@ from __future__ import annotations
 
 from anyio import Path
 
-from signalbot.api.generated import Attachment as BaseAttachment
+from signalbot.api import generated
 
 
-class Attachment(BaseAttachment):
+class Attachment(generated.Attachment):
     base64_content: str | None = None
 
     async def local_path(self) -> Path | None:

@@ -73,7 +73,7 @@ It creates a task for every registered command and the consumers work off the ta
 If your bot has many blocking function calls, adjust the number of consumers such that the bot stays reactive.
     ```
     <date> signalbot [WARNING] - __init__ - [Bot] Could not initialize Redis and no SQLite DB name was given. In-memory storage will be used. Restarting will delete the storage! Add storage: {'type': 'in-memory'} to the config to silence this error.
-    <date> signalbot [INFO] - _detect_groups - [Bot] 3 groups detected
+    <date> signalbot [INFO] - _refresh_groups - [Bot] 3 groups detected
     <date> signalbot [INFO] - _produce - [Bot] Producer #1 started
     <date> signalbot [INFO] - _consume - [Bot] Consumer #1 started
     <date> signalbot [INFO] - _consume - [Bot] Consumer #2 started

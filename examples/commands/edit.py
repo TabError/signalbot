@@ -1,8 +1,8 @@
 import asyncio
 
 from signalbot import DataMessageHandler, text_triggered
-from signalbot.api.requests import SendMessage
-from signalbot.context import ContextDataMessage
+from signalbot.api.outgoing import SendMessage
+from signalbot.context import DataMessageContext
 
 
 class EditCommand(DataMessageHandler):
@@ -10,7 +10,7 @@ class EditCommand(DataMessageHandler):
         return "edit: ✏️ Edit a message."
 
     @text_triggered("edit")
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: DataMessageContext) -> None:
         sent_message = await context.send(
             SendMessage(text="This message will be edited in two seconds.")
         )

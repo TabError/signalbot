@@ -1,1 +1,0 @@
-::: signalbot.command

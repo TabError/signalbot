@@ -1,7 +1,7 @@
 from anyio import Path
 
-from signalbot import ContextDataMessage, DataMessageHandler, text_triggered
-from signalbot.api.requests import LinkPreview, SendMessage
+from signalbot import DataMessageContext, DataMessageHandler, text_triggered
+from signalbot.api.outgoing import LinkPreview, SendMessage
 
 
 class LinkPreviewCommand(DataMessageHandler):
@@ -9,7 +9,7 @@ class LinkPreviewCommand(DataMessageHandler):
         return "link-preview: 🧽 Send a link preview."
 
     @text_triggered("link-preview")
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+    async def handle_data_message(self, context: DataMessageContext) -> None:
         await context.send(
             SendMessage(
                 text="This is the link preview for https://www.youtube.com/watch?v=pU2SdH1HBuk",

@@ -92,17 +92,17 @@ class TestAPI:
 
     def test_send_uri(self):
         expected_uri = f"https://{self.signal_service}/v2/send"
-        actual_uri = self.signal_api._signal_api_uris.send_rest_uri()
+        actual_uri = self.signal_api._signal_api_uris.send_uri()
         assert actual_uri == expected_uri
 
     def test_poll_uri(self):
         expected_uri = f"https://{self.signal_service}/v1/polls/{self.phone_number}"
-        actual_uri = self.signal_api._signal_api_uris.poll_rest_uri()
+        actual_uri = self.signal_api._signal_api_uris.poll_uri()
         assert actual_uri == expected_uri
 
-    def test_attachment_rest_uri(self):
+    def test_attachment_uri(self):
         expected_uri = f"https://{self.signal_service}/v1/attachments"
-        actual_uri = self.signal_api._signal_api_uris.attachment_rest_uri()
+        actual_uri = self.signal_api._signal_api_uris.attachment_uri()
         assert actual_uri == expected_uri
 
     @pytest.mark.asyncio

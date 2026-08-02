@@ -1,15 +1,15 @@
-from signalbot.context.context_data_message import ContextDataMessage
-from signalbot.context.context_group_update_message import ContextGroupUpdateMessage
-from signalbot.context.context_reaction import ContextReaction
-from signalbot.context.context_ready import ContextReady
-from signalbot.context.context_remote_delete import ContextRemoteDelete
-from signalbot.context.context_typing_message import ContextTypingMessage
+from signalbot.context.data_message_context import DataMessageContext
+from signalbot.context.group_update_context import GroupUpdateContext
+from signalbot.context.reaction_context import ReactionContext
+from signalbot.context.ready_context import ReadyContext
+from signalbot.context.remote_delete_context import RemoteDeleteContext
+from signalbot.context.typing_context import TypingContext
 
 __all__ = [
-    "ContextDataMessage",
-    "ContextGroupUpdateMessage",
-    "ContextReaction",
-    "ContextReady",
-    "ContextRemoteDelete",
-    "ContextTypingMessage",
+    "DataMessageContext",
+    "GroupUpdateContext",
+    "ReactionContext",
+    "ReadyContext",
+    "RemoteDeleteContext",
+    "TypingContext",
 ]

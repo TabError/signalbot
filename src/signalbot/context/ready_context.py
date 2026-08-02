@@ -6,7 +6,7 @@ if TYPE_CHECKING:
     from signalbot.bot import SignalBot
 
 
-class ContextReady:
+class ReadyContext:
     """
     Context passed to `ReadyHandler.handle_ready`. Unlike the other contexts, there
     is no originating message, so this only gives access to the bot.
