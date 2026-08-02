@@ -21,7 +21,7 @@ async def test_send_message_serializes_as_sendv2_with_single_recipient(
     result = await message.to_send_message_v2("+49123456789")
 
     assert result.number == "+49123456789"
-    assert result.text == ""
+    assert result.message == ""
     assert result.recipients == ["group-1"]
     assert result.base64_attachments == ["cGF5bG9hZA=="]
 
@@ -42,6 +42,6 @@ async def test_send_message_multiple_serializes_as_sendv2_with_attachments(
     result = await message.to_send_message_v2("+49123456789")
 
     assert result.number == "+49123456789"
-    assert result.text == "Hello World!"
+    assert result.message == "Hello World!"
     assert result.recipients == ["group-1", "group-2"]
     assert result.base64_attachments == ["cGF5bG9hZA=="]

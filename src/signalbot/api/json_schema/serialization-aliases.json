@@ -1,5 +1,4 @@
 {
-  "api.SendMessageV2.message": "message",
   "receive.DataMessage.message": "message",
   "receive.SyncDataMessage.message": "message",
   "receive.Attachment.id": "id",

@@ -3,7 +3,7 @@
 
 from __future__ import annotations
 
-from pydantic import AliasChoices, BaseModel, Field
+from pydantic import BaseModel, Field
 
 from signalbot.api.generated.data.link_preview_type import LinkPreviewType
 from signalbot.api.generated.data.message_mention import MessageMention
@@ -25,11 +25,7 @@ class SendMessageV2(BaseModel):
     edit_timestamp: int | None = None
     link_preview: LinkPreviewType | None = None
     mentions: list[MessageMention] | None = None
-    text: str = Field(
-        ...,
-        serialization_alias="message",
-        validation_alias=AliasChoices("message", "text"),
-    )
+    message: str
     notify_self: bool | None = None
     number: str
     quote_author: str | None = None
