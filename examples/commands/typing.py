@@ -1,10 +1,10 @@
 import asyncio
 
-from signalbot import Command, ContextDataMessage, text_triggered
+from signalbot import ContextDataMessage, DataMessageHandler, text_triggered
 from signalbot.api.requests import SendMessage
 
 
-class TypingCommand(Command):
+class TypingCommand(DataMessageHandler):
     def help_message(self) -> str:
         return "typing: ⌨️ Demonstrates typing indicator for a few seconds."
 

@@ -1,8 +1,8 @@
-from signalbot import Command, ContextDataMessage, text_triggered
+from signalbot import ContextDataMessage, DataMessageHandler, text_triggered
 from signalbot.api.requests import SendMessage
 
 
-class PingCommand(Command):
+class PingCommand(DataMessageHandler):
     def help_message(self) -> str:
         return "ping: 🏓 Listen for a ping and send a pong reply."
 

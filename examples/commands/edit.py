@@ -1,11 +1,11 @@
 import asyncio
 
-from signalbot import Command, text_triggered
+from signalbot import DataMessageHandler, text_triggered
 from signalbot.api.requests import SendMessage
 from signalbot.context import ContextDataMessage
 
 
-class EditCommand(Command):
+class EditCommand(DataMessageHandler):
     def help_message(self) -> str:
         return "edit: ✏️ Edit a message."
 

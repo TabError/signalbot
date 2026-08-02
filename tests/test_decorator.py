@@ -3,7 +3,7 @@ from dataclasses import dataclass
 import pytest
 from pytest_mock import MockerFixture
 
-from signalbot import Command, text_triggered
+from signalbot import DataMessageHandler, text_triggered
 from signalbot.api.requests import SendMessage
 from signalbot.command import ReactionHandler, reaction_triggered, regex_triggered
 from signalbot.context import ContextDataMessage, ContextReaction
@@ -15,13 +15,13 @@ from signalbot.test_utils import (
 )
 
 
-class TriggeredCommand(Command):
+class TriggeredCommand(DataMessageHandler):
     @text_triggered("Alpha", "Beta")
     async def handle(self, context: ContextDataMessage):
         await context.send(SendMessage(text="Base trigger"))
 
 
-class TriggeredCaseSensitiveCommand(Command):
+class TriggeredCaseSensitiveCommand(DataMessageHandler):
     @text_triggered("Alpha", "Beta", case_sensitive=True)
     async def handle(self, context: ContextDataMessage):
         await context.send(SendMessage(text="Base trigger"))
@@ -39,7 +39,7 @@ class ReactionFilteredCommand(ReactionHandler):
         await context.send(SendMessage(text="Specific reactions trigger"))
 
 
-class RegexTriggeredCommand(Command):
+class RegexTriggeredCommand(DataMessageHandler):
     @regex_triggered(r"\w+@\w+\.\w+", r"\d{3}-\d{3}-\d{4}")
     async def handle(self, context: ContextDataMessage):
         await context.send(SendMessage(text="I am triggered by regular expressions"))

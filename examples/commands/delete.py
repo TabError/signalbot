@@ -1,12 +1,12 @@
 import asyncio
 from datetime import datetime
 
-from signalbot import Command, RemoteDeleteHandler, text_triggered
+from signalbot import DataMessageHandler, RemoteDeleteHandler, text_triggered
 from signalbot.api.requests import SendMessage
 from signalbot.context import ContextDataMessage, ContextRemoteDelete
 
 
-class DeleteCommand(Command, RemoteDeleteHandler):
+class DeleteCommand(DataMessageHandler, RemoteDeleteHandler):
     def help_message(self) -> str:
         return "delete: 🗑️ Delete a message."
 
@@ -26,7 +26,7 @@ class DeleteCommand(Command, RemoteDeleteHandler):
         await context.send(SendMessage(text=message))
 
 
-class DeleteLocalAttachmentCommand(Command):
+class DeleteLocalAttachmentCommand(DataMessageHandler):
     def help_message(self) -> str:
         return "delete-attachment: 🗑️ Delete the local copy of an attachment."
 

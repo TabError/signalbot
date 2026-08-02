@@ -1,9 +1,9 @@
-from signalbot import Command, text_triggered
+from signalbot import DataMessageHandler, text_triggered
 from signalbot.api.requests import SendMessage
 from signalbot.context import ContextDataMessage
 
 
-class ReplyCommand(Command):
+class ReplyCommand(DataMessageHandler):
     def help_message(self) -> str:
         return "reply: 💬 Reply to a message."
 

@@ -41,7 +41,7 @@ from signalbot.bot_config import (
     load_config,
 )
 from signalbot.command import (
-    Command,
+    DataMessageHandler,
     GroupUpdateHandler,
     Handler,
     ReactionHandler,
@@ -219,8 +219,9 @@ class SignalBot:
         """Register a handler with optional contact/group filters.
 
         Args:
-            command: Handler instance to register. This is typically a `Command`,
-                but can be any combination of `Command`, `GroupUpdateHandler`,
+            command: Handler instance to register. This is typically a
+                `DataMessageHandler`, but can be any combination of
+                `DataMessageHandler`, `GroupUpdateHandler`,
                 `RemoteDeleteHandler`, `TypingHandler`, and `ReactionHandler`.
             contacts: Allowed contacts or True for all.
             groups: Allowed groups or True for all.
@@ -849,7 +850,7 @@ class SignalBot:
         # dispatch to whichever handler role(s) `command` implements
         try:
             if isinstance(message, ReceiveDataMessage):
-                if isinstance(command, Command):
+                if isinstance(command, DataMessageHandler):
                     await command.handle(ContextDataMessage(self, message))
             elif isinstance(message, GroupUpdateMessage):
                 if isinstance(command, GroupUpdateHandler):

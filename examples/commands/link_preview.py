@@ -1,10 +1,10 @@
 from anyio import Path
 
-from signalbot import Command, ContextDataMessage, text_triggered
+from signalbot import ContextDataMessage, DataMessageHandler, text_triggered
 from signalbot.api.requests import LinkPreview, SendMessage
 
 
-class LinkPreviewCommand(Command):
+class LinkPreviewCommand(DataMessageHandler):
     def help_message(self) -> str:
         return "link-preview: 🧽 Send a link preview."
 

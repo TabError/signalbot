@@ -7,8 +7,8 @@ from pytest_mock import MockerFixture
 
 from signalbot import (
     MIN_SIGNAL_CLI_REST_API_VERSION,
-    Command,
     ConnectionMode,
+    DataMessageHandler,
     SignalAPI,
     SignalBot,
 )
@@ -106,7 +106,7 @@ class TestGetter(TestCommon):
 
     @pytest.mark.asyncio
     async def test_get_group(self, mocker: MockerFixture):
-        class GroupInspector(Command):
+        class GroupInspector(DataMessageHandler):
             def __init__(self):  # noqa: ANN204
                 super().__init__()
                 self.found_group = None
@@ -310,7 +310,7 @@ class TestRegisterCommand(TestCommon):
         assert len(self.signal_bot._commands_to_be_registered) == 3  # noqa: PLR2004
 
     def test_register_calls_setup_of_command(self):
-        class SomeTestCommand(Command):
+        class SomeTestCommand(DataMessageHandler):
             def __init__(self):  # noqa: ANN204
                 super().__init__()
                 self.state = False

@@ -1,6 +1,6 @@
 from signalbot import (
-    Command,
     ContextReaction,
+    DataMessageHandler,
     ReactionHandler,
     reaction_triggered,
     text_triggered,
@@ -9,7 +9,7 @@ from signalbot.api.requests import SendMessage
 from signalbot.context.context_data_message import ContextDataMessage
 
 
-class ReactCommand(Command):
+class ReactCommand(DataMessageHandler):
     def help_message(self) -> str:
         return "send-reaction: 🎉 Send a reaction to a message."
 

@@ -21,7 +21,7 @@ nav:
       - Context: reference/context.md
       - Storage: reference/storage.md
       - LinkPreview: reference/linkpreview.md
-      - Command: reference/command.md
+      - DataMessageHandler: reference/command.md
       - Logger: reference/logger.md
       - Authentication: reference/auth.md
   - Troubleshooting: troubleshooting.md

@@ -17,7 +17,7 @@ from signalbot.api.generated import (
     SendMessages,
 )
 from signalbot.bot import SignalBot
-from signalbot.command import Command
+from signalbot.command import DataMessageHandler
 from signalbot.context import ContextDataMessage
 
 
@@ -240,6 +240,6 @@ class CheckSignalServiceMock(AsyncMock):
         self.return_value = True
 
 
-class DummyCommand(Command):
+class DummyCommand(DataMessageHandler):
     async def handle(self, context: ContextDataMessage) -> None:
         pass
