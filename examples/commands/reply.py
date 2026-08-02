@@ -8,5 +8,5 @@ class ReplyCommand(Command):
         return "reply: 💬 Reply to a message."
 
     @text_triggered("reply")
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+    async def handle(self, context: ContextDataMessage) -> None:
         await context.reply(SendMessage(text="This is a reply."))

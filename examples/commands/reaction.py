@@ -14,7 +14,7 @@ class ReactCommand(Command):
         return "send-reaction: 🎉 Send a reaction to a message."
 
     @text_triggered("send-reaction")
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+    async def handle(self, context: ContextDataMessage) -> None:
         await context.react("🎉")
 
 

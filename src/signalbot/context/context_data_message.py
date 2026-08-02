@@ -9,7 +9,7 @@ from signalbot.context.context import Context
 if TYPE_CHECKING:
     from signalbot.api.generated.api.receipt_type import ReceiptType
     from signalbot.api.generated.receive import Mention
-    from signalbot.api.receive_messages import ReceiveDataMessage
+    from signalbot.api.receive_messages import EditMessage, ReceiveDataMessage
     from signalbot.api.requests import SendMessage, SentMessage
     from signalbot.bot import SignalBot
 
@@ -19,7 +19,9 @@ from signalbot.logger import LOGGER_NAME
 
 
 class ContextDataMessage(Context):
-    def __init__(self, bot: SignalBot, message: ReceiveDataMessage) -> None:
+    def __init__(
+        self, bot: SignalBot, message: ReceiveDataMessage | EditMessage
+    ) -> None:
         self.bot = bot
         self.message = message
         self._logger = logging.getLogger(LOGGER_NAME)
@@ -28,7 +30,7 @@ class ContextDataMessage(Context):
         self, new_message: SendMessage, original_message: SentMessage
     ) -> SentMessage:
         """Same as
-         [signalbot.SignalBot.send()](bot.md#signalbot.SignalBot.send)
+         [signalbot.SignalBot.edit()](bot.md#signalbot.SignalBot.edit)
         but with the original_message and recipient set to the message's."""
         new_message = deepcopy(new_message)
         new_message.recipient = self.message.source_or_group_uuid()

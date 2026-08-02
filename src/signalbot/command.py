@@ -7,7 +7,6 @@ from typing import TYPE_CHECKING, ParamSpec, TypeVar
 
 from signalbot.context import (
     ContextDataMessage,
-    ContextEditMessage,
     ContextReaction,
 )
 
@@ -42,9 +41,9 @@ def regex_triggered(
             *args: P.args, **kwargs: P.kwargs
         ) -> T | None:
             context = args[1]
-            if not isinstance(context, (ContextDataMessage, ContextEditMessage)):
+            if not isinstance(context, ContextDataMessage):
                 error_msg = "regex_triggered decorator can only be used with "
-                error_msg += "handle_data_message and handle_edit_message."
+                error_msg += "Command.handle."
                 raise TypeError(error_msg)
 
             text = context.message.text
@@ -75,9 +74,9 @@ def text_triggered(
         @functools.wraps(func)
         async def wrapper_triggered(*args: P.args, **kwargs: P.kwargs) -> T | None:
             context = args[1]
-            if not isinstance(context, (ContextDataMessage, ContextEditMessage)):
+            if not isinstance(context, ContextDataMessage):
                 error_msg = "regex_triggered decorator can only be used with "
-                error_msg += "handle_data_message and handle_edit_message."
+                error_msg += "Command.handle."
                 raise TypeError(error_msg)
 
             text = context.message.text
@@ -165,24 +164,19 @@ class Handler(ABC):  # noqa: B024 -- intentionally has no abstract methods of it
 class Command(Handler):
     """Abstract base class for text/edit-triggered commands.
 
-    To create a command, subclass this class and implement `handle_data_message`.
+    To create a command, subclass this class and implement `handle`.
     Then, register the command with the bot using `bot.register(CommandSubclass)`.
     """
 
     @abstractmethod
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
-        """Method to handle a data message.
+    async def handle(self, context: ContextDataMessage) -> None:
+        """Method to handle a data or edit message.
         This method must be implemented by subclasses to define the behavior of the
             command.
         Args:
             context: Chat context containing the received message and other information.
-        """
-
-    async def handle_edit_message(self, context: ContextEditMessage) -> None:
-        """Method to handle an edit message.
-        Optional to override; the default implementation does nothing.
-        Args:
-            context: Chat context containing the received message and other information.
+                `context.message` is an `EditMessage` (a `ReceiveDataMessage` subclass)
+                when the message is an edit of a previously sent message.
         """
 
 

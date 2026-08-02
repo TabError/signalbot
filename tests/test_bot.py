@@ -90,7 +90,7 @@ class TestGetter(TestCommon):
                 super().__init__()
                 self.found_group = None
 
-            async def handle_data_message(self, context: ContextDataMessage) -> None:
+            async def handle(self, context: ContextDataMessage) -> None:
                 self.found_group = self.bot.get_group(context.message.group)
 
         message = '{"envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 1","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER"},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
@@ -282,7 +282,7 @@ class TestRegisterCommand(TestCommon):
             def setup(self):  # noqa: ANN202
                 self.state = True
 
-            def handle_data_message(self, context: ContextDataMessage):  # noqa: ANN202
+            def handle(self, context: ContextDataMessage):  # noqa: ANN202
                 pass
 
         cmd = SomeTestCommand()

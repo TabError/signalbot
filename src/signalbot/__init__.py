@@ -34,7 +34,6 @@ from signalbot.command import (
 )
 from signalbot.context import (
     ContextDataMessage,
-    ContextEditMessage,
     ContextGroupUpdateMessage,
     ContextReaction,
     ContextRemoteDelete,
@@ -53,7 +52,6 @@ __all__ = [
     "Config",
     "ConnectionMode",
     "ContextDataMessage",
-    "ContextEditMessage",
     "ContextGroupUpdateMessage",
     "ContextReaction",
     "ContextRemoteDelete",

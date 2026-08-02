@@ -50,7 +50,6 @@ from signalbot.command import (
 )
 from signalbot.context import (
     ContextDataMessage,
-    ContextEditMessage,
     ContextGroupUpdateMessage,
     ContextReaction,
     ContextRemoteDelete,
@@ -840,7 +839,7 @@ class SignalBot:
             except Exception:  # noqa: BLE001, S112
                 continue
 
-    async def _consume_new_item(self, name: int) -> None:  # noqa: C901, PLR0912
+    async def _consume_new_item(self, name: int) -> None:  # noqa: C901
         command, message, t = await self._q.get()
         now = time.perf_counter()
         self._logger.info(
@@ -849,12 +848,9 @@ class SignalBot:
 
         # dispatch to whichever handler role(s) `command` implements
         try:
-            if isinstance(message, EditMessage):
+            if isinstance(message, ReceiveDataMessage):
                 if isinstance(command, Command):
-                    await command.handle_edit_message(ContextEditMessage(self, message))
-            elif isinstance(message, ReceiveDataMessage):
-                if isinstance(command, Command):
-                    await command.handle_data_message(ContextDataMessage(self, message))
+                    await command.handle(ContextDataMessage(self, message))
             elif isinstance(message, GroupUpdateMessage):
                 if isinstance(command, GroupUpdateHandler):
                     await command.handle_group_update_message(

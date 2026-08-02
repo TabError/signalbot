@@ -13,7 +13,7 @@ from signalbot.api.requests import SendMessage
 
 class PingCommand(Command):
     @text_triggered("Ping")
-    async def handle_data_message(self, context: ContextDataMessage) -> None:
+    async def handle(self, context: ContextDataMessage) -> None:
         await context.send(SendMessage(text="Pong"))
 
 
