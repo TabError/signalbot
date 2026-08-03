@@ -10,11 +10,13 @@ from signalbot.api.incoming import (
     GroupUpdate,
     Reaction,
     ReceivedMessage,
+    RemoteDelete,
     TypingMessage,
 )
 
 if TYPE_CHECKING:
     from signalbot.api import SignalAPI
+    from signalbot.api.generated import DataMessage as GeneratedDataMessage
     from signalbot.api.generated import MessageEnvelope
 
 
@@ -34,6 +36,9 @@ async def _parse_sync_messages(
             if sync_message.sent_message.reaction is not None:
                 return await Reaction.from_message_envelope(message_envelope)
 
+            if sync_message.sent_message.remote_delete is not None:
+                return await RemoteDelete.from_message_envelope(message_envelope)
+
             return await DataMessage.from_message_envelope(message_envelope, signal)
 
         if sync_message.read_messages is not None:
@@ -45,15 +50,27 @@ async def _parse_sync_messages(
     return None
 
 
+async def _parse_data_message(
+    signal: SignalAPI,
+    message_envelope: MessageEnvelope,
+    data_message: GeneratedDataMessage,
+) -> ReceivedMessage:
+    if GroupUpdate.message_envelope_is_group_update(message_envelope):
+        return GroupUpdate.from_message_envelope(message_envelope)
+    if data_message.reaction is not None:
+        return await Reaction.from_message_envelope(message_envelope)
+    if data_message.remote_delete is not None:
+        return await RemoteDelete.from_message_envelope(message_envelope)
+    return await DataMessage.from_message_envelope(message_envelope, signal)
+
+
 async def _parse_main_messages(
     signal: SignalAPI, message_envelope: MessageEnvelope
 ) -> ReceivedMessage | None:
     if message_envelope.data_message is not None:
-        if GroupUpdate.message_envelope_is_group_update(message_envelope):
-            return GroupUpdate.from_message_envelope(message_envelope)
-        if message_envelope.data_message.reaction is not None:
-            return await Reaction.from_message_envelope(message_envelope)
-        return await DataMessage.from_message_envelope(message_envelope, signal)
+        return await _parse_data_message(
+            signal, message_envelope, message_envelope.data_message
+        )
 
     if message_envelope.edit_message is not None:
         return await EditMessage.from_message_envelope(message_envelope, signal)

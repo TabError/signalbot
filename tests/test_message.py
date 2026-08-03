@@ -10,6 +10,7 @@ from signalbot.api.incoming import (
     EditMessage,
     GroupUpdate,
     Reaction,
+    RemoteDelete,
     TypingMessage,
 )
 from signalbot.message import UnknownMessageFormatError, parse
@@ -25,6 +26,8 @@ class TestMessage:
     raw_user_chat_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632,"dataMessage":{"timestamp":1632576001632,"message":"Uhrzeit","expiresInSeconds":0,"viewOnce":false}}}'  # noqa: E501
     raw_attachment_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632,"dataMessage":{"timestamp":1632576001632,"message":"Uhrzeit","expiresInSeconds":0,"viewOnce":false, "attachments": [{"contentType": "image/png", "filename": "image.png", "id": "1qeCjjWOOo9Gxv8pfdCw.png","size": 12005}]}}}'  # noqa: E501
     raw_preview_no_image_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632,"dataMessage":{"timestamp":1632576001632,"message":"https://example.com is nice","expiresInSeconds":0,"viewOnce":false,"previews":[{"url":"https://example.com","title":"Example.com - Super example","description":"","image":null}]}}}'  # noqa: E501
+    raw_remote_delete_data_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632,"dataMessage":{"timestamp":1632576001632,"message":null,"expiresInSeconds":0,"viewOnce":false,"remoteDelete":{"timestamp":1632576001600},"groupInfo":{"groupId":"<groupid>","type":"DELIVER","revision":1}}}}'  # noqa: E501
+    raw_remote_delete_sync_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632,"syncMessage":{"sentMessage":{"timestamp":1632576001632,"message":null,"expiresInSeconds":0,"viewOnce":false,"remoteDelete":{"timestamp":1632576001600},"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"<groupid>","type":"DELIVER","revision":1},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
     raw_group_update_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1768100104294,"serverReceivedTimestamp":1768100103544,"serverDeliveredTimestamp":1768100103588,"dataMessage":{"timestamp":1768100104294,"message":null,"expiresInSeconds":86400,"isExpirationUpdate":false,"viewOnce":false,"groupInfo":{"groupId":"<groupid>","groupName":"<name>","revision":100,"type":"UPDATE"}}}}'  # noqa: E501
     raw_unknown_message = '{"account":"+49987654321","envelope":{"source":"+490123456789","sourceNumber":"+490123456789","sourceUuid":"<uuid>","sourceName":"<name>","sourceDevice":1,"timestamp":1632576001632,"serverReceivedTimestamp":1632576001632,"serverDeliveredTimestamp":1632576001632}}'  # noqa: E501
 
@@ -33,6 +36,7 @@ class TestMessage:
     expected_text = "Uhrzeit"
     expected_group = "<groupid>"
     expected_local_filename = "1qeCjjWOOo9Gxv8pfdCw.png"
+    expected_remote_delete_timestamp = 1632576001600
 
     signal_service = "127.0.0.1:8080"
     phone_number = "+49123456789"
@@ -94,6 +98,22 @@ class TestMessage:
         assert message.emoji == "👍"
         assert message.timestamp == TestMessage.expected_timestamp
         assert message.is_remove is False
+
+    async def test_remote_delete_data_message(self):
+        message = await parse(
+            self.signal_api, TestMessage.raw_remote_delete_data_message
+        )
+        assert isinstance(message, RemoteDelete)
+        assert message.timestamp == TestMessage.expected_remote_delete_timestamp
+        assert message.group_info.group_id == TestMessage.expected_group
+
+    async def test_remote_delete_sync_message(self):
+        message = await parse(
+            self.signal_api, TestMessage.raw_remote_delete_sync_message
+        )
+        assert isinstance(message, RemoteDelete)
+        assert message.timestamp == TestMessage.expected_remote_delete_timestamp
+        assert message.group_info.group_id == TestMessage.expected_group
 
     async def test_edit_message(self):
         message = await parse(self.signal_api, TestMessage.raw_edit_message)
