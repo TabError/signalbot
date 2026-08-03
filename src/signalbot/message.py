@@ -3,12 +3,12 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
+from signalbot.api.generated.data.message import Message
 from signalbot.api.incoming import (
     DataMessage,
     EditMessage,
     GroupUpdate,
     Reaction,
-    ReceivedEnvelope,
     ReceivedMessage,
     TypingMessage,
 )
@@ -88,7 +88,7 @@ async def parse(signal: SignalAPI, raw_message_str: str) -> ReceivedMessage:
     except Exception as exc:
         raise UnknownMessageFormatError from exc
 
-    envelope = ReceivedEnvelope.model_validate(raw_message)
+    envelope = Message.model_validate(raw_message)
 
     parsed_message = await _parse_main_messages(signal, envelope.envelope)
     if parsed_message is not None:

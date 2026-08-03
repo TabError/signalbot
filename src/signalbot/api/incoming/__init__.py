@@ -5,7 +5,6 @@ from signalbot.api.incoming.base_message import (
 )
 from signalbot.api.incoming.data_message import DataMessage
 from signalbot.api.incoming.edit_message import EditMessage
-from signalbot.api.incoming.envelope import ReceivedEnvelope
 from signalbot.api.incoming.group_update import GroupInfo, GroupUpdate
 from signalbot.api.incoming.link_preview import LinkPreview
 from signalbot.api.incoming.reaction import Reaction
@@ -26,7 +25,6 @@ __all__ = [
     "GroupUpdate",
     "LinkPreview",
     "Reaction",
-    "ReceivedEnvelope",
     "ReceivedMessage",
     "RemoteDelete",
     "TypingMessage",
