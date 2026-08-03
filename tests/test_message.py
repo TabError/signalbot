@@ -8,7 +8,7 @@ from signalbot.api import SignalAPI
 from signalbot.api.incoming import (
     DataMessage,
     EditMessage,
-    GroupUpdateMessage,
+    GroupUpdate,
     Reaction,
     TypingMessage,
 )
@@ -109,7 +109,7 @@ class TestMessage:
 
     async def test_group_update(self):
         message = await parse(self.signal_api, TestMessage.raw_group_update_message)
-        assert isinstance(message, GroupUpdateMessage)
+        assert isinstance(message, GroupUpdate)
         assert message.group_info.group_id == TestMessage.expected_group
 
     async def test_attachments(self, mocker: MockerFixture):

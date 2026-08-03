@@ -38,7 +38,7 @@ class GroupInfo(BaseModel):
         )
 
 
-class GroupUpdateMessage(BaseMessage):
+class GroupUpdate(BaseMessage):
     group_info: GroupInfo
 
     @classmethod
@@ -46,7 +46,7 @@ class GroupUpdateMessage(BaseMessage):
         cls,
         message_envelope: MessageEnvelope,
         data_message: DataMessage | SyncDataMessage,
-    ) -> GroupUpdateMessage:
+    ) -> GroupUpdate:
         if data_message.group_info is None:
             error_msg = "MessageEnvelope does not contain group_info"
             raise ValueError(error_msg)
@@ -66,9 +66,7 @@ class GroupUpdateMessage(BaseMessage):
         )
 
     @classmethod
-    def from_message_envelope(
-        cls, message_envelope: MessageEnvelope
-    ) -> GroupUpdateMessage:
+    def from_message_envelope(cls, message_envelope: MessageEnvelope) -> GroupUpdate:
         if message_envelope.data_message is not None:
             return cls._internal_parse(message_envelope, message_envelope.data_message)
         if (

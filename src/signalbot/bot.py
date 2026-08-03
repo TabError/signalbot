@@ -22,7 +22,7 @@ from signalbot.api.generated.api.typing_indicator_request import TypingIndicator
 from signalbot.api.incoming import (
     DataMessage,
     EditMessage,
-    GroupUpdateMessage,
+    GroupUpdate,
     Reaction,
     ReceivedMessage,
     RemoteDelete,
@@ -606,14 +606,14 @@ class SignalBot:
     async def _process_updates(self, message: ReceivedMessage) -> None:
         # Update groups if message is from an unknown group
         if (
-            isinstance(message, GroupUpdateMessage | DataMessage)
+            isinstance(message, GroupUpdate | DataMessage)
             and message.group_info is not None
             and message.group_info.group_id is not None
             and self._groups_by_internal_id.get(message.group_info.group_id) is None
         ):
             await self._refresh_groups()
 
-        if isinstance(message, GroupUpdateMessage):
+        if isinstance(message, GroupUpdate):
             await self._refresh_group_cache(message.group_info.group_id)
 
     def _resolve_recipient(self, recipient: str) -> str:
@@ -867,7 +867,7 @@ class SignalBot:
             if isinstance(message, DataMessage):
                 if isinstance(handler, DataMessageHandler):
                     await handler.handle_data_message(DataMessageContext(self, message))
-            elif isinstance(message, GroupUpdateMessage):
+            elif isinstance(message, GroupUpdate):
                 if isinstance(handler, GroupUpdateHandler):
                     await handler.handle_group_update(GroupUpdateContext(self, message))
             elif isinstance(message, RemoteDelete):
