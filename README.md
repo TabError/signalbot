@@ -43,7 +43,7 @@ class PingCommand(DataMessageHandler):
 
 if __name__ == "__main__":
     bot = SignalBot(Config(phone_number=os.environ["PHONE_NUMBER"]))
-    bot.register(PingCommand())  # Run the command for all contacts and groups
+    bot.register(PingCommand())
     bot.start()
 ```
 

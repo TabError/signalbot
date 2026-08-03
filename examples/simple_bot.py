@@ -24,5 +24,5 @@ if __name__ == "__main__":
             logging_level=logging.INFO,
         )
     )
-    bot.register(PingCommand())  # Run the command for all contacts and groups
+    bot.register(PingCommand())
     bot.start()
