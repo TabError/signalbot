@@ -1,6 +1,6 @@
 import os
-from datetime import UTC, datetime
 
+from examples.timestamps import local_datetime_str_from_timestamp
 from signalbot import (
     Config,
     DataMessageContext,
@@ -25,7 +25,7 @@ class GroupActivityHandler(DataMessageHandler, GroupUpdateHandler):
 
     def __init__(self) -> None:
         super().__init__()
-        self._last_update: dict[str, tuple[str, datetime]] = {}
+        self._last_update: dict[str, tuple[str, str]] = {}
 
     async def handle_group_update(self, context: GroupUpdateContext) -> None:
         group_info = context.message.group_info
@@ -33,7 +33,7 @@ class GroupActivityHandler(DataMessageHandler, GroupUpdateHandler):
             return
 
         who = context.message.source_name or context.message.source_name
-        when = datetime.fromtimestamp(context.message.timestamp / 1000, tz=UTC)
+        when = local_datetime_str_from_timestamp(context.message.timestamp)
         self._last_update[group_info.group_id] = (who or "someone", when)
 
     @text_triggered("last-change")

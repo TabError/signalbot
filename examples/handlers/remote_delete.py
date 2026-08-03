@@ -1,5 +1,4 @@
-from datetime import UTC, datetime
-
+from examples.timestamps import local_datetime_str_from_timestamp
 from signalbot import RemoteDeleteHandler
 from signalbot.api.outgoing import SendMessage
 from signalbot.context import RemoteDeleteContext
@@ -10,6 +9,6 @@ class DeletionNotifierHandler(RemoteDeleteHandler):
         return "Remote delete received: 🗑️ Notifies when a message was deleted."
 
     async def handle_remote_delete(self, context: RemoteDeleteContext) -> None:
-        deleted_at = datetime.fromtimestamp(context.message.timestamp / 1000, tz=UTC)
+        deleted_at = local_datetime_str_from_timestamp(context.message.timestamp)
         message = f"You've deleted a message, which was sent at {deleted_at}."
         await context.send(SendMessage(text=message))
