@@ -1,10 +1,9 @@
+from examples.commands.help import build_help_message
 from signalbot import ReadyContext, ReadyHandler
 from signalbot.api.outgoing import SendMessage
 
-from .help import build_help_message
 
-
-class ReadyCommand(ReadyHandler):
+class WelcomeHandler(ReadyHandler):
     def __init__(self, recipient: str | None) -> None:
         self.recipient = recipient
 

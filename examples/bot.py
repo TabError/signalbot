@@ -9,15 +9,17 @@ from examples.commands import (
     LinkPreviewCommand,
     PingCommand,
     ReactCommand,
-    ReactionCommand,
-    ReadyCommand,
-    ReceiveDeleteCommand,
     RegexTriggeredCommand,
     ReplyCommand,
     StylesCommand,
-    ThumbsUpCommand,
     TriggeredCommand,
     TypingCommand,
+)
+from examples.handlers import (
+    DeletionNotifierHandler,
+    FilteredReactionHandler,
+    ReactionDetailsHandler,
+    WelcomeHandler,
 )
 from signalbot import Config, SignalBot
 
@@ -29,22 +31,22 @@ def main() -> None:
 
     # Replace the recipient with your own phone number or group ID to
     # receive the welcome message.
-    bot.register(ReadyCommand(recipient=None))
+    bot.register(WelcomeHandler(recipient=None))
 
     # By default the handlers are enabled for all contacts and all groups
     bot.register(HelpCommand())
     bot.register(PingCommand())
     bot.register(ReplyCommand())
     bot.register(RegexTriggeredCommand())
-    bot.register(ReactionCommand())
-    bot.register(ThumbsUpCommand())
     bot.register(ReactCommand())
     bot.register(EditCommand())
     bot.register(DeleteCommand())
-    bot.register(ReceiveDeleteCommand())
     bot.register(DeleteLocalAttachmentCommand())
     bot.register(StylesCommand())
     bot.register(LinkPreviewCommand())
+    bot.register(ReactionDetailsHandler())
+    bot.register(FilteredReactionHandler())
+    bot.register(DeletionNotifierHandler())
 
     # The handler will only trigger for group messages
     bot.register(AttachmentCommand(), contacts=False)

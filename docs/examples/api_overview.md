@@ -1,5 +1,5 @@
 This bot showcases how to use most of the features in the library.
-Check the [commands section](#commands) to see the implementation of each command.
+Check the [commands section](#commands) and [handlers section](#handlers) to see the implementation of each command and handler.
 The code shown here can be found the [examples folder](https://github.com/signalbot-org/signalbot/tree/main/examples).
 
 This bot use additional libraries, install them with:
@@ -22,7 +22,7 @@ pip install signalbot[examples]
 </details>
 
 
-<details><summary>DeleteCommand & DeleteLocalAttachmentCommand & ReceiveDeleteCommand</summary>
+<details><summary>DeleteCommand & DeleteLocalAttachmentCommand</summary>
 ``` python
 --8<-- "examples/commands/delete.py"
 ```
@@ -57,16 +57,9 @@ pip install signalbot[examples]
 </details>
 
 
-<details><summary>ReactionCommand & ThumbsUpCommand</summary>
+<details><summary>ReactCommand</summary>
 ``` python
 --8<-- "examples/commands/reaction.py"
-```
-</details>
-
-
-<details><summary>ReadyCommand</summary>
-``` python
---8<-- "examples/commands/ready.py"
 ```
 </details>
 
@@ -95,5 +88,27 @@ pip install signalbot[examples]
 <details><summary>TypingCommand</summary>
 ``` python
 --8<-- "examples/commands/typing.py"
+```
+</details>
+
+### Handlers
+
+<details><summary>ReactionDetailsHandler & FilteredReactionHandler</summary>
+``` python
+--8<-- "examples/handlers/reaction.py"
+```
+</details>
+
+
+<details><summary>DeletionNotifierHandler</summary>
+``` python
+--8<-- "examples/handlers/remote_delete.py"
+```
+</details>
+
+
+<details><summary>WelcomeHandler</summary>
+``` python
+--8<-- "examples/handlers/ready.py"
 ```
 </details>

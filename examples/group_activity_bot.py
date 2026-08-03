@@ -13,7 +13,7 @@ from signalbot import (
 from signalbot.api.outgoing import SendMessage
 
 
-class GroupActivityCommand(DataMessageHandler, GroupUpdateHandler):
+class GroupActivityHandler(DataMessageHandler, GroupUpdateHandler):
     """Tracks the most recent group update and answers a query about it.
 
     `handle_group_update` records who changed the group and when;
@@ -52,5 +52,5 @@ class GroupActivityCommand(DataMessageHandler, GroupUpdateHandler):
 
 if __name__ == "__main__":
     bot = SignalBot(Config(phone_number=os.environ["PHONE_NUMBER"]))
-    bot.register(GroupActivityCommand(), contacts=False, groups=True)
+    bot.register(GroupActivityHandler(), contacts=False, groups=True)
     bot.start()
