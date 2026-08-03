@@ -10,6 +10,7 @@ from examples.commands import (
     PingCommand,
     ReactCommand,
     ReactionCommand,
+    ReadyCommand,
     ReceiveDeleteCommand,
     RegexTriggeredCommand,
     ReplyCommand,
@@ -26,33 +27,34 @@ def main() -> None:
 
     bot = SignalBot(Config(phone_number=phone_number))
 
-    bot.register(HelpCommand())
+    # Replace the recipient with your own phone number or group ID to
+    # receive the welcome message.
+    bot.register(ReadyCommand(recipient=None))
 
-    # enable a chat command for all contacts and all groups
+    # By default the handlers are enabled for all contacts and all groups
+    bot.register(HelpCommand())
     bot.register(PingCommand())
     bot.register(ReplyCommand())
-
-    # enable a chat command only for groups
-    bot.register(AttachmentCommand(), contacts=False, groups=True)
-
-    # enable a chat command for one specific group with the name "My Group"
-    bot.register(TypingCommand(), groups=["My Group"])
-
-    # chat command is enabled for all groups and one specific contact
-    bot.register(TriggeredCommand(), contacts=["+490123456789"], groups=True)
-
     bot.register(RegexTriggeredCommand())
-
     bot.register(ReactionCommand())
     bot.register(ThumbsUpCommand())
     bot.register(ReactCommand())
-
     bot.register(EditCommand())
     bot.register(DeleteCommand())
     bot.register(ReceiveDeleteCommand())
     bot.register(DeleteLocalAttachmentCommand())
     bot.register(StylesCommand())
     bot.register(LinkPreviewCommand())
+
+    # The handler will only trigger for group messages
+    bot.register(AttachmentCommand(), contacts=False)
+
+    # The handler will only trigger the group named "My Group"
+    bot.register(TypingCommand(), groups=["My Group"])
+
+    # The handler will only trigger for the contact "+490123456789"
+    bot.register(TriggeredCommand(), contacts=["+490123456789"])
+
     bot.start()
 
 

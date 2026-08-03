@@ -64,6 +64,13 @@ pip install signalbot[examples]
 </details>
 
 
+<details><summary>ReadyCommand</summary>
+``` python
+--8<-- "examples/commands/ready.py"
+```
+</details>
+
+
 <details><summary>RegexTriggeredCommand</summary>
 ``` python
 --8<-- "examples/commands/regex_triggered.py"

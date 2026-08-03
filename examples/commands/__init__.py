@@ -6,6 +6,7 @@ from .link_preview import LinkPreviewCommand
 from .multiple_triggered import TriggeredCommand
 from .ping import PingCommand
 from .reaction import ReactCommand, ReactionCommand, ThumbsUpCommand
+from .ready import ReadyCommand
 from .regex_triggered import RegexTriggeredCommand
 from .reply import ReplyCommand
 from .styles import StylesCommand
@@ -21,6 +22,7 @@ __all__ = [
     "PingCommand",
     "ReactCommand",
     "ReactionCommand",
+    "ReadyCommand",
     "ReceiveDeleteCommand",
     "RegexTriggeredCommand",
     "ReplyCommand",

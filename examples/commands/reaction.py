@@ -21,8 +21,8 @@ class ReactCommand(DataMessageHandler):
 class ReactionCommand(ReactionHandler):
     def help_message(self) -> str:
         return (
-            "Reaction received (any emoji except 👍/❤️): 🎉 Replies with details "
-            "about the reaction."
+            "Reaction received or removed (any emoji except 👍/❤️): "
+            "🎉 Replies with details about the reaction."
         )
 
     async def handle_reaction(self, context: ReactionContext) -> None:
@@ -50,7 +50,7 @@ class ReactionCommand(ReactionHandler):
 class ThumbsUpCommand(ReactionHandler):
     def help_message(self) -> str:
         return (
-            "Reaction received (👍 or ❤️): 🎯 Filtered reaction received "
+            "Reaction received or removed (👍 or ❤️): 🎯 Filtered reaction received "
             "decorator example."
         )
 

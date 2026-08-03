@@ -2,18 +2,8 @@ import os
 
 import typer
 
-from signalbot import ReadyContext, ReadyHandler, SignalBot
+from signalbot import SignalBot
 from signalbot.api.outgoing import SendMessage
-
-
-class Welcome(ReadyHandler):
-    def __init__(self, recipient: str, text: str) -> None:
-        super().__init__()
-        self.recipient = recipient
-        self.text = text
-
-    async def handle_ready(self, context: ReadyContext) -> None:
-        await context.bot.send(SendMessage(recipient=self.recipient, text=self.text))
 
 
 async def ping(bot: SignalBot, recipient: str) -> None:
@@ -23,14 +13,10 @@ async def ping(bot: SignalBot, recipient: str) -> None:
     await bot.send(SendMessage(recipient=recipient, text="Ping"))
 
 
-def main(
-    recipient: str = os.environ["PHONE_NUMBER"],
-    text: str = "Hello from SignalBot!",
-) -> None:
+def main(recipient: str = os.environ["PHONE_NUMBER"]) -> None:
     config = {"phone_number": os.environ["PHONE_NUMBER"]}
     bot = SignalBot(config)
 
-    bot.register(Welcome(recipient, text))
     bot.scheduler.add_job(ping, args=[bot, recipient], trigger="interval", seconds=5)
     bot.start()
 
