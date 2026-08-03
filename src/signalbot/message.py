@@ -47,12 +47,6 @@ async def _parse_sync_messages(
                 signal, message_envelope, sync_message.sent_message
             )
 
-        if sync_message.read_messages is not None:
-            pass
-
-        if sync_message.sent_story_message is not None:
-            pass
-
     return None
 
 
@@ -66,9 +60,6 @@ async def _parse_main_messages(
 
     if message_envelope.edit_message is not None:
         return await EditMessage.from_message_envelope(message_envelope, signal)
-
-    if message_envelope.receipt_message is not None:
-        pass
 
     if message_envelope.typing_message is not None:
         return await TypingMessage.from_message_envelope(message_envelope)
