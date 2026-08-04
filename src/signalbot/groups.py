@@ -129,4 +129,4 @@ class GroupRegistry:
         if group_id is None:
             return False
 
-        return re.match(r"^group\.[a-zA-Z0-9]{59}=$", group_id)
+        return re.match(r"^group\.[a-zA-Z0-9]{59}=$", group_id) is not None
