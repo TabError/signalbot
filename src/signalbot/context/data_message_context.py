@@ -60,7 +60,7 @@ class DataMessageContext(Context[DataMessage | EditMessage]):
         )
         return await self.bot.messages.remote_delete(remote_delete_request)
 
-    async def receipt(self, receipt_type: ReceiptType) -> None:
+    async def send_receipt(self, receipt_type: ReceiptType) -> None:
         """Same as
          [signalbot.ReceiptActions.send()](bot.md#signalbot.actions.ReceiptActions.send)
         but with the recipient set to the message's recipient."""

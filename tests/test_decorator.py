@@ -9,9 +9,9 @@ from signalbot.context import DataMessageContext, ReactionContext
 from signalbot.handlers import ReactionHandler, reaction_triggered, regex_triggered
 from signalbot.test_utils import (
     ChatTestCase,
-    GetGroupsMock,
-    ReceiveMessagesMock,
-    SendMessagesMock,
+    GetAllMock,
+    ReceiveMock,
+    SendMock,
 )
 
 
@@ -47,9 +47,9 @@ class RegexTriggeredCommand(DataMessageHandler):
 
 @dataclass
 class SendReceiveGetGroupsMocks:
-    send_mock: SendMessagesMock
-    receive_mock: ReceiveMessagesMock
-    get_groups_mock: GetGroupsMock
+    send_mock: SendMock
+    receive_mock: ReceiveMock
+    get_groups_mock: GetAllMock
 
 
 @pytest.mark.asyncio
@@ -59,15 +59,15 @@ class TestCommon(ChatTestCase):
     ) -> SendReceiveGetGroupsMocks:
         send_mock = mocker.patch(
             "signalbot.api.client.messages.MessagesClient.send",
-            new_callable=SendMessagesMock,
+            new_callable=SendMock,
         )
         receive_mock = mocker.patch(
             "signalbot.api.client.messages.MessagesClient.receive",
-            new_callable=ReceiveMessagesMock,
+            new_callable=ReceiveMock,
         )
         get_groups_mock = mocker.patch(
             "signalbot.api.client.groups.GroupsClient.get_all",
-            new_callable=GetGroupsMock,
+            new_callable=GetAllMock,
         )
         return SendReceiveGetGroupsMocks(send_mock, receive_mock, get_groups_mock)
 

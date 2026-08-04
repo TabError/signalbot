@@ -23,6 +23,12 @@ class Context(Generic[MessageT]):
     Context is a helper class that provides methods to reply, edit, react, etc. to a
     message. This is useful to avoid having to pass the recipient and other arguments to
     the bot's methods manually.
+
+    Method names mirror the underlying `bot.<noun>` action they call (e.g. `react`
+    calls `bot.reactions.react`). The exception is when that name would be
+    ambiguous as a bare call on `Context`, which bundles several actions into one
+    flat namespace unlike `bot.<noun>` (e.g. `update_contact`/`update_group` both
+    call an underlying `.update()`, so the noun is kept here to disambiguate).
     """
 
     def __init__(self, bot: SignalBot, message: MessageT) -> None:

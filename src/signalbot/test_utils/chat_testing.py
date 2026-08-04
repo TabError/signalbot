@@ -27,19 +27,19 @@ def mock_chat(*messages: str):  # noqa: ANN201
         async def wrapper_chat(self, mocker: MockerFixture, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
             self.react_mock = mocker.patch(
                 "signalbot.api.client.reactions.ReactionsClient.react",
-                new_callable=ReactMessageMock,
+                new_callable=ReactMock,
             )
             self.send_mock = mocker.patch(
                 "signalbot.api.client.messages.MessagesClient.send",
-                new_callable=SendMessagesMock,
+                new_callable=SendMock,
             )
             receive_mock = mocker.patch(
                 "signalbot.api.client.messages.MessagesClient.receive",
-                new_callable=ReceiveMessagesMock,
+                new_callable=ReceiveMock,
             )
             mocker.patch(
                 "signalbot.api.client.groups.GroupsClient.get_all",
-                new_callable=GetGroupsMock,
+                new_callable=GetAllMock,
             )
             mocker.patch(
                 "signalbot.api.client.general.GeneralClient.about",
@@ -77,8 +77,8 @@ class ChatTestCase:
     )
 
     # Populated by `mock_chat` once a test is decorated with it.
-    send_mock: "SendMessagesMock"
-    react_mock: "ReactMessageMock"
+    send_mock: "SendMock"
+    react_mock: "ReactMock"
 
     def setup(self) -> None:
         self.signal_bot = SignalBot(ChatTestCase.config)
@@ -176,7 +176,7 @@ class ChatTestCase:
         return json.dumps(message)
 
 
-class ReceiveMessagesMock(MagicMock):
+class ReceiveMock(MagicMock):
     def define(self, messages: list) -> None:
         json_messages = [ChatTestCase.new_message(m) for m in messages]
         mock_iterator = AsyncMock()
@@ -189,7 +189,7 @@ class ReceiveMessagesMock(MagicMock):
         self.return_value = mock_iterator
 
 
-class SendMessagesMock(AsyncMock):
+class SendMock(AsyncMock):
     def __init__(self, **kwargs: str) -> None:
         super().__init__(**kwargs)
         self.return_value = SendMessageResponse(timestamp="1638715559464")
@@ -201,7 +201,7 @@ class SendMessagesMock(AsyncMock):
         return [call.args[0] for call in self.call_args_list]
 
 
-class ReactMessageMock(AsyncMock):
+class ReactMock(AsyncMock):
     def results(self) -> list:
         return self._extract_responses()
 
@@ -209,7 +209,7 @@ class ReactMessageMock(AsyncMock):
         return [call.args[0] for call in self.call_args_list]
 
 
-class GetGroupsMock(AsyncMock):
+class GetAllMock(AsyncMock):
     def __init__(self, **kwargs: str) -> None:
         super().__init__(**kwargs)
         self.return_value = [
