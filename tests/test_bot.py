@@ -183,7 +183,7 @@ class TestSignalApiProtocolConfig:
         )
 
         assert signal_bot._signal.connection_mode == ConnectionMode.AUTO
-        assert signal_bot._signal._signal_api_uris.use_https is True
+        assert signal_bot._signal._uris.use_https is True
 
     def test_connection_mode_can_be_set_to_http_only(self):
         signal_bot = SignalBot(
@@ -196,7 +196,7 @@ class TestSignalApiProtocolConfig:
         )
 
         assert signal_bot._signal.connection_mode == ConnectionMode.HTTP_ONLY
-        assert signal_bot._signal._signal_api_uris.use_https is False
+        assert signal_bot._signal._uris.use_https is False
 
     def test_connection_mode_can_be_set_to_https_only(self):
         signal_bot = SignalBot(
@@ -209,7 +209,7 @@ class TestSignalApiProtocolConfig:
         )
 
         assert signal_bot._signal.connection_mode == ConnectionMode.HTTPS_ONLY
-        assert signal_bot._signal._signal_api_uris.use_https is True
+        assert signal_bot._signal._uris.use_https is True
 
 
 @pytest.mark.asyncio
@@ -425,7 +425,7 @@ class TestPoll(TestCommon):
         # Mock the SignalAPI.poll method
         poll_mock = mocker.AsyncMock()
         poll_mock.return_value = mocker.Mock(timestamp=str(timestamp))
-        mocker.patch.object(self.signal_bot._signal, "poll", poll_mock)
+        mocker.patch.object(self.signal_bot._signal.polls, "poll", poll_mock)
 
         create_poll_request = CreatePollRequest(
             recipient=recipient,
@@ -448,7 +448,7 @@ class TestPoll(TestCommon):
         # Mock the SignalAPI.poll method
         poll_mock = mocker.AsyncMock()
         poll_mock.return_value = mocker.Mock(timestamp=str(timestamp))
-        mocker.patch.object(self.signal_bot._signal, "poll", poll_mock)
+        mocker.patch.object(self.signal_bot._signal.polls, "poll", poll_mock)
 
         create_poll_request = CreatePollRequest(
             recipient=recipient,
@@ -472,7 +472,7 @@ class TestPoll(TestCommon):
         # Mock the SignalAPI.poll method
         poll_mock = mocker.AsyncMock()
         poll_mock.return_value = mocker.Mock(timestamp=str(timestamp))
-        mocker.patch.object(self.signal_bot._signal, "poll", poll_mock)
+        mocker.patch.object(self.signal_bot._signal.polls, "poll", poll_mock)
 
         create_poll_request = CreatePollRequest(
             recipient=recipient,

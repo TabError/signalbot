@@ -58,13 +58,15 @@ class TestCommon(ChatTestCase):
         self, mocker: MockerFixture
     ) -> SendReceiveGetGroupsMocks:
         send_mock = mocker.patch(
-            "signalbot.SignalAPI.send", new_callable=SendMessagesMock
+            "signalbot.api.client.messages.MessagesClient.send",
+            new_callable=SendMessagesMock,
         )
         receive_mock = mocker.patch(
-            "signalbot.SignalAPI.receive", new_callable=ReceiveMessagesMock
+            "signalbot.api.client.messages.MessagesClient.receive",
+            new_callable=ReceiveMessagesMock,
         )
         get_groups_mock = mocker.patch(
-            "signalbot.SignalAPI.get_groups",
+            "signalbot.api.client.groups.GroupsClient.get_groups",
             new_callable=GetGroupsMock,
         )
         return SendReceiveGetGroupsMocks(send_mock, receive_mock, get_groups_mock)

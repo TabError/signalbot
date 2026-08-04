@@ -341,7 +341,7 @@ class SignalBot:
 
     async def about(self) -> About:
         """Return the signal-cli-rest-api about information."""
-        return await self._signal.about()
+        return await self._signal.general.about()
 
     async def send(
         self,
@@ -361,7 +361,7 @@ class SignalBot:
         message.recipient = self._resolve_recipient(message.recipient)
 
         send_message_v2 = await message.to_generated(self.config.phone_number)
-        send_message_response = await self._signal.send(send_message_v2)
+        send_message_response = await self._signal.messages.send(send_message_v2)
         timestamp = int(send_message_response.timestamp)
         self._logger.info(
             f"[Bot] New message {timestamp} sent:\n{message.text}"  # noqa: G004
@@ -386,7 +386,7 @@ class SignalBot:
         ]
 
         send_message_v2 = await message.to_generated(self.config.phone_number)
-        send_message_response = await self._signal.send(send_message_v2)
+        send_message_response = await self._signal.messages.send(send_message_v2)
         timestamp = int(send_message_response.timestamp)
 
         self._logger.info(
@@ -426,7 +426,7 @@ class SignalBot:
             create_poll_request.recipient
         )
 
-        created_poll = await self._signal.poll(create_poll_request)
+        created_poll = await self._signal.polls.poll(create_poll_request)
         timestamp = int(created_poll.timestamp)
         self._logger.info("[Bot] New poll created:\n%s", create_poll_request.question)
 
@@ -469,7 +469,7 @@ class SignalBot:
             target_author=target_author,
             timestamp=message.timestamp,
         )
-        await self._signal.react(reaction_request)
+        await self._signal.reactions.react(reaction_request)
         self._logger.info(f"[Bot] New reaction: {emoji}")  # noqa: G004
 
     async def receipt(
@@ -491,7 +491,7 @@ class SignalBot:
         receipt_request = Receipt(
             recipient=recipient, receipt_type=receipt_type, timestamp=message.timestamp
         )
-        await self._signal.receipt(receipt_request)
+        await self._signal.receipts.receipt(receipt_request)
         self._logger.info(f"[Bot] Receipt: {receipt_type}")  # noqa: G004
 
     async def start_typing(self, recipient: str) -> None:
@@ -501,7 +501,9 @@ class SignalBot:
             recipient: Message recipient.
         """
         recipient = self._resolve_recipient(recipient)
-        await self._signal.start_typing(TypingIndicatorRequest(recipient=recipient))
+        await self._signal.messages.start_typing(
+            TypingIndicatorRequest(recipient=recipient)
+        )
 
     async def stop_typing(self, recipient: str) -> None:
         """Stop a typing indicator for a recipient.
@@ -510,7 +512,9 @@ class SignalBot:
             recipient: Message recipient.
         """
         recipient = self._resolve_recipient(recipient)
-        await self._signal.stop_typing(TypingIndicatorRequest(recipient=recipient))
+        await self._signal.messages.stop_typing(
+            TypingIndicatorRequest(recipient=recipient)
+        )
 
     async def update_contact(
         self,
@@ -522,7 +526,7 @@ class SignalBot:
             update_contact: Contact update payload.
         """
         update_contact.recipient = self._resolve_recipient(update_contact.recipient)
-        await self._signal.update_contact(update_contact)
+        await self._signal.contacts.update_contact(update_contact)
 
     async def update_group(
         self,
@@ -535,7 +539,7 @@ class SignalBot:
         """
         group_id_or_name = self._resolve_recipient(update_group.group_id_or_name)
         wire_request = await update_group.to_generated()
-        await self._signal.update_group(group_id_or_name, wire_request)
+        await self._signal.groups.update_group(group_id_or_name, wire_request)
 
     async def remote_delete(
         self,
@@ -553,7 +557,9 @@ class SignalBot:
             remote_delete_request.recipient
         )
 
-        remote_delete_response = await self._signal.remote_delete(remote_delete_request)
+        remote_delete_response = await self._signal.messages.remote_delete(
+            remote_delete_request
+        )
         ret_timestamp = int(remote_delete_response.timestamp)
         self._logger.info(
             f"[Bot] Deleted message with timestamp {remote_delete_request.timestamp}"  # noqa: G004
@@ -567,11 +573,11 @@ class SignalBot:
         Args:
             attachment: Attachment to delete.
         """
-        await self._signal.delete_attachment(attachment)
+        await self._signal.attachments.delete_attachment(attachment)
 
     async def _refresh_groups(self) -> None:
         # reset group lookups to avoid stale data
-        self.groups = await self._signal.get_groups()
+        self.groups = await self._signal.groups.get_groups()
 
         self._groups_by_id: dict[str, GroupEntry] = {}
         self._groups_by_internal_id: dict[str, GroupEntry] = {}
@@ -585,7 +591,7 @@ class SignalBot:
 
     async def _refresh_group_cache(self, group_internal_id: str) -> None:
         # look up group that requires update
-        group = await self._signal.get_group(
+        group = await self._signal.groups.get_group(
             self._groups_by_internal_id[group_internal_id].id
         )
 
@@ -777,7 +783,7 @@ class SignalBot:
     async def _produce(self, name: int) -> None:
         self._logger.info(f"[Bot] Producer #{name} started")  # noqa: G004
         try:
-            async for raw_message in self._signal.receive():
+            async for raw_message in self._signal.messages.receive():
                 self._logger.info(f"[Raw Message] {raw_message}")  # noqa: G004
 
                 try:
