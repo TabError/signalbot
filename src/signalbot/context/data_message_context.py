@@ -10,6 +10,7 @@ from signalbot.context.context import Context
 if TYPE_CHECKING:
     from signalbot.api.generated.api.receipt_type import ReceiptType
     from signalbot.api.generated.receive import Mention
+    from signalbot.api.incoming import Attachment
     from signalbot.api.outgoing import SendMessage, SentMessage
 
 
@@ -18,18 +19,18 @@ class DataMessageContext(Context[DataMessage | EditMessage]):
         self, new_message: SendMessage, original_message: SentMessage
     ) -> SentMessage:
         """Same as
-         [signalbot.SignalBot.edit()](bot.md#signalbot.SignalBot.edit)
+         [signalbot.MessageActions.edit()](bot.md#signalbot.actions.MessageActions.edit)
         but with the original_message and recipient set to the message's."""
         new_message = deepcopy(new_message)
         new_message.recipient = self.message.source_or_group_uuid()
-        return await self.bot.edit(new_message, original_message)
+        return await self.bot.messages.edit(new_message, original_message)
 
     async def reply(
         self,
         message: SendMessage,
     ) -> SentMessage:
         """Same as
-         [signalbot.SignalBot.send()](bot.md#signalbot.SignalBot.send)
+         [signalbot.MessageActions.send()](bot.md#signalbot.actions.MessageActions.send)
         but with the quote arguments set to the message's."""
         send_mentions = self._convert_receive_mentions_into_send_mentions(
             self.message.mentions,
@@ -41,29 +42,34 @@ class DataMessageContext(Context[DataMessage | EditMessage]):
         message.quote_message = self.message.text
         message.quote_timestamp = self.message.timestamp
 
-        return await self.bot.send(message)
+        return await self.bot.messages.send(message)
 
     async def react(self, emoji: str) -> None:
         """Same as
-         [signalbot.SignalBot.react()](bot.md#signalbot.SignalBot.react)
+         [signalbot.ReactionActions.react()](bot.md#signalbot.actions.ReactionActions.react)
         but with the recipient set to the message's recipient."""
-        await self.bot.react(self.message, emoji)
+        await self.bot.reactions.react(self.message, emoji)
 
     async def remote_delete(self, timestamp: int) -> int:
         """Same as
-        [signalbot.SignalBot.remote_delete()](bot.md#signalbot.SignalBot.remote_delete)
+        [signalbot.MessageActions.remote_delete()](bot.md#signalbot.actions.MessageActions.remote_delete)
         but with the recipient and timestamp set to the message's."""
         remote_delete_request = RemoteDeleteRequest(
             recipient=self.message.source_or_group_uuid(),
             timestamp=timestamp,
         )
-        return await self.bot.remote_delete(remote_delete_request)
+        return await self.bot.messages.remote_delete(remote_delete_request)
 
     async def receipt(self, receipt_type: ReceiptType) -> None:
         """Same as
-         [signalbot.SignalBot.receipt()](bot.md#signalbot.SignalBot.receipt)
+         [signalbot.ReceiptActions.send()](bot.md#signalbot.actions.ReceiptActions.send)
         but with the recipient set to the message's recipient."""
-        await self.bot.receipt(self.message, receipt_type)
+        await self.bot.receipts.send(self.message, receipt_type)
+
+    async def delete_attachment(self, attachment: Attachment) -> None:
+        """Same as
+        [signalbot.AttachmentActions.delete()](bot.md#signalbot.actions.AttachmentActions.delete)."""
+        await self.bot.attachments.delete(attachment)
 
     def _convert_receive_mentions_into_send_mentions(
         self,

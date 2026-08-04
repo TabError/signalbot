@@ -38,7 +38,7 @@ class DeleteLocalAttachmentCommand(DataMessageHandler):
             if await attachment_path.exists():
                 await context.send(SendMessage(text=f"Received file {attachment_path}"))
 
-            await context.bot.delete_attachment(attachment)
+            await context.delete_attachment(attachment)
 
             if not await attachment_path.exists():
                 await context.send(SendMessage(text=f"Deleted file {attachment_path}"))

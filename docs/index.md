@@ -20,16 +20,18 @@ The bot can do a lot more, here is a quick overview of the most common methods:
 - `bot.register(command, contacts=False, groups=["Hello World"])`: Only listen in the "Hello World" group
 - `bot.register(command, contacts=["+49123456789"], groups=False)`: Only respond to one contact
 - `bot.start()`: Start the bot
-- `bot.send(recipient, text)`: Send a new message
-- `bot.react(message, emoji)`: React to a message
-- `bot.start_typing(recipient)`: Start typing
-- `bot.stop_typing(recipient)`: Stop typing
-- `bot.send(recipient, text, edit_timestamp=timestamp)`: Edit a previously sent message
-- `bot.remote_delete(remote_delete_request)`: Delete a previously sent message
-- `bot.receipt(message, receipt_type)`: Mark a message as read
-- `bot.update_group(group_id_or_name, update_group_request)`: Change group settings
-- `bot.delete_attachment(attachment)`: Delete the local copy of an attachment
+- `bot.messages.send(recipient, text)`: Send a new message
+- `bot.messages.start_typing(recipient)`: Start typing
+- `bot.messages.stop_typing(recipient)`: Stop typing
+- `bot.messages.edit(new_message, original_message)`: Edit a previously sent message
+- `bot.messages.remote_delete(remote_delete_request)`: Delete a previously sent message
+- `bot.reactions.react(message, emoji)`: React to a message
+- `bot.receipts.send(message, receipt_type)`: Mark a message as read
+- `bot.groups.update(update_group_request)`: Change group settings
+- `bot.attachments.delete(attachment)`: Delete the local copy of an attachment
 - `bot.scheduler`: Schedule tasks, see the [scheduler examples](examples/bot_with_scheduler.md).
+
+Each of these is grouped under a namespace matching the underlying `signal-cli-rest-api` tag it belongs to (`messages`, `reactions`, `receipts`, `groups`, `contacts`, `attachments`, `polls`, `general`), mirroring how [`SignalAPI`](reference/bot.md) is organized.
 
 ## Real world bot examples
 

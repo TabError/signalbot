@@ -82,9 +82,10 @@ class ChatTestCase:
     async def run_bot(self):  # noqa: ANN201
         producer_id = 1337
         handler_ir = 4444
-        await self.signal_bot._produce(producer_id)  # noqa: SLF001
-        while self.signal_bot._q.qsize() > 0:  # noqa: SLF001
-            await self.signal_bot._consume_new_item(handler_ir)  # noqa: SLF001
+        pipeline = self.signal_bot._pipeline  # noqa: SLF001
+        await pipeline._produce(producer_id)  # noqa: SLF001
+        while pipeline._q.qsize() > 0:  # noqa: SLF001
+            await pipeline._consume_new_item(handler_ir)  # noqa: SLF001
 
     @classmethod
     def new_reaction_message(cls, emoji: str) -> str:
