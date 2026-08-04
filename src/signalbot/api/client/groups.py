@@ -23,12 +23,12 @@ class GroupsURIs(SectionURIs):
 class GroupsClient(BaseClient[GroupsURIs]):
     async def get_groups(self) -> list[GroupEntry]:
         uri = self._uris.groups_uri()
-        resp = await self._request("get", uri, error_cls=GroupsError)
+        resp = await self._request("get", uri, error_cls=GetGroupsError)
         return [GroupEntry.model_validate(group) for group in await resp.json()]
 
     async def get_group(self, group_id: str) -> GroupEntry:
         uri = self._uris.group_id_uri(group_id)
-        resp = await self._request("get", uri, error_cls=GroupsError)
+        resp = await self._request("get", uri, error_cls=GetGroupsError)
         return GroupEntry.model_validate(await resp.json())
 
     async def update_group(
@@ -41,7 +41,7 @@ class GroupsClient(BaseClient[GroupsURIs]):
         )
 
 
-class GroupsError(SignalAPIError):
+class GetGroupsError(SignalAPIError):
     pass
 
 

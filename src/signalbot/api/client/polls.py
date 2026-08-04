@@ -22,9 +22,11 @@ class PollsClient(BaseClient[PollsURIs]):
     ) -> CreatePollResponse:
         uri = self._uris.poll_uri()
         payload = create_poll_request.model_dump_json(exclude_none=True, by_alias=True)
-        resp = await self._request("post", uri, error_cls=PollError, payload=payload)
+        resp = await self._request(
+            "post", uri, error_cls=CreatePollError, payload=payload
+        )
         return CreatePollResponse.model_validate(await resp.json())
 
 
-class PollError(SignalAPIError):
+class CreatePollError(SignalAPIError):
     pass

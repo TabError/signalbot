@@ -20,8 +20,10 @@ class ReceiptsClient(BaseClient[ReceiptsURIs]):
     async def send_receipt(self, receipt_request: Receipt) -> aiohttp.ClientResponse:
         uri = self._uris.receipts_uri()
         payload = receipt_request.model_dump_json(exclude_none=True, by_alias=True)
-        return await self._request("post", uri, error_cls=ReceiptError, payload=payload)
+        return await self._request(
+            "post", uri, error_cls=SendReceiptError, payload=payload
+        )
 
 
-class ReceiptError(SignalAPIError):
+class SendReceiptError(SignalAPIError):
     pass

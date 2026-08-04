@@ -24,9 +24,9 @@ class ReactionsClient(BaseClient[ReactionsURIs]):
         uri = self._uris.react_uri()
         payload = reaction_request.model_dump_json(exclude_none=True, by_alias=True)
         return await self._request(
-            "post", uri, error_cls=ReactionError, payload=payload
+            "post", uri, error_cls=SendReactionError, payload=payload
         )
 
 
-class ReactionError(SignalAPIError):
+class SendReactionError(SignalAPIError):
     pass
