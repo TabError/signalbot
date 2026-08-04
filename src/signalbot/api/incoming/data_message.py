@@ -6,7 +6,6 @@ from pathlib import Path
 from typing import TYPE_CHECKING
 
 from signalbot.api.generated import (
-    LinkPreviewType,
     Mention,
     MessageMention,
     Quote,
@@ -17,6 +16,7 @@ from signalbot.api.generated import (
 from signalbot.api.incoming.attachment import Attachment
 from signalbot.api.incoming.base_message import BaseMessageWithGroup
 from signalbot.api.incoming.link_preview import LinkPreview
+from signalbot.api.outgoing import LinkPreview as OutgoingLinkPreview
 from signalbot.api.outgoing import SendMessage
 
 if TYPE_CHECKING:
@@ -163,6 +163,7 @@ class DataMessage(BaseMessageWithGroup):
                 start=mention.start,
             )
             for mention in mentions
+            if mention.uuid is not None
         ]
 
     def to_send_message(self, recipient: str) -> SendMessage:
@@ -194,12 +195,17 @@ class DataMessage(BaseMessageWithGroup):
         link_preview = None
         if copy.previews is not None and len(copy.previews) > 0:
             preview = copy.previews[0]
-            link_preview = LinkPreviewType(
-                base64_thumbnail=preview.base64_thumbnail,
-                description=preview.description,
-                title=preview.title,
-                url=preview.url,
-            )
+            if (
+                preview.base64_thumbnail is not None
+                and preview.title is not None
+                and preview.url is not None
+            ):
+                link_preview = OutgoingLinkPreview(
+                    description=preview.description or "",
+                    title=preview.title,
+                    url=preview.url,
+                    thumbnail=preview.base64_thumbnail,
+                )
 
         text_style = None
         if copy.text_styles is not None and len(copy.text_styles) > 0:
