@@ -8,6 +8,7 @@ from signalbot.api import (
     SignalAPIError,
 )
 from signalbot.api.generated.api import TextMode
+from signalbot.api.incoming import UnknownMessageFormatError
 from signalbot.bot import (
     MIN_SIGNAL_CLI_REST_API_VERSION,
     SignalBot,
@@ -40,7 +41,6 @@ from signalbot.handlers import (
     text_triggered,
 )
 from signalbot.logger import LOGGER_NAME
-from signalbot.message import UnknownMessageFormatError
 
 __all__ = [
     "LOGGER_NAME",

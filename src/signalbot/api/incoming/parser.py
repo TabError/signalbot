@@ -4,20 +4,19 @@ import json
 from typing import TYPE_CHECKING
 
 from signalbot.api.generated.data.message import Message
-from signalbot.api.incoming import (
-    DataMessage,
-    EditMessage,
-    GroupUpdate,
-    Reaction,
-    ReceivedMessage,
-    RemoteDelete,
-    TypingMessage,
-)
+from signalbot.api.incoming.data_message import DataMessage
+from signalbot.api.incoming.edit_message import EditMessage
+from signalbot.api.incoming.group_update import GroupUpdate
+from signalbot.api.incoming.reaction import Reaction
+from signalbot.api.incoming.remote_delete import RemoteDelete
+from signalbot.api.incoming.typing_message import TypingMessage
+from signalbot.errors import SignalAPIError
 
 if TYPE_CHECKING:
     from signalbot.api import SignalAPI
     from signalbot.api.generated import DataMessage as GeneratedDataMessage
     from signalbot.api.generated import MessageEnvelope, SyncDataMessage
+    from signalbot.api.incoming import ReceivedMessage
 
 
 async def _parse_data_message_variant(
@@ -102,5 +101,5 @@ async def parse(signal: SignalAPI, raw_message_str: str) -> ReceivedMessage:
     raise UnknownMessageFormatError(error_msg)
 
 
-class UnknownMessageFormatError(Exception):
+class UnknownMessageFormatError(SignalAPIError):
     """Exception raised when a message with an unknown format is encountered."""

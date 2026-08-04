@@ -12,8 +12,9 @@ from signalbot.api.incoming import (
     Reaction,
     RemoteDelete,
     TypingMessage,
+    UnknownMessageFormatError,
+    parse,
 )
-from signalbot.message import UnknownMessageFormatError, parse
 
 
 @pytest.mark.asyncio

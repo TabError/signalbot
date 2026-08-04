@@ -1,1 +1,1 @@
-::: signalbot.message
+::: signalbot.api.incoming.parser

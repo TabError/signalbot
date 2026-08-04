@@ -14,6 +14,8 @@ from signalbot.api.incoming import (
     ReceivedMessage,
     RemoteDelete,
     TypingMessage,
+    UnknownMessageFormatError,
+    parse,
 )
 from signalbot.context import (
     DataMessageContext,
@@ -32,7 +34,6 @@ from signalbot.handlers import (
     RemoteDeleteHandler,
     TypingHandler,
 )
-from signalbot.message import UnknownMessageFormatError, parse
 from signalbot.utils.retry import rerun_on_exception
 
 if TYPE_CHECKING:
