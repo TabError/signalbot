@@ -1,3 +1,4 @@
+from examples.timestamps import local_datetime_str_from_timestamp
 from signalbot import ReactionContext, ReactionHandler, reaction_triggered
 from signalbot.api.outgoing import SendMessage
 
@@ -22,11 +23,13 @@ class ReactionDetailsHandler(ReactionHandler):
             )
             return
 
+        message_sent_at = local_datetime_str_from_timestamp(reaction.timestamp)
         await context.send(
             SendMessage(
                 text=(
-                    f"{reaction.emoji} from {context.message.source} "
-                    f"on message at {reaction.timestamp}"
+                    f"{context.message.source_name} reacted with {reaction.emoji} "
+                    f"on message that was sent by {reaction.target_author} at "
+                    f"{message_sent_at}"
                 )
             )
         )
