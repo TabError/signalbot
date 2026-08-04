@@ -5,6 +5,7 @@ from signalbot.api import (
     ReceiveError,
     SendError,
     SignalAPI,
+    SignalAPIError,
 )
 from signalbot.api.generated.api import TextMode
 from signalbot.bot import (
@@ -64,6 +65,7 @@ __all__ = [
     "SQLiteConfig",
     "SendError",
     "SignalAPI",
+    "SignalAPIError",
     "SignalBot",
     "TextMode",
     "TypingContext",

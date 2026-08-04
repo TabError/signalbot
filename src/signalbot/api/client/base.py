@@ -8,6 +8,7 @@ import aiohttp.http_exceptions
 
 if TYPE_CHECKING:
     from signalbot.auth import Authentication
+    from signalbot.errors import SignalAPIError
 
 
 class ConnectionMode(StrEnum):
@@ -119,7 +120,7 @@ class BaseClient(Generic[UrisT]):
         verb: HttpVerb,
         uri: str,
         *,
-        error_cls: type[Exception],
+        error_cls: type[SignalAPIError],
         payload: str | None = None,
     ) -> aiohttp.ClientResponse:
         """Issue a request and raise `error_cls` on any transport failure."""

@@ -3,6 +3,7 @@ from signalbot.api.client import (
     ReceiveError,
     SendError,
     SignalAPI,
+    SignalAPIError,
 )
 
 __all__ = [
@@ -10,4 +11,5 @@ __all__ = [
     "ReceiveError",
     "SendError",
     "SignalAPI",
+    "SignalAPIError",
 ]

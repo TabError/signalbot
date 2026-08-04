@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from signalbot.api.client.base import BaseClient, SectionURIs
+from signalbot.errors import SignalAPIError
 
 if TYPE_CHECKING:
     import aiohttp
@@ -22,5 +23,5 @@ class ReceiptsClient(BaseClient[ReceiptsURIs]):
         return await self._request("post", uri, error_cls=ReceiptError, payload=payload)
 
 
-class ReceiptError(Exception):
+class ReceiptError(SignalAPIError):
     pass

@@ -6,6 +6,7 @@ import websockets
 
 from signalbot.api.client.base import BaseClient, SectionURIs
 from signalbot.api.generated import RemoteDeleteResponse, SendMessageResponse
+from signalbot.errors import SignalAPIError
 
 if TYPE_CHECKING:
     from collections.abc import AsyncIterator
@@ -84,15 +85,15 @@ class MessagesClient(BaseClient[MessagesURIs]):
         return RemoteDeleteResponse.model_validate(await resp.json())
 
 
-class ReceiveError(Exception):
+class ReceiveError(SignalAPIError):
     pass
 
 
-class SendError(Exception):
+class SendError(SignalAPIError):
     pass
 
 
-class TypingError(Exception):
+class TypingError(SignalAPIError):
     pass
 
 
@@ -104,5 +105,5 @@ class StopTypingError(TypingError):
     pass
 
 
-class RemoteDeleteError(Exception):
+class RemoteDeleteError(SignalAPIError):
     pass

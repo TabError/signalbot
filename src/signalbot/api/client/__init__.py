@@ -18,6 +18,7 @@ from signalbot.api.client.polls import PollError
 from signalbot.api.client.reactions import ReactionError
 from signalbot.api.client.receipts import ReceiptError
 from signalbot.api.client.signal_api import SignalAPI
+from signalbot.errors import SignalAPIError
 
 __all__ = [
     "AboutError",
@@ -34,6 +35,7 @@ __all__ = [
     "RemoteDeleteError",
     "SendError",
     "SignalAPI",
+    "SignalAPIError",
     "StartTypingError",
     "StopTypingError",
     "TypingError",

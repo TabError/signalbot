@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from signalbot.api.client.base import BaseClient, SectionURIs
 from signalbot.api.generated import GroupEntry
+from signalbot.errors import SignalAPIError
 
 if TYPE_CHECKING:
     import aiohttp
@@ -40,9 +41,9 @@ class GroupsClient(BaseClient[GroupsURIs]):
         )
 
 
-class GroupsError(Exception):
+class GroupsError(SignalAPIError):
     pass
 
 
-class UpdateGroupError(Exception):
+class UpdateGroupError(SignalAPIError):
     pass

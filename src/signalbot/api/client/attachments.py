@@ -4,6 +4,7 @@ import base64
 from typing import TYPE_CHECKING
 
 from signalbot.api.client.base import BaseClient, SectionURIs
+from signalbot.errors import SignalAPIError
 
 if TYPE_CHECKING:
     import aiohttp
@@ -33,9 +34,9 @@ class AttachmentsClient(BaseClient[AttachmentsURIs]):
         return await self._request("delete", uri, error_cls=DeleteAttachmentError)
 
 
-class DownloadAttachmentError(Exception):
+class DownloadAttachmentError(SignalAPIError):
     pass
 
 
-class DeleteAttachmentError(Exception):
+class DeleteAttachmentError(SignalAPIError):
     pass

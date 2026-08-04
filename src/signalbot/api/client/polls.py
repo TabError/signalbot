@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from signalbot.api.client.base import BaseClient, SectionURIs
 from signalbot.api.generated import CreatePollResponse
+from signalbot.errors import SignalAPIError
 
 if TYPE_CHECKING:
     from signalbot.api.generated import CreatePollRequest
@@ -25,5 +26,5 @@ class PollsClient(BaseClient[PollsURIs]):
         return CreatePollResponse.model_validate(await resp.json())
 
 
-class PollError(Exception):
+class PollError(SignalAPIError):
     pass

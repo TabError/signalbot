@@ -4,6 +4,7 @@ from typing import TYPE_CHECKING
 
 from signalbot.api.client.base import BaseClient, SectionURIs
 from signalbot.api.generated import About
+from signalbot.errors import SignalAPIError
 
 if TYPE_CHECKING:
     import aiohttp
@@ -28,9 +29,9 @@ class GeneralClient(BaseClient[GeneralURIs]):
         return About.model_validate(await resp.json())
 
 
-class HealthCheckError(Exception):
+class HealthCheckError(SignalAPIError):
     pass
 
 
-class AboutError(Exception):
+class AboutError(SignalAPIError):
     pass

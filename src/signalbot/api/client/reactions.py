@@ -3,6 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from signalbot.api.client.base import BaseClient, SectionURIs
+from signalbot.errors import SignalAPIError
 
 if TYPE_CHECKING:
     import aiohttp
@@ -27,5 +28,5 @@ class ReactionsClient(BaseClient[ReactionsURIs]):
         )
 
 
-class ReactionError(Exception):
+class ReactionError(SignalAPIError):
     pass
