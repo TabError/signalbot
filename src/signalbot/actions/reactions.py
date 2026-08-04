@@ -2,6 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
+from signalbot.actions.base import BotActionsBase
 from signalbot.api.generated.api.send_reaction_request import SendReactionRequest
 from signalbot.api.outgoing import SentMessage
 
@@ -10,20 +11,18 @@ if TYPE_CHECKING:
 
     from signalbot.api import SignalAPI
     from signalbot.api.incoming import DataMessage
-    from signalbot.groups import GroupRegistry
+    from signalbot.recipients import RecipientResolver
 
 
-class ReactionActions:
+class ReactionActions(BotActionsBase):
     def __init__(
         self,
         signal: SignalAPI,
-        groups: GroupRegistry,
+        recipients: RecipientResolver,
         logger: logging.Logger,
         phone_number: str,
     ) -> None:
-        self._signal = signal
-        self._groups = groups
-        self._logger = logger
+        super().__init__(signal, recipients, logger)
         self._phone_number = phone_number
 
     async def react(self, message: SentMessage | DataMessage, emoji: str) -> None:
@@ -44,10 +43,7 @@ class ReactionActions:
             target_author = message.source_uuid or message.source_number
 
             if message.is_group():
-                recipient = self._groups.resolve(recipient)
-                if recipient is None:
-                    error_msg = "Cannot react to group message without group id"
-                    raise ValueError(error_msg)
+                recipient = self._recipients.resolve(recipient)
 
                 if target_author is None:
                     error_msg = "Cannot react to group message without source uuid"

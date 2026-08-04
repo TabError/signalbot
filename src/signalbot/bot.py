@@ -160,7 +160,7 @@ class SignalBot:
         )
         self.polls = PollActions(self._signal, self._recipients, self._logger)
         self.reactions = ReactionActions(
-            self._signal, self.groups, self._logger, self.config.phone_number
+            self._signal, self._recipients, self._logger, self.config.phone_number
         )
         self.receipts = ReceiptActions(self._signal, self._recipients, self._logger)
         self.contacts = ContactActions(self._signal, self._recipients, self._logger)

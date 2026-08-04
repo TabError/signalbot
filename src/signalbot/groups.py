@@ -25,19 +25,18 @@ class GroupRegistry:
         self._signal = signal
         self._logger = logger
 
-        self._groups: list[GroupEntry] = []
         self._by_id: dict[str, GroupEntry] = {}
         self._by_internal_id: dict[str, GroupEntry] = {}
         self._by_name: defaultdict[str, list[GroupEntry]] = defaultdict(list)
 
     def __iter__(self) -> Iterator[GroupEntry]:
-        return iter(self._groups)
+        return iter(self._by_internal_id.values())
 
     def __len__(self) -> int:
-        return len(self._groups)
+        return len(self._by_internal_id)
 
     def __getitem__(self, index: int) -> GroupEntry:
-        return self._groups[index]
+        return list(self._by_internal_id.values())[index]
 
     def get(self, internal_id: str) -> GroupEntry | None:
         if internal_id in self._by_internal_id:
@@ -72,17 +71,17 @@ class GroupRegistry:
 
     async def refresh(self) -> None:
         # reset group lookups to avoid stale data
-        self._groups = await self._signal.groups.get_groups()
+        groups = await self._signal.groups.get_groups()
 
         self._by_id = {}
         self._by_internal_id = {}
         self._by_name = defaultdict(list)
-        for group in self._groups:
+        for group in groups:
             self._by_id[group.id] = group
             self._by_internal_id[group.internal_id] = group
             self._by_name[group.name].append(group)
 
-        self._logger.info(f"[Bot] {len(self._groups)} groups detected")  # noqa: G004
+        self._logger.info(f"[Bot] {len(self._by_internal_id)} groups detected")  # noqa: G004
 
     async def refresh_one(self, group_internal_id: str) -> None:
         # look up group that requires update
@@ -94,9 +93,6 @@ class GroupRegistry:
         # group name may have been updated
         self._by_name[current_group_name] = [
             g for g in self._by_name[current_group_name] if g.id != group.id
-        ]
-        self._groups = [
-            group if g.internal_id == group_internal_id else g for g in self._groups
         ]
         self._by_id[group.id] = group
         self._by_internal_id[group.internal_id] = group
