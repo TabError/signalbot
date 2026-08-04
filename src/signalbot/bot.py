@@ -12,6 +12,7 @@ from signalbot.actions import (
     AttachmentActions,
     ContactActions,
     GeneralActions,
+    GroupActions,
     MessageActions,
     PollActions,
     ReactionActions,
@@ -56,8 +57,9 @@ class SignalBot:
     Attributes:
         config: The configuration for the bot.
         groups: Cache of the groups the bot is a member of, with
-            lookup and update helpers. Only populated after `.start()` is called and
+            lookup helpers. Only populated after `.start()` is called and
             `init_task` is done.
+        group_actions: Update group metadata.
         handlers: A list of registered handlers with their filters.
             Only available after `.start()` is called and `init_task` is done.
         messages: Send, edit, or delete messages, and manage typing
@@ -74,8 +76,8 @@ class SignalBot:
             Only available after `.start()` is called.
     """
 
-    def __init__(self, config: Config | Mapping | Path | str) -> None:
-        """Initilization for the SignalBot.
+    def __init__(self, config: Config | Mapping | Path | str) -> None:  # noqa: PLR0915
+        """Initialization for the SignalBot.
 
         Args:
             config: the configuration for the bot.
@@ -134,17 +136,17 @@ class SignalBot:
                 self.config.storage.db,
                 check_same_thread=self.config.storage.check_same_thread,
             )
-            self._logger.info("sqlite storage initilized")
+            self._logger.info("sqlite storage initialized")
         elif isinstance(self.config.storage, RedisConfig):
             self.storage = RedisStorage(
                 self.config.storage.host,
                 self.config.storage.port,
                 self.config.storage.password,
             )
-            self._logger.info("redis storage initilized")
+            self._logger.info("redis storage initialized")
         elif isinstance(self.config.storage, InMemoryConfig):
             self.storage = SQLiteStorage()
-            self._logger.info("in-memory storage initilized")
+            self._logger.info("in-memory storage initialized")
         else:
             self.storage = SQLiteStorage()
             self._logger.warning(
@@ -155,6 +157,7 @@ class SignalBot:
             )
 
         self.groups = GroupRegistry(self._signal, self._logger)
+        self.group_actions = GroupActions(self._signal, self.groups, self._logger)
         self._recipients = RecipientResolver(self.groups)
         self._pipeline = MessagePipeline(self, self._signal, self.groups, self._logger)
 

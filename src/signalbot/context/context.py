@@ -37,20 +37,20 @@ class Context(Generic[MessageT]):
         """Same as
          [signalbot.MessageActions.send()](bot.md#signalbot.actions.MessageActions.send)
         but with the recipient set to the message's recipient."""
-        message.recipient = self.message.source_or_group_uuid()
+        message.recipient = self.message.source_or_group_id()
         return await self.bot.messages.send(message)
 
     async def start_typing(self) -> None:
         """Same as
         [signalbot.MessageActions.start_typing()](bot.md#signalbot.actions.MessageActions.start_typing)
          but with the recipient set to the message's recipient."""
-        await self.bot.messages.start_typing(self.message.source_or_group_uuid())
+        await self.bot.messages.start_typing(self.message.source_or_group_id())
 
     async def stop_typing(self) -> None:
         """Same as
         [signalbot.MessageActions.stop_typing()](bot.md#signalbot.actions.MessageActions.stop_typing)
          but with the recipient set to the message's recipient."""
-        await self.bot.messages.stop_typing(self.message.source_or_group_uuid())
+        await self.bot.messages.stop_typing(self.message.source_or_group_id())
 
     async def update_contact(self, update_contact: UpdateContact) -> None:
         """Same as
@@ -59,7 +59,7 @@ class Context(Generic[MessageT]):
         if self.message.is_group():
             error_msg = "Cannot update contact for a group message"
             raise ValueError(error_msg)
-        update_contact.recipient = self.message.source_or_group_uuid()
+        update_contact.recipient = self.message.source_or_group_id()
         await self.bot.contacts.update(update_contact)
 
     async def update_group(
@@ -67,10 +67,10 @@ class Context(Generic[MessageT]):
         update_group: UpdateGroup,
     ) -> None:
         """Same as
-        [signalbot.GroupRegistry.update()](bot.md#signalbot.groups.GroupRegistry.update)
+        [signalbot.GroupActions.update()](bot.md#signalbot.actions.GroupActions.update)
          but with the group id or name set to the message's recipient."""
         if self.message.is_private():
             error_msg = "Cannot update group for a private message"
             raise ValueError(error_msg)
-        update_group.group_id_or_name = self.message.source_or_group_uuid()
-        await self.bot.groups.update(update_group)
+        update_group.group_id_or_name = self.message.source_or_group_id()
+        await self.bot.group_actions.update(update_group)

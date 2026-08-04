@@ -226,7 +226,7 @@ class MessagePipeline:
                 return True
 
             # b) whitelisted group ids
-            group = self._groups._get_internal(message.source_or_group_uuid())  # noqa: SLF001
+            group = self._groups._get_internal(message.source_or_group_id())  # noqa: SLF001
             group_id = group.id if group is not None else None
             if isinstance(group_ids, list) and group_id and group_id in group_ids:
                 return True

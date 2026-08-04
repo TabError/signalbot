@@ -94,5 +94,5 @@ class GroupUpdate(BaseMessage):
     def is_private(self) -> bool:
         return False
 
-    def source_or_group_uuid(self) -> str:
+    def source_or_group_id(self) -> str:
         return self.group_info.group_id

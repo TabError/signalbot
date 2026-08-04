@@ -27,11 +27,11 @@ The bot can do a lot more, here is a quick overview of the most common methods:
 - `bot.messages.remote_delete(remote_delete_request)`: Delete a previously sent message
 - `bot.reactions.react(message, emoji)`: React to a message
 - `bot.receipts.send(message, receipt_type)`: Mark a message as read
-- `bot.groups.update(update_group_request)`: Change group settings
+- `bot.group_actions.update(update_group_request)`: Change group settings
 - `bot.attachments.delete(attachment)`: Delete the local copy of an attachment
 - `bot.scheduler`: Schedule tasks, see the [scheduler examples](examples/bot_with_scheduler.md).
 
-Each of these is grouped under a namespace matching the underlying `signal-cli-rest-api` tag it belongs to (`messages`, `reactions`, `receipts`, `groups`, `contacts`, `attachments`, `polls`, `general`), mirroring how [`SignalAPI`](reference/bot.md) is organized.
+Each of these is grouped under a namespace matching the underlying `signal-cli-rest-api` tag it belongs to (`messages`, `reactions`, `receipts`, `groups`, `contacts`, `attachments`, `polls`, `general`), mirroring how [`SignalAPI`](reference/bot.md) is organized. `groups` is the one exception: `bot.groups` is a read-only cache of the groups the bot is a member of, while updates go through `bot.group_actions`.
 
 ## Real world bot examples
 

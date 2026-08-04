@@ -212,12 +212,11 @@ class DataMessage(BaseMessageWithGroup):
             mentions=self._to_send_mentions(copy.mentions),
             text=copy.text or "",
             notify_self=None,
-            number=None,
             quote_author=copy.quote.author if copy.quote is not None else None,
             quote_mentions=self._to_send_mentions(copy.quote.mentions)
             if copy.quote is not None
             else None,
-            quote_message=copy.quote.text if copy.quote is not None else None,
+            quote_text=copy.quote.text if copy.quote is not None else None,
             quote_timestamp=copy.quote.id if copy.quote is not None else None,
             recipient=recipient,
             # sticker=copy.sticker, # Not clear how to send stickers yet

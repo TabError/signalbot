@@ -64,7 +64,7 @@ class TypingMessage(BaseMessage):
 
         return not self.is_group()
 
-    def source_or_group_uuid(self) -> str:
+    def source_or_group_id(self) -> str:
         if self.group_id is not None:
             return self.group_id
 

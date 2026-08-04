@@ -85,9 +85,9 @@ class SignalAPI:
             # use_https is already set according to the connection mode
             return await is_available()
 
-        self._uris.set_https(True)
+        self._uris.use_https = True
         if await is_available():
             return True
 
-        self._uris.set_https(False)
+        self._uris.use_https = False
         return await is_available()

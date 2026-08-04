@@ -39,7 +39,7 @@ class ReactionActions(BotActionsBase):
             recipient = message.recipient
             target_author = self._phone_number
         else:
-            recipient = message.source_or_group_uuid()
+            recipient = message.source_or_group_id()
             target_author = message.source_uuid or message.source_number
 
             if message.is_group():

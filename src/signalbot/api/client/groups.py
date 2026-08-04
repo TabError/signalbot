@@ -32,9 +32,9 @@ class GroupsClient(BaseClient[GroupsURIs]):
         return GroupEntry.model_validate(await resp.json())
 
     async def update_group(
-        self, group_id_or_name: str, update_group_request: generated.UpdateGroupRequest
+        self, group_id: str, update_group_request: generated.UpdateGroupRequest
     ) -> aiohttp.ClientResponse:
-        uri = self._uris.group_id_uri(group_id_or_name)
+        uri = self._uris.group_id_uri(group_id)
         payload = update_group_request.model_dump_json(exclude_none=True, by_alias=True)
         return await self._request(
             "put", uri, error_cls=UpdateGroupError, payload=payload

@@ -64,7 +64,7 @@ class BaseSendMessage(BaseModel):
     notify_self: bool | None = None
     quote_author: str | None = None
     quote_mentions: list[MessageMention] | None = None
-    quote_message: str | None = None
+    quote_text: str | None = None
     quote_timestamp: int | None = None
     sticker: str | None = None
     text_mode: TextMode | None = None
@@ -97,7 +97,7 @@ class SendMessage(BaseSendMessage):
             number=number,
             quote_author=self.quote_author,
             quote_mentions=self.quote_mentions,
-            quote_message=self.quote_message,
+            quote_message=self.quote_text,
             quote_timestamp=self.quote_timestamp,
             recipients=[self.recipient],
             sticker=self.sticker,
@@ -123,7 +123,7 @@ class SendMessageMultiple(BaseSendMessage):
             number=number,
             quote_author=self.quote_author,
             quote_mentions=self.quote_mentions,
-            quote_message=self.quote_message,
+            quote_message=self.quote_text,
             quote_timestamp=self.quote_timestamp,
             recipients=self.recipients,
             sticker=self.sticker,

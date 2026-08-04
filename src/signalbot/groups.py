@@ -5,20 +5,18 @@ import re
 from collections import defaultdict
 from typing import TYPE_CHECKING
 
-from signalbot.errors import SignalBotError
-
 if TYPE_CHECKING:
     import logging
     from collections.abc import Iterator
 
     from signalbot.api import SignalAPI
     from signalbot.api.generated import GroupEntry
-    from signalbot.api.outgoing import UpdateGroup
 
 
 class GroupRegistry:
-    """List like chache of the groups the bot is a member of, with lookup and update
-    helpers.
+    """List-like cache of the groups the bot is a member of, with lookup helpers.
+
+    To update a group's metadata, use `GroupActions` (`bot.group_actions`) instead.
     """
 
     def __init__(self, signal: SignalAPI, logger: logging.Logger) -> None:
@@ -99,19 +97,6 @@ class GroupRegistry:
         self._by_name[group.name].append(group)
 
         self._logger.info("[Bot] Group updated")
-
-    async def update(self, update_group: UpdateGroup) -> None:
-        """Update a group's metadata.
-
-        Args:
-            update_group: Group update payload.
-        """
-        group_id_or_name = self.resolve(update_group.group_id_or_name)
-        if group_id_or_name is None:
-            raise SignalBotError("Cannot resolve recipient.")  # noqa: EM101, TRY003
-
-        wire_request = await update_group.to_generated()
-        await self._signal.groups.update_group(group_id_or_name, wire_request)
 
     def _get_by_name(self, group_name: str) -> GroupEntry | None:
         groups = self._by_name.get(group_name)

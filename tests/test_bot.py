@@ -434,7 +434,7 @@ class TestPoll(TestCommon):
         # Mock the SignalAPI.poll method
         poll_mock = mocker.AsyncMock()
         poll_mock.return_value = mocker.Mock(timestamp=str(timestamp))
-        mocker.patch.object(self.signal_bot._signal.polls, "poll", poll_mock)
+        mocker.patch.object(self.signal_bot._signal.polls, "create_poll", poll_mock)
 
         create_poll_request = CreatePollRequest(
             recipient=recipient,
@@ -457,7 +457,7 @@ class TestPoll(TestCommon):
         # Mock the SignalAPI.poll method
         poll_mock = mocker.AsyncMock()
         poll_mock.return_value = mocker.Mock(timestamp=str(timestamp))
-        mocker.patch.object(self.signal_bot._signal.polls, "poll", poll_mock)
+        mocker.patch.object(self.signal_bot._signal.polls, "create_poll", poll_mock)
 
         create_poll_request = CreatePollRequest(
             recipient=recipient,
@@ -481,7 +481,7 @@ class TestPoll(TestCommon):
         # Mock the SignalAPI.poll method
         poll_mock = mocker.AsyncMock()
         poll_mock.return_value = mocker.Mock(timestamp=str(timestamp))
-        mocker.patch.object(self.signal_bot._signal.polls, "poll", poll_mock)
+        mocker.patch.object(self.signal_bot._signal.polls, "create_poll", poll_mock)
 
         create_poll_request = CreatePollRequest(
             recipient=recipient,

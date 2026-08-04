@@ -35,7 +35,7 @@ class BaseMessage(ABC, BaseModel):
         """
 
     @abstractmethod
-    def source_or_group_uuid(self) -> str:
+    def source_or_group_id(self) -> str:
         """Get the source of the message.
 
         Returns:
@@ -54,7 +54,7 @@ class BaseMessageWithGroup(BaseMessage):
 
         return not self.is_group()
 
-    def source_or_group_uuid(self) -> str:
+    def source_or_group_id(self) -> str:
 
         if self.group_info is not None and self.group_info.group_id is not None:
             return self.group_info.group_id

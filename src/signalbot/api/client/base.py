@@ -34,7 +34,15 @@ class BaseURIs:
     ) -> None:
         self.signal_service = signal_service
         self.phone_number = phone_number
-        self.use_https = use_https
+        self._use_https = use_https
+
+    @property
+    def use_https(self) -> bool:
+        return self._use_https
+
+    @use_https.setter
+    def use_https(self, use_https: bool) -> None:
+        self._use_https = use_https
 
     @property
     def https_or_http(self) -> str:
@@ -43,9 +51,6 @@ class BaseURIs:
     @property
     def wss_or_ws(self) -> str:
         return "wss" if self.use_https else "ws"
-
-    def set_https(self, use_https: bool) -> None:  # noqa: FBT001
-        self.use_https = use_https
 
     def http_uri(self, path: str) -> str:
         return f"{self.https_or_http}://{self.signal_service}{path}"

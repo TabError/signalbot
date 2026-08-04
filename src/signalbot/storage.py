@@ -10,6 +10,8 @@ import sqlite3
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any
 
+from signalbot.errors import SignalBotError
+
 if TYPE_CHECKING:
     from pathlib import Path
 
@@ -57,7 +59,7 @@ class Storage(ABC):
         """
 
 
-class StorageError(Exception):
+class StorageError(SignalBotError):
     """Raised when a storage backend operation fails."""
 
 

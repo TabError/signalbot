@@ -26,9 +26,9 @@ class ReceiptActions(BotActionsBase):
             self._logger.warning("[Bot] Receipts are not supported for groups")
             return
 
-        recipient = self._recipients.resolve(message.source_or_group_uuid())
+        recipient = self._recipients.resolve(message.source_or_group_id())
         receipt_request = Receipt(
             recipient=recipient, receipt_type=receipt_type, timestamp=message.timestamp
         )
-        await self._signal.receipts.receipt(receipt_request)
+        await self._signal.receipts.send_receipt(receipt_request)
         self._logger.info(f"[Bot] Receipt: {receipt_type}")  # noqa: G004

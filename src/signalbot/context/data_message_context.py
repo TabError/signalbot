@@ -22,7 +22,7 @@ class DataMessageContext(Context[DataMessage | EditMessage]):
          [signalbot.MessageActions.edit()](bot.md#signalbot.actions.MessageActions.edit)
         but with the original_message and recipient set to the message's."""
         new_message = deepcopy(new_message)
-        new_message.recipient = self.message.source_or_group_uuid()
+        new_message.recipient = self.message.source_or_group_id()
         return await self.bot.messages.edit(new_message, original_message)
 
     async def reply(
@@ -36,10 +36,10 @@ class DataMessageContext(Context[DataMessage | EditMessage]):
             self.message.mentions,
         )
         message = deepcopy(message)
-        message.recipient = self.message.source_or_group_uuid()
+        message.recipient = self.message.source_or_group_id()
         message.quote_mentions = send_mentions
         message.quote_author = self.message.source_uuid or self.message.source_number
-        message.quote_message = self.message.text
+        message.quote_text = self.message.text
         message.quote_timestamp = self.message.timestamp
 
         return await self.bot.messages.send(message)
@@ -55,7 +55,7 @@ class DataMessageContext(Context[DataMessage | EditMessage]):
         [signalbot.MessageActions.remote_delete()](bot.md#signalbot.actions.MessageActions.remote_delete)
         but with the recipient and timestamp set to the message's."""
         remote_delete_request = RemoteDeleteRequest(
-            recipient=self.message.source_or_group_uuid(),
+            recipient=self.message.source_or_group_id(),
             timestamp=timestamp,
         )
         return await self.bot.messages.remote_delete(remote_delete_request)

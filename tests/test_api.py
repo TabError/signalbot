@@ -79,7 +79,7 @@ class TestAPI:
             answers=answers,
             allow_multiple_selections=False,
         )
-        resp = await self.signal_api.polls.poll(create_poll_request)
+        resp = await self.signal_api.polls.create_poll(create_poll_request)
 
         assert resp.timestamp == "1774791959123"
 
@@ -204,7 +204,7 @@ class TestAPI:
             ),
             (
                 "receipts",
-                "receipt",
+                "send_receipt",
                 "post",
                 Receipt(
                     receipt_type=ReceiptType.READ,
@@ -600,7 +600,7 @@ class TestURIsComposition:
         assert contacts_uris.contacts_uri().startswith("https://")
         assert groups_uris.groups_uri().startswith("https://")
 
-        base.set_https(False)
+        base.use_https = False
 
         assert contacts_uris.contacts_uri().startswith("http://")
         assert groups_uris.groups_uri().startswith("http://")
