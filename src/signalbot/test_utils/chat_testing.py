@@ -38,7 +38,7 @@ def mock_chat(*messages: str):  # noqa: ANN201
                 new_callable=ReceiveMessagesMock,
             )
             mocker.patch(
-                "signalbot.api.client.groups.GroupsClient.get_groups",
+                "signalbot.api.client.groups.GroupsClient.get_all",
                 new_callable=GetGroupsMock,
             )
             mocker.patch(

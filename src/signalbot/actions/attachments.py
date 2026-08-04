@@ -15,4 +15,4 @@ class AttachmentActions(BotActionsBase):
         Args:
             attachment: Attachment to delete.
         """
-        await self._signal.attachments.delete_attachment(attachment)
+        await self._signal.attachments.delete(attachment)

@@ -26,7 +26,7 @@ class PollActions(BotActionsBase):
             create_poll_request.recipient
         )
 
-        created_poll = await self._signal.polls.create_poll(create_poll_request)
+        created_poll = await self._signal.polls.create(create_poll_request)
         timestamp = int(created_poll.timestamp)
         self._logger.info("[Bot] New poll created:\n%s", create_poll_request.question)
 

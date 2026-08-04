@@ -19,4 +19,4 @@ class ContactActions(BotActionsBase):
             update_contact: Contact update payload.
         """
         update_contact.recipient = self._recipients.resolve(update_contact.recipient)
-        await self._signal.contacts.update_contact(update_contact)
+        await self._signal.contacts.update(update_contact)

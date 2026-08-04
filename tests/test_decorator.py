@@ -66,7 +66,7 @@ class TestCommon(ChatTestCase):
             new_callable=ReceiveMessagesMock,
         )
         get_groups_mock = mocker.patch(
-            "signalbot.api.client.groups.GroupsClient.get_groups",
+            "signalbot.api.client.groups.GroupsClient.get_all",
             new_callable=GetGroupsMock,
         )
         return SendReceiveGetGroupsMocks(send_mock, receive_mock, get_groups_mock)

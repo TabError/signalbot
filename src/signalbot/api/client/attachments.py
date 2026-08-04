@@ -18,13 +18,13 @@ class AttachmentsURIs(SectionURIs):
 
 
 class AttachmentsClient(BaseClient[AttachmentsURIs]):
-    async def download_attachment(self, attachment: Attachment) -> str:
+    async def download(self, attachment: Attachment) -> str:
         uri = f"{self._uris.attachment_uri()}/{attachment.local_filename}"
         resp = await self._request("get", uri, error_cls=DownloadAttachmentError)
         content = await resp.content.read()
         return str(base64.b64encode(content), encoding="utf-8")
 
-    async def delete_attachment(self, attachment: Attachment) -> aiohttp.ClientResponse:
+    async def delete(self, attachment: Attachment) -> aiohttp.ClientResponse:
         attachment_id = attachment.local_filename
         if attachment_id is None:
             error_msg = "Attachment has no local filename"

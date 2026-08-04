@@ -38,4 +38,4 @@ class GroupActions:
             raise SignalBotError("Cannot resolve recipient.")  # noqa: EM101, TRY003
 
         wire_request = await update_group.to_generated()
-        await self._signal.groups.update_group(group_id, wire_request)
+        await self._signal.groups.update(group_id, wire_request)

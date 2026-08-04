@@ -27,7 +27,7 @@ class SignalAPI:
     Usage:
         signal_api = SignalAPI(signal_service, phone_number)
         await signal_api.messages.send(...)
-        await signal_api.groups.get_groups()
+        await signal_api.groups.get_all()
         await signal_api.close()
     """
 

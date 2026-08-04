@@ -17,7 +17,7 @@ class ContactsURIs(SectionURIs):
 
 
 class ContactsClient(BaseClient[ContactsURIs]):
-    async def update_contact(
+    async def update(
         self,
         update_contact: UpdateContact,
     ) -> aiohttp.ClientResponse:

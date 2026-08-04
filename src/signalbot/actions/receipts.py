@@ -30,5 +30,5 @@ class ReceiptActions(BotActionsBase):
         receipt_request = Receipt(
             recipient=recipient, receipt_type=receipt_type, timestamp=message.timestamp
         )
-        await self._signal.receipts.send_receipt(receipt_request)
+        await self._signal.receipts.send(receipt_request)
         self._logger.info(f"[Bot] Receipt: {receipt_type}")  # noqa: G004

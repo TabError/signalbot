@@ -37,6 +37,15 @@ class GroupRegistry:
         return list(self._by_internal_id.values())[index]
 
     def get(self, internal_id: str) -> GroupEntry | None:
+        """Look up a cached group by its internal id, without hitting the network.
+
+        Args:
+            internal_id: The group's internal id, as used by `__iter__`,
+                `__getitem__`, and `refresh()`/`refresh_one()`.
+
+        Returns:
+            The cached `GroupEntry`, or `None` if it isn't in the cache.
+        """
         if internal_id in self._by_internal_id:
             return copy.deepcopy(self._by_internal_id[internal_id])
         return None
@@ -69,7 +78,7 @@ class GroupRegistry:
 
     async def refresh(self) -> None:
         # reset group lookups to avoid stale data
-        groups = await self._signal.groups.get_groups()
+        groups = await self._signal.groups.get_all()
 
         self._by_id = {}
         self._by_internal_id = {}
@@ -83,7 +92,7 @@ class GroupRegistry:
 
     async def refresh_one(self, group_internal_id: str) -> None:
         # look up group that requires update
-        group = await self._signal.groups.get_group(
+        group = await self._signal.groups.get(
             self._by_internal_id[group_internal_id].id
         )
 

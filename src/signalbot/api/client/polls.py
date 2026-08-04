@@ -16,7 +16,7 @@ class PollsURIs(SectionURIs):
 
 
 class PollsClient(BaseClient[PollsURIs]):
-    async def create_poll(
+    async def create(
         self,
         create_poll_request: CreatePollRequest,
     ) -> CreatePollResponse:

@@ -79,7 +79,7 @@ class TestAPI:
             answers=answers,
             allow_multiple_selections=False,
         )
-        resp = await self.signal_api.polls.create_poll(create_poll_request)
+        resp = await self.signal_api.polls.create(create_poll_request)
 
         assert resp.timestamp == "1774791959123"
 
@@ -204,7 +204,7 @@ class TestAPI:
             ),
             (
                 "receipts",
-                "send_receipt",
+                "send",
                 "post",
                 Receipt(
                     receipt_type=ReceiptType.READ,
@@ -276,7 +276,7 @@ class TestAPI:
         )
         self._mock_json_response(mocker, "get", [group_entry.model_dump(by_alias=True)])
 
-        groups = await self.signal_api.groups.get_groups()
+        groups = await self.signal_api.groups.get_all()
 
         assert groups == [group_entry]
 
@@ -301,7 +301,7 @@ class TestAPI:
         )
         self._mock_json_response(mocker, "get", group_entry.model_dump(by_alias=True))
 
-        group = await self.signal_api.groups.get_group(self.group_id)
+        group = await self.signal_api.groups.get(self.group_id)
 
         assert group == group_entry
 
@@ -310,7 +310,7 @@ class TestAPI:
         mock = self._mock_json_response(mocker, "put", {})
 
         update_contact = UpdateContact(recipient=self.phone_number, name="Bob")
-        await self.signal_api.contacts.update_contact(update_contact)
+        await self.signal_api.contacts.update(update_contact)
 
         assert mock.call_count == 1
 
@@ -319,7 +319,7 @@ class TestAPI:
         mock = self._mock_json_response(mocker, "put", {})
 
         update_group_request = generated.UpdateGroupRequest(name="New Name")
-        await self.signal_api.groups.update_group(self.group_id, update_group_request)
+        await self.signal_api.groups.update(self.group_id, update_group_request)
 
         assert mock.call_count == 1
 
@@ -335,7 +335,7 @@ class TestAPI:
         )
 
         attachment = Attachment(local_filename="my-file.png")
-        result = await self.signal_api.attachments.download_attachment(attachment)
+        result = await self.signal_api.attachments.download(attachment)
 
         assert result == base64.b64encode(b"file content").decode("utf-8")
 
@@ -344,7 +344,7 @@ class TestAPI:
         mock = self._mock_json_response(mocker, "delete", {})
 
         attachment = Attachment(local_filename="my-file.png")
-        await self.signal_api.attachments.delete_attachment(attachment)
+        await self.signal_api.attachments.delete(attachment)
 
         assert mock.call_count == 1
 
@@ -353,7 +353,7 @@ class TestAPI:
         attachment = Attachment(local_filename=None)
 
         with pytest.raises(ValueError, match="no local filename"):
-            await self.signal_api.attachments.delete_attachment(attachment)
+            await self.signal_api.attachments.delete(attachment)
 
     @pytest.mark.asyncio
     async def test_about(self, mocker: MockerFixture):
