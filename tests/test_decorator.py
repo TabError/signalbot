@@ -74,8 +74,8 @@ class TestCommon(ChatTestCase):
 
 class TestTriggered(TestCommon):
     @pytest.fixture(autouse=True)
-    def setup(self):
-        super().setup()
+    def setup_fixture(self):
+        self.setup()
         self.signal_bot.register(TriggeredCommand(), contacts=True, groups=True)
 
     async def test_triggered(self, mocker: MockerFixture):
@@ -102,8 +102,8 @@ class TestTriggered(TestCommon):
 
 class TestTriggeredCaseSensitive(TestCommon):
     @pytest.fixture(autouse=True)
-    def setup(self):
-        super().setup()
+    def setup_fixture(self):
+        self.setup()
         self.signal_bot.register(TriggeredCaseSensitiveCommand())
 
     async def test_triggered(self, mocker: MockerFixture):
@@ -123,8 +123,8 @@ class TestTriggeredCaseSensitive(TestCommon):
 
 class TestRegexTriggered(TestCommon):
     @pytest.fixture(autouse=True)
-    def setup(self):
-        super().setup()
+    def setup_fixture(self):
+        self.setup()
         self.signal_bot.register(RegexTriggeredCommand())
 
     async def test_regex_triggered_email(self, mocker: MockerFixture):
@@ -151,8 +151,8 @@ class TestRegexTriggered(TestCommon):
 
 class TestTriggeredGroups(TestCommon):
     @pytest.fixture(autouse=True)
-    def setup(self):
-        super().setup()
+    def setup_fixture(self):
+        self.setup()
 
     async def _test_trigger(self, mocker: MockerFixture, call_count: int) -> None:
         mocks = self.mock_send_receive_get_groups(mocker)
@@ -197,8 +197,8 @@ class TestTriggeredGroups(TestCommon):
 
 class TestReactionTriggered(TestCommon):
     @pytest.fixture(autouse=True)
-    def setup(self):
-        super().setup()
+    def setup_fixture(self):
+        self.setup()
         self.signal_bot.register(ReactionTriggeredCommand(), contacts=True, groups=True)
 
     async def test_reaction_triggered(self, mocker: MockerFixture):
@@ -219,8 +219,8 @@ class TestReactionTriggered(TestCommon):
 
 class TestReactionFiltered(TestCommon):
     @pytest.fixture(autouse=True)
-    def setup(self):
-        super().setup()
+    def setup_fixture(self):
+        self.setup()
         self.signal_bot.register(ReactionFilteredCommand(), contacts=True, groups=True)
 
     async def test_matching_emoji(self, mocker: MockerFixture):

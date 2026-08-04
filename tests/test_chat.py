@@ -22,8 +22,8 @@ class SchnickSchnackSchnuckCommand(DataMessageHandler):
 @pytest.mark.filterwarnings("ignore:There is no current event loop:DeprecationWarning")
 class TestSchnickSchnackSchnuckCommand(ChatTestCase):
     @pytest.fixture(autouse=True)
-    def setup(self):
-        super().setup()
+    def setup_fixture(self):
+        self.setup()
         self.signal_bot.register(SchnickSchnackSchnuckCommand())
 
     @mock_chat("schnick")
@@ -33,7 +33,7 @@ class TestSchnickSchnackSchnuckCommand(ChatTestCase):
         *args: object,  # noqa: ARG002
         **kwargs: object,  # noqa: ARG002
     ):
-        replies = self.signal_bot._signal.messages.send
+        replies = self.send_mock
         assert replies.call_count == 1
         assert len(replies.results()) == 1
         for sent in replies.results():
@@ -47,7 +47,7 @@ class TestSchnickSchnackSchnuckCommand(ChatTestCase):
         *args: object,  # noqa: ARG002
         **kwargs: object,  # noqa: ARG002
     ):
-        replies = self.signal_bot._signal.messages.send
+        replies = self.send_mock
         assert replies.call_count == 1
         assert len(replies.results()) == 1
         for sent in replies.results():

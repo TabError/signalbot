@@ -8,8 +8,8 @@ from ..ping import PingCommand  # noqa: TID252
 
 class TestPingChatTest(ChatTestCase):
     @pytest.fixture(autouse=True)
-    def setup(self):
-        super().setup()
+    def setup_fixture(self):
+        self.setup()
         self.signal_bot.register(PingCommand())
 
     @pytest.mark.asyncio
@@ -18,7 +18,7 @@ class TestPingChatTest(ChatTestCase):
     )
     @mock_chat("ping")
     async def test_ping(self, mocker: MockerFixture, *args: object, **kwargs: object):  # noqa: ARG002
-        replies = self.signal_bot._signal.messages.send
+        replies = self.send_mock
         assert replies.call_count == 1
         assert len(replies.results()) == 1
         for sent in replies.results():

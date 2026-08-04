@@ -25,11 +25,11 @@ def mock_chat(*messages: str):  # noqa: ANN201
     def decorator_chat(func):  # noqa: ANN001, ANN202
         @functools.wraps(func)
         async def wrapper_chat(self, mocker: MockerFixture, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
-            mocker.patch(
+            self.react_mock = mocker.patch(
                 "signalbot.api.client.reactions.ReactionsClient.react",
                 new_callable=ReactMessageMock,
             )
-            mocker.patch(
+            self.send_mock = mocker.patch(
                 "signalbot.api.client.messages.MessagesClient.send",
                 new_callable=SendMessagesMock,
             )
@@ -75,6 +75,10 @@ class ChatTestCase:
             "storage": {"type": "in-memory"},
         }
     )
+
+    # Populated by `mock_chat` once a test is decorated with it.
+    send_mock: "SendMessagesMock"
+    react_mock: "ReactMessageMock"
 
     def setup(self) -> None:
         self.signal_bot = SignalBot(ChatTestCase.config)
