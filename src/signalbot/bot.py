@@ -1,6 +1,8 @@
 from __future__ import annotations
 
 import asyncio
+import contextlib
+import signal
 from typing import TYPE_CHECKING
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
@@ -103,6 +105,7 @@ class SignalBot:
             auth = None
 
         self.init_task: None | asyncio.Task = None
+        self._shutdown_task: None | asyncio.Task = None
 
         try:
             self._signal = SignalAPI(
@@ -240,9 +243,49 @@ class SignalBot:
         )
 
         if run_forever:
+            self._install_sigint_sigterm_handlers()
             self.scheduler.start()
 
             self._event_loop.run_forever()
+
+    def _install_sigint_sigterm_handlers(self) -> None:
+        """On SIGINT/SIGTERM, gracefully stop without leaving dangling tasks."""
+        for sig in (signal.SIGINT, signal.SIGTERM):
+            # add_signal_handler is unsupported on some platforms (e.g. Windows)
+            with contextlib.suppress(NotImplementedError):
+                self._event_loop.add_signal_handler(sig, self.request_stop)
+
+    def request_stop(self) -> None:
+        """Schedule `stop()` without blocking the caller.
+
+        The non-blocking way to trigger shutdown from within a message
+        handler; see `stop()` for why calling it directly also works, just
+        not without blocking the handler until shutdown completes.
+        """
+        # Keep a hard reference to the task so it isn't garbage-collected mid-run
+        self._shutdown_task = self._event_loop.create_task(self.stop())
+
+    async def close(self) -> None:
+        """Close the shared HTTP session.
+
+        Warning:
+            Not safe to call while the pipeline's producer/consumer tasks may
+            still be making requests through this session — it pulls the
+            connection out from under them mid-request. `stop()` avoids this
+            by cancelling and awaiting those tasks first; call this directly
+            only once you know none of them are still running.
+        """
+        await self._signal.close()
+
+    async def stop(self) -> None:
+        """Gracefully stop the bot: cancel background tasks, close the shared
+        HTTP session, and stop the event loop started by `.start()`.
+        """
+        if self.scheduler.running:
+            self.scheduler.shutdown(wait=False)
+        await self._pipeline.stop()
+        await self.close()
+        self._event_loop.stop()
 
     async def wait_until_ready(self) -> None:
         """Wait until the bot has finished connecting and is ready to send messages."""

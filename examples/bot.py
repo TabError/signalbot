@@ -2,6 +2,7 @@ import os
 
 from examples.commands import (
     AttachmentCommand,
+    CloseCommand,
     DeleteCommand,
     DeleteLocalAttachmentCommand,
     EditCommand,
@@ -44,6 +45,7 @@ def main() -> None:
     bot.register(DeleteLocalAttachmentCommand())
     bot.register(StylesCommand())
     bot.register(LinkPreviewCommand())
+    bot.register(CloseCommand())
     bot.register(ReactionDetailsHandler())
     bot.register(FilteredReactionHandler())
     bot.register(DeletionNotifierHandler())

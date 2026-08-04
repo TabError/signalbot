@@ -2,6 +2,7 @@ import base64
 
 import aiohttp
 import pytest
+import pytest_asyncio
 from pytest_mock import MockerFixture, MockType
 
 from signalbot import ConnectionMode, SignalAPI
@@ -45,9 +46,11 @@ class TestAPI:
 
     group_id = "group.OyZzqio1xDmYiLsQ1VsqRcUFOU4tK2TcECmYt2KeozHJwglMBHAPS7jlkrm="
 
-    @pytest.fixture(autouse=True)
-    def setup(self):
+    @pytest_asyncio.fixture(autouse=True)
+    async def setup(self):
         self.signal_api = SignalAPI(self.signal_service, self.phone_number)
+        yield
+        await self.signal_api.close()
 
     @pytest.mark.asyncio
     async def test_send(self, mocker: MockerFixture):
@@ -498,8 +501,7 @@ class TestAPI:
             json=mock2,
         )
 
-        mock = mocker.patch("aiohttp.ClientSession")
-        mock.return_value.__aenter__.return_value = mock_session
+        mocker.patch("aiohttp.ClientSession", return_value=mock_session)
 
         data_message = SendMessageV2(
             message="Hello World!",
@@ -509,7 +511,7 @@ class TestAPI:
 
         resp = await signal_api.messages.send(data_message)
 
-        _, kwargs = mock.call_args
+        _, kwargs = mock_session.post.call_args
 
         assert resp.timestamp == "1638715559464"
         return kwargs["headers"].get("Authorization")

@@ -70,6 +70,29 @@ _TRANSPORT_ERRORS: tuple[type[Exception], ...] = (
 HttpVerb = Literal["get", "post", "put", "delete"]
 
 
+class SessionManager:
+    """Lazily creates and shares a single `aiohttp.ClientSession` across all
+    section clients of a `SignalAPI` instance, so requests reuse connections
+    instead of opening a new session per call.
+
+    The session is created on first use (inside a coroutine, as aiohttp
+    requires) and lives until `close()` is called.
+    """
+
+    def __init__(self) -> None:
+        self._session: aiohttp.ClientSession | None = None
+
+    async def get(self) -> aiohttp.ClientSession:
+        if self._session is None:
+            self._session = aiohttp.ClientSession()
+        return self._session
+
+    async def close(self) -> None:
+        if self._session is not None:
+            await self._session.close()
+        self._session = None
+
+
 class BaseClient(Generic[UrisT]):
     """Shared HTTP helpers for a `signal-cli-rest-api` section client.
 
@@ -77,9 +100,12 @@ class BaseClient(Generic[UrisT]):
     `ContactsURIs`).
     """
 
-    def __init__(self, uris: UrisT, auth: Authentication | None) -> None:
+    def __init__(
+        self, uris: UrisT, auth: Authentication | None, sessions: SessionManager
+    ) -> None:
         self._uris = uris
         self._auth = auth
+        self._sessions = sessions
 
     def _add_auth(self, headers: dict[str, str] | None = None) -> dict[str, str]:
         if headers is None:
@@ -98,11 +124,13 @@ class BaseClient(Generic[UrisT]):
     ) -> aiohttp.ClientResponse:
         """Issue a request and raise `error_cls` on any transport failure."""
         headers = self._add_auth()
+        session = await self._sessions.get()
         try:
-            async with aiohttp.ClientSession(headers=headers) as session:
-                method = getattr(session, verb)
-                resp = await (method(uri, data=payload) if payload else method(uri))
-                resp.raise_for_status()
+            method = getattr(session, verb)
+            resp: aiohttp.ClientResponse = await method(
+                uri, headers=headers, data=payload
+            )
+            resp.raise_for_status()
         except _TRANSPORT_ERRORS as exc:
             raise error_cls from exc
         else:

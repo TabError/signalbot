@@ -25,3 +25,5 @@ class BotProtocol(Protocol):
     reactions: ReactionActions
     receipts: ReceiptActions
     attachments: AttachmentActions
+
+    def request_stop(self) -> None: ...

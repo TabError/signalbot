@@ -3,7 +3,12 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from signalbot.api.client.attachments import AttachmentsClient, AttachmentsURIs
-from signalbot.api.client.base import HEALTH_CHECK_GOOD_STATUS, BaseURIs, ConnectionMode
+from signalbot.api.client.base import (
+    HEALTH_CHECK_GOOD_STATUS,
+    BaseURIs,
+    ConnectionMode,
+    SessionManager,
+)
 from signalbot.api.client.contacts import ContactsClient, ContactsURIs
 from signalbot.api.client.general import GeneralClient, GeneralURIs, HealthCheckError
 from signalbot.api.client.groups import GroupsClient, GroupsURIs
@@ -23,6 +28,7 @@ class SignalAPI:
         signal_api = SignalAPI(signal_service, phone_number)
         await signal_api.messages.send(...)
         await signal_api.groups.get_groups()
+        await signal_api.close()
     """
 
     def __init__(
@@ -47,14 +53,24 @@ class SignalAPI:
             use_https=use_https,
         )
 
-        self.general = GeneralClient(GeneralURIs(self._uris), auth)
-        self.messages = MessagesClient(MessagesURIs(self._uris), auth)
-        self.groups = GroupsClient(GroupsURIs(self._uris), auth)
-        self.attachments = AttachmentsClient(AttachmentsURIs(self._uris), auth)
-        self.contacts = ContactsClient(ContactsURIs(self._uris), auth)
-        self.polls = PollsClient(PollsURIs(self._uris), auth)
-        self.reactions = ReactionsClient(ReactionsURIs(self._uris), auth)
-        self.receipts = ReceiptsClient(ReceiptsURIs(self._uris), auth)
+        self._sessions = SessionManager()
+
+        self.general = GeneralClient(GeneralURIs(self._uris), auth, self._sessions)
+        self.messages = MessagesClient(MessagesURIs(self._uris), auth, self._sessions)
+        self.groups = GroupsClient(GroupsURIs(self._uris), auth, self._sessions)
+        self.attachments = AttachmentsClient(
+            AttachmentsURIs(self._uris), auth, self._sessions
+        )
+        self.contacts = ContactsClient(ContactsURIs(self._uris), auth, self._sessions)
+        self.polls = PollsClient(PollsURIs(self._uris), auth, self._sessions)
+        self.reactions = ReactionsClient(
+            ReactionsURIs(self._uris), auth, self._sessions
+        )
+        self.receipts = ReceiptsClient(ReceiptsURIs(self._uris), auth, self._sessions)
+
+    async def close(self) -> None:
+        """Close the shared HTTP session. Called when the bot is shutting down."""
+        await self._sessions.close()
 
     async def check_signal_service(self) -> bool:
         async def is_available() -> bool:

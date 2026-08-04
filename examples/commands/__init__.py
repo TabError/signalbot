@@ -1,4 +1,5 @@
 from .attachments import AttachmentCommand
+from .close import CloseCommand
 from .delete import DeleteCommand, DeleteLocalAttachmentCommand
 from .edit import EditCommand
 from .help import HelpCommand
@@ -13,6 +14,7 @@ from .typing import TypingCommand
 
 __all__ = [
     "AttachmentCommand",
+    "CloseCommand",
     "DeleteCommand",
     "DeleteLocalAttachmentCommand",
     "EditCommand",

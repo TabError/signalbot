@@ -2,6 +2,7 @@ import asyncio
 
 import aiohttp
 import pytest
+import pytest_asyncio
 from packaging.version import InvalidVersion
 from pytest_mock import MockerFixture
 
@@ -38,14 +39,16 @@ class TestCommon:
     group_id = "group.OyZzqio1xDmYiLsQ1VsqRcUFOU4tK2TcECmYt2KeozHJwglMBHAPS7jlkrm="
     internal_id = "Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8="
 
-    @pytest.fixture(autouse=True)
-    def setup(self):
+    @pytest_asyncio.fixture(autouse=True)
+    async def setup(self):
         config = {
             "signal_service": self.signal_service,
             "phone_number": self.phone_number,
             "storage": {"type": "in-memory"},
         }
         self.signal_bot = SignalBot(config)
+        yield
+        await self.signal_bot.close()
 
 
 class TestProducer(TestCommon):
@@ -399,6 +402,25 @@ class TestReadyHandler(TestCommon):
         await self.signal_bot.wait_until_ready()
 
         assert self.signal_bot.init_task.done()
+
+
+@pytest.mark.asyncio
+class TestPipelineStop(TestCommon):
+    async def test_stop_is_safe_to_call_from_a_tracked_task(self):
+        """A "close" command handler runs on one of the pipeline's own
+        consumer tasks. Calling `pipeline.stop()` from there means `stop()`
+        would cancel-and-await its own caller unless it excludes the current
+        task, which previously caused a `RecursionError` / hang.
+        """
+        pipeline = self.signal_bot._pipeline
+
+        async def self_stopping_consumer() -> None:
+            await pipeline.stop()
+
+        task = asyncio.ensure_future(self_stopping_consumer())
+        pipeline._consume_tasks.add(task)
+
+        await asyncio.wait_for(task, timeout=1)
 
 
 @pytest.mark.asyncio

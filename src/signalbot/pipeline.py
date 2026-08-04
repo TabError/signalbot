@@ -131,13 +131,27 @@ class MessagePipeline:
         task_set.add(task)
         task.add_done_callback(task_set.discard)
 
+    async def stop(self) -> None:
+        """Cancel all running producer/consumer tasks and wait for them to exit."""
+        # Excludes the calling task itself: `stop()` may be invoked from within
+        # a handler running on one of these tasks (e.g. a "close" command), and
+        # a task cannot cancel-and-await itself without deadlocking.
+        current = asyncio.current_task()
+        tasks = [
+            task
+            for task in itertools.chain(self._consume_tasks, self._produce_tasks)
+            if task is not current
+        ]
+        for task in tasks:
+            task.cancel()
+        await asyncio.gather(*tasks, return_exceptions=True)
+
     async def start(
         self,
         producers: int = 1,
         consumers: int = 3,
     ) -> None:
-        for task in itertools.chain(self._consume_tasks, self._produce_tasks):
-            task.cancel()
+        await self.stop()
 
         self._produce_tasks.clear()
 
