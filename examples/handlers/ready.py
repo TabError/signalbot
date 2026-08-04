@@ -1,4 +1,4 @@
-from examples.commands.help import build_help_message
+from examples.commands.help import build_help_messages
 from signalbot import ReadyContext, ReadyHandler
 from signalbot.api.outgoing import SendMessage
 
@@ -15,15 +15,19 @@ class WelcomeHandler(ReadyHandler):
             "Send a text message with one of the commands or perform "
             "an action that a handler is listening to."
         )
-        help_message = build_help_message(context.bot)
+        commands_msg, handlers_msg = build_help_messages(context.bot)
 
         if self.recipient is not None:
             await context.bot.messages.send(
                 SendMessage(recipient=self.recipient, text=welcome_message)
             )
             await context.bot.messages.send(
-                SendMessage(recipient=self.recipient, text=help_message)
+                SendMessage(recipient=self.recipient, text=commands_msg)
+            )
+            await context.bot.messages.send(
+                SendMessage(recipient=self.recipient, text=handlers_msg)
             )
         else:
             print(welcome_message)  # noqa: T201
-            print(help_message)  # noqa: T201
+            print(commands_msg)  # noqa: T201
+            print(handlers_msg)  # noqa: T201

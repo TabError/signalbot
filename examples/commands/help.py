@@ -9,7 +9,7 @@ class HasHelpMessage(Protocol):
     def help_message(self) -> str: ...
 
 
-def build_help_message(bot: SignalBot) -> str:
+def build_help_messages(bot: SignalBot) -> tuple[str, str]:
     commands = []
     handlers = []
     for registered, _, _, _ in bot.handlers:
@@ -20,15 +20,17 @@ def build_help_message(bot: SignalBot) -> str:
         else:
             handlers.append(registered.help_message())
 
-    sections = []
+    command_sections = []
     if commands:
         entries = "\n".join(f"  {entry}" for entry in commands)
-        sections.append(f"Commands:\n{entries}")
+        command_sections.append(f"Commands:\n{entries}")
+
+    handler_sections = []
     if handlers:
         entries = "\n".join(f"  {entry}" for entry in handlers)
-        sections.append(f"Handlers:\n{entries}")
+        handler_sections.append(f"Handlers:\n{entries}")
 
-    return "\n".join(sections)
+    return "\n".join(command_sections), "\n".join(handler_sections)
 
 
 class HelpCommand(DataMessageHandler):
@@ -37,4 +39,6 @@ class HelpCommand(DataMessageHandler):
 
     @text_triggered("help")
     async def handle_data_message(self, context: DataMessageContext) -> None:
-        await context.send(SendMessage(text=build_help_message(context.bot)))
+        commands_msg, handlers_msg = build_help_messages(context.bot)
+        await context.send(SendMessage(text=commands_msg))
+        await context.send(SendMessage(text=handlers_msg))
