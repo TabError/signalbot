@@ -13,7 +13,7 @@ if TYPE_CHECKING:
         UpdateContact,
         UpdateGroup,
     )
-    from signalbot.bot_protocol import BotProtocol
+    from signalbot.bot import SignalBot
 
 MessageT = TypeVar("MessageT", bound="ReceivedMessage")
 
@@ -25,7 +25,7 @@ class Context(Generic[MessageT]):
     the bot's methods manually.
     """
 
-    def __init__(self, bot: BotProtocol, message: MessageT) -> None:
+    def __init__(self, bot: SignalBot, message: MessageT) -> None:
         self.bot = bot
         self.message = message
         self._logger = logging.getLogger(LOGGER_NAME)

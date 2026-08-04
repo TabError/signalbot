@@ -39,7 +39,7 @@ if TYPE_CHECKING:
     import logging
 
     from signalbot.api import SignalAPI
-    from signalbot.bot_protocol import BotProtocol
+    from signalbot.bot import SignalBot
     from signalbot.groups import GroupRegistry
 
 AnyHandler: TypeAlias = (
@@ -68,7 +68,7 @@ class MessagePipeline:
 
     def __init__(
         self,
-        bot: BotProtocol,
+        bot: SignalBot,
         signal: SignalAPI,
         groups: GroupRegistry,
         logger: logging.Logger,

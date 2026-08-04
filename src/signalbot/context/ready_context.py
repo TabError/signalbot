@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from signalbot.bot_protocol import BotProtocol
+    from signalbot.bot import SignalBot
 
 
 class ReadyContext:
@@ -12,5 +12,5 @@ class ReadyContext:
     is no originating message, so this only gives access to the bot.
     """
 
-    def __init__(self, bot: BotProtocol) -> None:
+    def __init__(self, bot: SignalBot) -> None:
         self.bot = bot
