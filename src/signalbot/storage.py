@@ -5,6 +5,7 @@ import contextlib
 with contextlib.suppress(ModuleNotFoundError):
     import redis
 
+import enum
 import json
 import sqlite3
 from abc import ABC, abstractmethod
@@ -63,8 +64,34 @@ class Storage(ABC):
         """
 
 
+class StorageBackend(enum.Enum):
+    """Storage backend a `StorageError` was raised from."""
+
+    SQLITE = "SQLite"
+    REDIS = "Redis"
+
+
+class StorageOperation(enum.Enum):
+    """Storage operation a `StorageError` was raised from."""
+
+    LOAD = "load"
+    SAVE = "save"
+    DELETE = "delete"
+
+
 class StorageError(SignalBotError):
     """Raised when a storage backend operation fails."""
+
+    def __init__(
+        self,
+        backend: StorageBackend,
+        operation: StorageOperation,
+        cause: Exception,
+    ) -> None:
+        super().__init__(f"{backend.value} {operation.value} failed: {cause}")
+        self.backend = backend
+        self.operation = operation
+        self.cause = cause
 
 
 class SQLiteStorage(Storage):
@@ -115,8 +142,7 @@ class SQLiteStorage(Storage):
             ).fetchone()[0]
             return json.loads(result)
         except (sqlite3.Error, TypeError, json.JSONDecodeError) as e:
-            error_msg = f"SQLite load failed: {e}"
-            raise StorageError(error_msg) from e
+            raise StorageError(StorageBackend.SQLITE, StorageOperation.LOAD, e) from e
 
     def save(self, key: str, value: JSONValue) -> None:
         """Serialize and save a value to SQLite storage.
@@ -137,8 +163,7 @@ class SQLiteStorage(Storage):
             )
             self._sqlite.commit()
         except (sqlite3.Error, TypeError) as e:
-            error_msg = f"SQLite save failed: {e}"
-            raise StorageError(error_msg) from e
+            raise StorageError(StorageBackend.SQLITE, StorageOperation.SAVE, e) from e
 
     def delete(self, key: str) -> None:
         """Delete a key from SQLite storage.
@@ -153,8 +178,7 @@ class SQLiteStorage(Storage):
             self._sqlite.execute("DELETE FROM signalbot WHERE key = ?", [key])
             self._sqlite.commit()
         except sqlite3.Error as e:
-            error_msg = f"SQLite delete failed: {e}"
-            raise StorageError(error_msg) from e
+            raise StorageError(StorageBackend.SQLITE, StorageOperation.DELETE, e) from e
 
 
 class RedisStorage(Storage):
@@ -197,14 +221,12 @@ class RedisStorage(Storage):
             result_bytes = self._redis.get(key)
             result_str = result_bytes.decode("utf-8")
         except (redis.RedisError, AttributeError) as e:
-            error_msg = f"Redis load failed: {e}"
-            raise StorageError(error_msg) from e
+            raise StorageError(StorageBackend.REDIS, StorageOperation.LOAD, e) from e
 
         try:
             return json.loads(result_str)
         except json.JSONDecodeError as e:
-            error_msg = f"Redis load failed: {e}"
-            raise StorageError(error_msg) from e
+            raise StorageError(StorageBackend.REDIS, StorageOperation.LOAD, e) from e
 
     def save(self, key: str, value: JSONValue) -> None:
         """Serialize and save a value to Redis storage.
@@ -220,8 +242,7 @@ class RedisStorage(Storage):
             serialized = json.dumps(value)
             self._redis.set(key, serialized)
         except (redis.RedisError, TypeError) as e:
-            error_msg = f"Redis save failed: {e}"
-            raise StorageError(error_msg) from e
+            raise StorageError(StorageBackend.REDIS, StorageOperation.SAVE, e) from e
 
     def delete(self, key: str) -> None:
         """Delete a key from Redis storage.
@@ -235,5 +256,4 @@ class RedisStorage(Storage):
         try:
             self._redis.delete(key)
         except redis.RedisError as e:
-            error_msg = f"Redis delete failed: {e}"
-            raise StorageError(error_msg) from e
+            raise StorageError(StorageBackend.REDIS, StorageOperation.DELETE, e) from e

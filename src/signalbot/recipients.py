@@ -34,8 +34,7 @@ class RecipientResolver:
         if group_id is not None:
             return group_id
 
-        error_msg = "Cannot resolve recipient."
-        raise SignalBotError(error_msg)
+        raise SignalBotError.cannot_resolve_recipient()
 
     def _is_phone_number(self, phone_number: str) -> bool:
         try:
