@@ -253,11 +253,14 @@ async def test_parse_type_own_message(signal_api: SignalAPI):
 
 async def test_parse_text_own_message(signal_api: SignalAPI):
     message = await parse(signal_api, RAW_SYNC_MESSAGE)
+    assert isinstance(message, DataMessage)
     assert message.text == TEXT
 
 
 async def test_parse_group_own_message(signal_api: SignalAPI):
     message = await parse(signal_api, RAW_SYNC_MESSAGE)
+    assert isinstance(message, DataMessage)
+    assert message.group_info is not None
     assert message.group_info.group_id == GROUP_ID
 
 
@@ -281,11 +284,14 @@ async def test_parse_type_foreign_message(signal_api: SignalAPI):
 
 async def test_parse_text_foreign_message(signal_api: SignalAPI):
     message = await parse(signal_api, RAW_DATA_MESSAGE)
+    assert isinstance(message, DataMessage)
     assert message.text == TEXT
 
 
 async def test_parse_group_foreign_message(signal_api: SignalAPI):
     message = await parse(signal_api, RAW_DATA_MESSAGE)
+    assert isinstance(message, DataMessage)
+    assert message.group_info is not None
     assert message.group_info.group_id == GROUP_ID
 
 
@@ -301,6 +307,7 @@ async def test_remote_delete_data_message(signal_api: SignalAPI):
     message = await parse(signal_api, RAW_REMOTE_DELETE_DATA_MESSAGE)
     assert isinstance(message, RemoteDelete)
     assert message.timestamp == REMOTE_DELETE_TIMESTAMP
+    assert message.group_info is not None
     assert message.group_info.group_id == GROUP_ID
 
 
@@ -308,6 +315,7 @@ async def test_remote_delete_sync_message(signal_api: SignalAPI):
     message = await parse(signal_api, RAW_REMOTE_DELETE_SYNC_MESSAGE)
     assert isinstance(message, RemoteDelete)
     assert message.timestamp == REMOTE_DELETE_TIMESTAMP
+    assert message.group_info is not None
     assert message.group_info.group_id == GROUP_ID
 
 
@@ -348,6 +356,7 @@ async def test_attachments(signal_api: SignalAPI, mocker: MockerFixture):
     message = await parse(signal_api, RAW_ATTACHMENT_MESSAGE)
 
     assert isinstance(message, DataMessage)
+    assert message.attachments is not None
     assert message.attachments[0].base64_content == base64.b64encode(
         attachment_bytes
     ).decode("utf-8")
@@ -359,6 +368,7 @@ async def test_attachments(signal_api: SignalAPI, mocker: MockerFixture):
 
 async def test_parse_user_chat_message(signal_api: SignalAPI):
     message = await parse(signal_api, RAW_USER_CHAT_MESSAGE)
+    assert isinstance(message, DataMessage)
     assert message.source_number == SOURCE
     assert message.text == TEXT
     assert message.timestamp == TIMESTAMP
