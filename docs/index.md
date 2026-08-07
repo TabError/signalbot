@@ -24,7 +24,7 @@ The bot can do a lot more, here is a quick overview of the most common methods:
 - `bot.messages.start_typing(recipient)`: Start typing
 - `bot.messages.stop_typing(recipient)`: Stop typing
 - `bot.messages.edit(new_message, original_message)`: Edit a previously sent message
-- `bot.messages.remote_delete(remote_delete_request)`: Delete a previously sent message
+- `bot.messages.remote_delete(sent_message)`: Delete a previously sent message
 - `bot.reactions.react(message, emoji)`: React to a message
 - `bot.receipts.send(message, receipt_type)`: Mark a message as read
 - `bot.group_actions.update(update_group_request)`: Change group settings

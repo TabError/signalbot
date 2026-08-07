@@ -18,7 +18,7 @@ class DeleteCommand(DataMessageHandler):
             SendMessage(text="This message will be deleted in two seconds.")
         )
         await asyncio.sleep(2)
-        await context.remote_delete(timestamp=sent_message.timestamp)
+        await context.remote_delete(sent_message)
 
 
 class DeleteLocalAttachmentCommand(DataMessageHandler):

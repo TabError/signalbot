@@ -3,14 +3,13 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from signalbot.actions.base import BotActionsBase
-from signalbot.api.generated import TypingIndicatorRequest
+from signalbot.api.generated import RemoteDeleteRequest, TypingIndicatorRequest
 from signalbot.api.outgoing import SentMessage
 
 if TYPE_CHECKING:
     import logging
 
     from signalbot.api import SignalAPI
-    from signalbot.api.generated import RemoteDeleteRequest
     from signalbot.api.outgoing import SendMessage, SendMessageMultiple
     from signalbot.recipients import RecipientResolver
 
@@ -91,18 +90,23 @@ class MessageActions(BotActionsBase):
 
     async def remote_delete(
         self,
-        remote_delete_request: RemoteDeleteRequest,
+        sent_message: SentMessage,
     ) -> int:
         """Delete a previously sent message.
 
         Args:
-            remote_delete_request: Request payload for remote delete.
+            sent_message: The message to delete.
 
         Returns:
             The timestamp of the delete action.
         """
-        remote_delete_request.recipient = self._recipients.resolve(
-            remote_delete_request.recipient
+        if sent_message.recipient is None:
+            error_msg = "Recipient must be set in SentMessage"
+            raise ValueError(error_msg)
+
+        remote_delete_request = RemoteDeleteRequest(
+            recipient=self._recipients.resolve(sent_message.recipient),
+            timestamp=sent_message.timestamp,
         )
 
         remote_delete_response = await self._signal.messages.remote_delete(
@@ -111,7 +115,7 @@ class MessageActions(BotActionsBase):
         ret_timestamp = int(remote_delete_response.timestamp)
         self._logger.info(
             "[Bot] Deleted message with timestamp %s",
-            remote_delete_request.timestamp,
+            sent_message.timestamp,
         )
 
         return ret_timestamp

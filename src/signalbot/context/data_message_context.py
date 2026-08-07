@@ -3,7 +3,7 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
-from signalbot.api.generated import MessageMention, RemoteDeleteRequest
+from signalbot.api.generated import MessageMention
 from signalbot.api.incoming import DataMessage, EditMessage
 from signalbot.context.context import Context
 
@@ -49,17 +49,10 @@ class DataMessageContext(Context[DataMessage | EditMessage]):
         but with the recipient set to the message's recipient."""
         await self.bot.reactions.react(self.message, emoji)
 
-    async def remote_delete(self, timestamp: int) -> int:
+    async def remote_delete(self, sent_message: SentMessage) -> int:
         """Same as
-        [signalbot.MessageActions.remote_delete()](actions.md#signalbot.actions.MessageActions.remote_delete)
-        but with the recipient set to the message's recipient. timestamp is the
-        timestamp of the message to delete (usually a message the bot previously
-        sent)."""
-        remote_delete_request = RemoteDeleteRequest(
-            recipient=self.message.source_or_group_id(),
-            timestamp=timestamp,
-        )
-        return await self.bot.messages.remote_delete(remote_delete_request)
+        [signalbot.MessageActions.remote_delete()](actions.md#signalbot.actions.MessageActions.remote_delete)."""
+        return await self.bot.messages.remote_delete(sent_message)
 
     async def send_receipt(self, receipt_type: ReceiptType) -> None:
         """Same as
