@@ -41,26 +41,26 @@ class Context(Generic[MessageT]):
         message: SendMessage,
     ) -> SentMessage:
         """Same as
-         [signalbot.MessageActions.send()](bot.md#signalbot.actions.MessageActions.send)
+         [signalbot.MessageActions.send()](actions.md#signalbot.actions.MessageActions.send)
         but with the recipient set to the message's recipient."""
         message.recipient = self.message.source_or_group_id()
         return await self.bot.messages.send(message)
 
     async def start_typing(self) -> None:
         """Same as
-        [signalbot.MessageActions.start_typing()](bot.md#signalbot.actions.MessageActions.start_typing)
+        [signalbot.MessageActions.start_typing()](actions.md#signalbot.actions.MessageActions.start_typing)
          but with the recipient set to the message's recipient."""
         await self.bot.messages.start_typing(self.message.source_or_group_id())
 
     async def stop_typing(self) -> None:
         """Same as
-        [signalbot.MessageActions.stop_typing()](bot.md#signalbot.actions.MessageActions.stop_typing)
+        [signalbot.MessageActions.stop_typing()](actions.md#signalbot.actions.MessageActions.stop_typing)
          but with the recipient set to the message's recipient."""
         await self.bot.messages.stop_typing(self.message.source_or_group_id())
 
     async def update_contact(self, update_contact: UpdateContact) -> None:
         """Same as
-        [signalbot.ContactActions.update()](bot.md#signalbot.actions.ContactActions.update)
+        [signalbot.ContactActions.update()](actions.md#signalbot.actions.ContactActions.update)
          but with the recipient set to the message's recipient."""
         if self.message.is_group():
             error_msg = "Cannot update contact for a group message"
@@ -73,7 +73,7 @@ class Context(Generic[MessageT]):
         update_group: UpdateGroup,
     ) -> None:
         """Same as
-        [signalbot.GroupActions.update()](bot.md#signalbot.actions.GroupActions.update)
+        [signalbot.GroupActions.update()](actions.md#signalbot.actions.GroupActions.update)
          but with the group id or name set to the message's recipient."""
         if self.message.is_private():
             error_msg = "Cannot update group for a private message"

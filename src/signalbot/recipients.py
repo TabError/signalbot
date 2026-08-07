@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 
 class RecipientResolver:
     """Resolves a phone number, UUID, username, or group ID/name into the
-    UUID or group internal ID.
+    UUID or group ID.
     """
 
     def __init__(self, groups: GroupRegistry) -> None:
