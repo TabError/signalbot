@@ -32,7 +32,7 @@ class ReactionDetailsHandler(ReactionHandler):
             SendMessage(
                 text=(
                     f"{context.message.source_name} reacted with {reaction.emoji} "
-                    f"on message that was sent by {reaction.target_author} at "
+                    f"on a message that was sent by {reaction.target_author} at "
                     f"{message_sent_at}"
                 )
             )
