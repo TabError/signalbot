@@ -66,7 +66,7 @@ def _build_signal_api(config: Config, logger: logging.Logger) -> SignalAPI:
 
 def _build_event_loop() -> asyncio.AbstractEventLoop:
     try:
-        return asyncio.get_event_loop()
+        return asyncio.get_running_loop()
     except RuntimeError:
         event_loop = asyncio.new_event_loop()
         asyncio.set_event_loop(event_loop)

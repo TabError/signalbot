@@ -409,7 +409,7 @@ class TestPipelineStop(TestCommon):
         async def self_stopping_consumer() -> None:
             await pipeline.stop()
 
-        task = asyncio.ensure_future(self_stopping_consumer())
+        task = asyncio.create_task(self_stopping_consumer())
         pipeline._consume_tasks.add(task)
 
         await asyncio.wait_for(task, timeout=1)
