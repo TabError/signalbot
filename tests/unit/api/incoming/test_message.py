@@ -39,15 +39,9 @@ class TestMessage:
     expected_local_filename = "1qeCjjWOOo9Gxv8pfdCw.png"
     expected_remote_delete_timestamp = 1632576001600
 
-    signal_service = "127.0.0.1:8080"
-    phone_number = "+49123456789"
-
     @pytest.fixture(autouse=True)
-    def setup(self):
-        self.signal_api = SignalAPI(
-            TestMessage.signal_service,
-            TestMessage.phone_number,
-        )
+    def _use_signal_api(self, signal_api: SignalAPI) -> None:
+        self.signal_api = signal_api
 
     # Own Message
 

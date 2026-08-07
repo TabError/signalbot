@@ -2,7 +2,6 @@ import asyncio
 
 import aiohttp
 import pytest
-import pytest_asyncio
 from packaging.version import InvalidVersion
 from pytest_mock import MockerFixture
 
@@ -39,16 +38,9 @@ class TestCommon:
     group_id = "group.OyZzqio1xDmYiLsQ1VsqRcUFOU4tK2TcECmYt2KeozHJwglMBHAPS7jlkrm="
     internal_id = "Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8="
 
-    @pytest_asyncio.fixture(autouse=True)
-    async def setup(self):
-        config = {
-            "signal_service": self.signal_service,
-            "phone_number": self.phone_number,
-            "storage": {"type": "in-memory"},
-        }
-        self.signal_bot = SignalBot(config)
-        yield
-        await self.signal_bot.close()
+    @pytest.fixture(autouse=True)
+    def _use_signal_bot(self, signal_bot: SignalBot) -> None:
+        self.signal_bot = signal_bot
 
 
 class TestProducer(TestCommon):
