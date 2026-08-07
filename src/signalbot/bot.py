@@ -5,7 +5,6 @@ import contextlib
 import signal
 from typing import TYPE_CHECKING
 
-from apscheduler.schedulers.asyncio import AsyncIOScheduler
 from packaging.version import Version
 
 from signalbot.actions import (
@@ -18,23 +17,13 @@ from signalbot.actions import (
     ReactionActions,
     ReceiptActions,
 )
-from signalbot.api import SignalAPI
-from signalbot.auth import BasicAuthentication, BearerAuthentication
-from signalbot.bot_config import (
-    BasicAuthConfig,
-    BearerAuthConfig,
-    Config,
-    InMemoryConfig,
-    RedisConfig,
-    SQLiteConfig,
-    load_config,
-)
+from signalbot.bot_config import Config, load_config
+from signalbot.bot_init import build_components
 from signalbot.errors import SignalBotError
 from signalbot.groups import GroupRegistry
 from signalbot.logger import initialize_logger
 from signalbot.pipeline import AnyHandler, HandlerList, MessagePipeline
 from signalbot.recipients import RecipientResolver
-from signalbot.storage import RedisStorage, SQLiteStorage
 from signalbot.utils.retry import rerun_on_exception
 
 if TYPE_CHECKING:
@@ -95,81 +84,13 @@ class SignalBot:
         self.init_task: None | asyncio.Task = None
         self._shutdown_task: None | asyncio.Task = None
 
-        self._signal = self._init_signal_api()
-        self._event_loop = self._init_event_loop()
-        self.scheduler = self._init_scheduler()
-        self.storage = self._init_storage()
+        components = build_components(self.config, self._logger)
+        self._signal = components.signal
+        self._event_loop = components.event_loop
+        self.scheduler = components.scheduler
+        self.storage = components.storage
+
         self._init_actions()
-
-    def _resolve_auth(self) -> BasicAuthentication | BearerAuthentication | None:
-        if isinstance(self.config.auth, BasicAuthConfig):
-            return BasicAuthentication(
-                self.config.auth.username, self.config.auth.password
-            )
-        if isinstance(self.config.auth, BearerAuthConfig):
-            return BearerAuthentication(self.config.auth.token)
-
-        if self.config.auth is not None:
-            error_msg = f"Unsupported auth type '{self.config.auth}', "
-            error_msg += "no authentication will be used."
-            self._logger.warning(error_msg)
-        return None
-
-    def _init_signal_api(self) -> SignalAPI:
-        auth = self._resolve_auth()
-        try:
-            return SignalAPI(
-                self.config.signal_service,
-                self.config.phone_number,
-                auth,
-                download_attachments=self.config.download_attachments,
-                connection_mode=self.config.connection_mode,
-            )
-        except KeyError as e:
-            error_msg = "Could not initialize SignalAPI with given config"
-            raise SignalBotError(error_msg) from e
-
-    def _init_event_loop(self) -> asyncio.AbstractEventLoop:
-        try:
-            return asyncio.get_event_loop()
-        except RuntimeError:
-            event_loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(event_loop)
-            return event_loop
-
-    def _init_scheduler(self) -> AsyncIOScheduler:
-        try:
-            return AsyncIOScheduler(event_loop=self._event_loop)
-        except (TypeError, ValueError, LookupError) as e:
-            error_msg = f"Could not initialize scheduler: {e}"
-            raise SignalBotError(error_msg) from e
-
-    def _init_storage(self) -> SQLiteStorage | RedisStorage:
-        if isinstance(self.config.storage, SQLiteConfig):
-            storage = SQLiteStorage(
-                self.config.storage.db,
-                check_same_thread=self.config.storage.check_same_thread,
-            )
-            self._logger.info("sqlite storage initialized")
-        elif isinstance(self.config.storage, RedisConfig):
-            storage = RedisStorage(
-                self.config.storage.host,
-                self.config.storage.port,
-                self.config.storage.password,
-            )
-            self._logger.info("redis storage initialized")
-        elif isinstance(self.config.storage, InMemoryConfig):
-            storage = SQLiteStorage()
-            self._logger.info("in-memory storage initialized")
-        else:
-            storage = SQLiteStorage()
-            self._logger.warning(
-                " Using in-memory storage."
-                " Restarting will delete the storage!"
-                " Add storage: {'type': 'in-memory'}"
-                " to the config to silence this error.",
-            )
-        return storage
 
     def _init_actions(self) -> None:
         self.groups = GroupRegistry(self._signal, self._logger)
