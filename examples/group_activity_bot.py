@@ -32,7 +32,7 @@ class GroupActivityHandler(DataMessageHandler, GroupUpdateHandler):
         if group_info.group_id is None:
             return
 
-        who = context.message.source_name or context.message.source_name
+        who = context.message.source_name or context.message.source_number
         when = local_datetime_str_from_timestamp(context.message.timestamp)
         self._last_update[group_info.group_id] = (who or "someone", when)
 
