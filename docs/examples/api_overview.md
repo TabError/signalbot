@@ -2,9 +2,9 @@ This bot showcases how to use most of the features in the library.
 Check the [commands section](#commands) and [handlers section](#handlers) to see the implementation of each command and handler.
 The code shown here can be found the [examples folder](https://github.com/signalbot-org/signalbot/tree/main/examples).
 
-This bot use additional libraries, install them with:
+This bot uses additional libraries. If you cloned the [repository](https://github.com/signalbot-org/signalbot), install them with:
 ```bash
-pip install signalbot[examples]
+uv sync --group examples
 ```
 
 <br>Bot code:
@@ -18,6 +18,13 @@ pip install signalbot[examples]
 <details><summary>AttachmentCommand</summary>
 ``` python
 --8<-- "examples/commands/attachments.py"
+```
+</details>
+
+
+<details><summary>CloseCommand</summary>
+``` python
+--8<-- "examples/commands/close.py"
 ```
 </details>
 
@@ -39,6 +46,13 @@ pip install signalbot[examples]
 <details><summary>HelpCommand</summary>
 ``` python
 --8<-- "examples/commands/help.py"
+```
+</details>
+
+
+<details><summary>LinkPreviewCommand</summary>
+``` python
+--8<-- "examples/commands/link_preview.py"
 ```
 </details>
 

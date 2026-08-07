@@ -29,10 +29,10 @@ from signalbot import (
     Config,
     DataMessageContext,
     DataMessageHandler,
+    SendMessage,
     SignalBot,
     text_triggered,
 )
-from signalbot.api.outgoing import SendMessage
 
 
 class PingCommand(DataMessageHandler):
@@ -42,7 +42,12 @@ class PingCommand(DataMessageHandler):
 
 
 if __name__ == "__main__":
-    bot = SignalBot(Config(phone_number=os.environ["PHONE_NUMBER"]))
+    bot = SignalBot(
+        Config(
+            phone_number=os.environ["PHONE_NUMBER"],
+            logging_level=logging.INFO,
+        )
+    )
     bot.register(PingCommand())
     bot.start()
 ```

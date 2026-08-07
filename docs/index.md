@@ -20,7 +20,7 @@ The bot can do a lot more, here is a quick overview of the most common methods:
 - `bot.register(command, contacts=False, groups=["Hello World"])`: Only listen in the "Hello World" group
 - `bot.register(command, contacts=["+49123456789"], groups=False)`: Only respond to one contact
 - `bot.start()`: Start the bot
-- `bot.messages.send(recipient, text)`: Send a new message
+- `bot.messages.send(SendMessage(recipient=..., text=...))`: Send a new message
 - `bot.messages.start_typing(recipient)`: Start typing
 - `bot.messages.stop_typing(recipient)`: Stop typing
 - `bot.messages.edit(new_message, original_message)`: Edit a previously sent message

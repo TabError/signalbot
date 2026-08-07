@@ -9,7 +9,7 @@ The configuration of the bot can be specified in several ways.
 Create a [Config][signalbot.Config] instance:
 
 ```python
-from signalbot import SignalBot, Config, ConnectionMode
+from signalbot import SignalBot, Config
 
 config = Config(phone_number="+1234567890")
 
@@ -113,7 +113,7 @@ Enables usage of an auth-enabled `signal-cli-rest-api` instance (behind a proxy)
 Username and password based authentication using the [BasicAuthConfig][signalbot.BasicAuthConfig] class.
 
 ```python
-from signalbot import BasicAuthConfig, Config, ConnectionMode, SignalBot
+from signalbot import BasicAuthConfig, Config, SignalBot
 
 config = Config(
     phone_number="+1234567890",
@@ -128,7 +128,7 @@ bot.start()
 Token based authentication using the [BearerAuthConfig][signalbot.BearerAuthConfig] class.
 
 ```python
-from signalbot import BearerAuthConfig, Config, ConnectionMode, SignalBot
+from signalbot import BearerAuthConfig, Config, SignalBot
 
 config = Config(
     phone_number="+1234567890",

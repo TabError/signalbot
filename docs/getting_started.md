@@ -95,6 +95,6 @@ Confirm that the bot received a raw message, that the consumer worked on the mes
 
 ## Mock chat
 You can mock receiving and sending messages to speed up development time.
-To do so, you can use [signalbot.test_utils.ChatTestCase](https://github.com/signalbot-org/signalbot/blob/a543f8a967c81325bc83035f68f23561556c11a6/src/signalbot/utils/chat_testing.py#L48) which sets up a "skeleton" bot.
-Then, you can send messages using the [@mock_chat](https://github.com/signalbot-org/signalbot/blob/a543f8a967c81325bc83035f68f23561556c11a6/src/signalbot/utils/chat_testing.py#L14) decorator.
-You can find an example implementation in [tests/test_chat.py](https://github.com/signalbot-org/signalbot/blob/main/tests/test_chat.py).
+To do so, you can use [signalbot.test_utils.ChatTestCase](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/test_utils/chat_testing.py#L77) which sets up a "skeleton" bot.
+Then, you can send messages using the [@mock_chat](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/test_utils/chat_testing.py#L32) decorator.
+You can find an example implementation in [examples/commands/tests/test_ping.py](https://github.com/signalbot-org/signalbot/blob/main/examples/commands/tests/test_ping.py).
