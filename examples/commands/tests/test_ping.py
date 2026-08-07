@@ -11,7 +11,6 @@ class TestPingChatTest(ChatTestCase):
         self.setup()
         self.signal_bot.register(PingCommand())
 
-    @pytest.mark.asyncio
     @pytest.mark.filterwarnings(
         "ignore:There is no current event loop:DeprecationWarning"
     )

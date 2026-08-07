@@ -59,7 +59,6 @@ class SendReceiveGetGroupsMocks:
     get_groups_mock: GetAllMock
 
 
-@pytest.mark.asyncio
 class TestCommon(ChatTestCase):
     def mock_send_receive_get_groups(
         self, mocker: MockerFixture
@@ -257,7 +256,6 @@ class SchnickSchnackSchnuckCommand(DataMessageHandler):
             await context.send(SendMessage(text="schnuck"))
 
 
-@pytest.mark.asyncio
 @pytest.mark.filterwarnings("ignore:There is no current event loop:DeprecationWarning")
 class TestSchnickSchnackSchnuckCommand(ChatTestCase):
     @pytest.fixture(autouse=True)

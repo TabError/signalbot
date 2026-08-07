@@ -14,7 +14,7 @@ if TYPE_CHECKING:
 def _make_mock_redis_module() -> ModuleType:
     """Return a fake redis module with a Redis class."""
     mock_redis_mod = ModuleType("redis")
-    mock_redis_mod.Redis = MagicMock()
+    mock_redis_mod.__dict__["Redis"] = MagicMock()
     return mock_redis_mod
 
 

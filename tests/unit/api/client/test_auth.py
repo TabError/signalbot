@@ -1,76 +1,64 @@
 import base64
 
 import aiohttp
-import pytest
 from pytest_mock import MockerFixture
 
 from signalbot import SignalAPI
 from signalbot.api.generated import SendMessageV2
 from signalbot.auth import Authentication, BasicAuthentication, BearerAuthentication
+from tests.conftest import GROUP_ID, PHONE_NUMBER, SIGNAL_SERVICE
+from tests.unit.api.client.conftest import HTTP_OK
 
 
-class TestAuth:
-    signal_service = "127.0.0.1:8080"
-    phone_number = "+49123456789"
-    group_id = "group.OyZzqio1xDmYiLsQ1VsqRcUFOU4tK2TcECmYt2KeozHJwglMBHAPS7jlkrm="
+async def _send_and_capture_auth_header(
+    mocker: MockerFixture, auth: Authentication | None
+) -> str | None:
+    signal_api = SignalAPI(SIGNAL_SERVICE, PHONE_NUMBER, auth=auth)
 
-    async def _send_with_auth_helper(
-        self, mocker: MockerFixture, auth: Authentication | None
-    ) -> None:
-        signal_api = SignalAPI(self.signal_service, self.phone_number, auth=auth)
+    json_mock = mocker.AsyncMock(return_value={"timestamp": "1638715559464"})
+    mock_session = mocker.AsyncMock()
+    mock_session.post.return_value = mocker.AsyncMock(
+        spec=aiohttp.ClientResponse,
+        status=HTTP_OK,
+        json=json_mock,
+    )
+    mocker.patch("aiohttp.ClientSession", return_value=mock_session)
 
-        status_code = 201
-        mock2 = mocker.AsyncMock()
-        mock2.return_value = {"timestamp": "1638715559464"}
+    data_message = SendMessageV2(
+        message="Hello World!",
+        number=PHONE_NUMBER,
+        recipients=[GROUP_ID],
+    )
+    resp = await signal_api.messages.send(data_message)
 
-        mock_session = mocker.AsyncMock()
-        mock_session.post.return_value = mocker.AsyncMock(
-            spec=aiohttp.ClientResponse,
-            status_code=status_code,
-            json=mock2,
-        )
+    assert resp.timestamp == "1638715559464"
 
-        mocker.patch("aiohttp.ClientSession", return_value=mock_session)
+    _, kwargs = mock_session.post.call_args
+    return kwargs["headers"].get("Authorization")
 
-        data_message = SendMessageV2(
-            message="Hello World!",
-            number=self.phone_number,
-            recipients=[self.group_id],
-        )
 
-        resp = await signal_api.messages.send(data_message)
+async def test_send_with_basic_auth(mocker: MockerFixture):
+    username = "user"
+    password = "pw"
+    credentials = f"{username}:{password}".encode()
+    credential_string = base64.b64encode(credentials).decode("utf-8")
 
-        _, kwargs = mock_session.post.call_args
+    auth = BasicAuthentication(username=username, password=password)
+    auth_header = await _send_and_capture_auth_header(mocker, auth)
 
-        assert resp.timestamp == "1638715559464"
-        return kwargs["headers"].get("Authorization")
+    assert auth_header == f"Basic {credential_string}"
 
-    @pytest.mark.asyncio
-    async def test_send_with_basic_auth(self, mocker: MockerFixture):
-        username = "user"
-        password = "pw"
 
-        credentials = f"{username}:{password}".encode()
-        credential_string = base64.b64encode(credentials).decode("utf-8")
+async def test_send_with_bearer_auth(mocker: MockerFixture):
+    token = "token"
 
-        auth = BasicAuthentication(username=username, password=password)
+    auth = BearerAuthentication(token=token)
+    auth_header = await _send_and_capture_auth_header(mocker, auth)
 
-        auth_header = await self._send_with_auth_helper(mocker, auth)
+    assert auth_header == f"Bearer {token}"
 
-        assert auth_header == f"Basic {credential_string}"
 
-    @pytest.mark.asyncio
-    async def test_send_with_bearer_auth(self, mocker: MockerFixture):
-        token = "token"
+async def test_send_without_auth(mocker: MockerFixture):
+    auth_header = await _send_and_capture_auth_header(mocker, None)
 
-        auth = BearerAuthentication(token=token)
-
-        auth_header = await self._send_with_auth_helper(mocker, auth)
-
-        assert auth_header == f"Bearer {token}"
-
-    @pytest.mark.asyncio
-    async def test_send_without_auth(self, mocker: MockerFixture):
-        auth_header = await self._send_with_auth_helper(mocker, None)
-
-        assert auth_header is None
+    assert auth_header is None

@@ -1,164 +1,140 @@
+from collections.abc import Callable
+
 import aiohttp
-import pytest
 from pytest_mock import MockerFixture, MockType
 
 from signalbot import ConnectionMode, SignalAPI
 from signalbot.api.client.base import HEALTH_CHECK_GOOD_STATUS
 from signalbot.api.client.general import HealthCheckError
 from signalbot.api.generated import About
+from tests.conftest import PHONE_NUMBER, SIGNAL_SERVICE
 
-HTTP_OK = 200
+
+async def test_about(
+    signal_api: SignalAPI, mock_json_response: Callable[[str, dict | list], MockType]
+):
+    about = About(
+        build=1,
+        capabilities={},
+        mode="json-rpc",
+        version="0.97",
+        versions=["v1"],
+    )
+    mock_json_response("get", about.model_dump(by_alias=True))
+
+    resp = await signal_api.general.about()
+
+    assert resp == about
 
 
-class TestGeneral:
-    signal_service = "127.0.0.1:8080"
-    phone_number = "+49123456789"
+async def test_health_check(signal_api: SignalAPI, mocker: MockerFixture):
+    mock = mocker.patch("aiohttp.ClientSession.get", new_callable=mocker.AsyncMock)
+    mock.return_value = mocker.AsyncMock(
+        spec=aiohttp.ClientResponse,
+        status=HEALTH_CHECK_GOOD_STATUS,
+    )
 
-    @pytest.fixture(autouse=True)
-    def _use_signal_api(self, signal_api: SignalAPI) -> None:
-        self.signal_api = signal_api
+    resp = await signal_api.general.health_check()
 
-    def _mock_json_response(
-        self, mocker: MockerFixture, verb: str, payload: dict | list
-    ) -> MockType:
-        mock2 = mocker.AsyncMock()
-        mock2.return_value = payload
-        mock = mocker.patch(
-            f"aiohttp.ClientSession.{verb}", new_callable=mocker.AsyncMock
-        )
-        mock.return_value = mocker.AsyncMock(
-            spec=aiohttp.ClientResponse,
-            status=HTTP_OK,
-            json=mock2,
-        )
-        return mock
+    assert mock.call_count == 1
+    assert resp is mock.return_value
 
-    @pytest.mark.asyncio
-    async def test_about(self, mocker: MockerFixture):
-        about = About(
-            build=1,
-            capabilities={},
-            mode="json-rpc",
-            version="0.97",
-            versions=["v1"],
-        )
-        self._mock_json_response(mocker, "get", about.model_dump(by_alias=True))
 
-        resp = await self.signal_api.general.about()
+async def test_check_signal_service_prefers_configured_protocol(mocker: MockerFixture):
+    signal_api = SignalAPI(
+        SIGNAL_SERVICE,
+        PHONE_NUMBER,
+        connection_mode=ConnectionMode.HTTP_ONLY,
+    )
 
-        assert resp == about
+    health_check_mock = mocker.patch.object(
+        signal_api.general, "health_check", new_callable=mocker.AsyncMock
+    )
+    health_check_mock.return_value = mocker.Mock(status=HEALTH_CHECK_GOOD_STATUS)
 
-    @pytest.mark.asyncio
-    async def test_health_check(self, mocker: MockerFixture):
-        mock = mocker.patch("aiohttp.ClientSession.get", new_callable=mocker.AsyncMock)
-        mock.return_value = mocker.AsyncMock(
-            spec=aiohttp.ClientResponse,
-            status=HEALTH_CHECK_GOOD_STATUS,
-        )
+    is_healthy = await signal_api.check_signal_service()
 
-        resp = await self.signal_api.general.health_check()
+    assert is_healthy is True
+    assert signal_api._uris.use_https is False
 
-        assert mock.call_count == 1
-        assert resp is mock.return_value
 
-    @pytest.mark.asyncio
-    async def test_check_signal_service_prefers_configured_protocol(
-        self, mocker: MockerFixture
-    ):
-        signal_api = SignalAPI(
-            self.signal_service,
-            self.phone_number,
-            connection_mode=ConnectionMode.HTTP_ONLY,
-        )
+async def test_check_signal_service_https_only_uses_secure_protocol(
+    mocker: MockerFixture,
+):
+    signal_api = SignalAPI(
+        SIGNAL_SERVICE,
+        PHONE_NUMBER,
+        connection_mode=ConnectionMode.HTTPS_ONLY,
+    )
 
-        health_check_mock = mocker.patch.object(
-            signal_api.general, "health_check", new_callable=mocker.AsyncMock
-        )
-        health_check_mock.return_value = mocker.Mock(status=HEALTH_CHECK_GOOD_STATUS)
+    health_check_mock = mocker.patch.object(
+        signal_api.general, "health_check", new_callable=mocker.AsyncMock
+    )
+    health_check_mock.return_value = mocker.Mock(status=HEALTH_CHECK_GOOD_STATUS)
 
-        is_healthy = await signal_api.check_signal_service()
+    is_healthy = await signal_api.check_signal_service()
 
-        assert is_healthy is True
-        assert signal_api._uris.use_https is False
+    assert is_healthy is True
+    assert health_check_mock.call_count == 1
+    assert signal_api._uris.use_https is True
 
-    @pytest.mark.asyncio
-    async def test_check_signal_service_https_only_uses_secure_protocol(
-        self, mocker: MockerFixture
-    ):
-        signal_api = SignalAPI(
-            self.signal_service,
-            self.phone_number,
-            connection_mode=ConnectionMode.HTTPS_ONLY,
-        )
 
-        health_check_mock = mocker.patch.object(
-            signal_api.general, "health_check", new_callable=mocker.AsyncMock
-        )
-        health_check_mock.return_value = mocker.Mock(status=HEALTH_CHECK_GOOD_STATUS)
+async def test_check_signal_service_does_not_fallback_if_protocol_configured(
+    mocker: MockerFixture,
+):
+    signal_api = SignalAPI(
+        SIGNAL_SERVICE,
+        PHONE_NUMBER,
+        connection_mode=ConnectionMode.HTTP_ONLY,
+    )
 
-        is_healthy = await signal_api.check_signal_service()
+    health_check_mock = mocker.patch.object(
+        signal_api.general, "health_check", new_callable=mocker.AsyncMock
+    )
+    health_check_mock.side_effect = HealthCheckError()
 
-        assert is_healthy is True
-        assert health_check_mock.call_count == 1
-        assert signal_api._uris.use_https is True
+    is_healthy = await signal_api.check_signal_service()
 
-    @pytest.mark.asyncio
-    async def test_check_signal_service_does_not_fallback_if_protocol_configured(
-        self, mocker: MockerFixture
-    ):
-        signal_api = SignalAPI(
-            self.signal_service,
-            self.phone_number,
-            connection_mode=ConnectionMode.HTTP_ONLY,
-        )
+    assert is_healthy is False
+    assert health_check_mock.call_count == 1
+    assert signal_api._uris.use_https is False
 
-        health_check_mock = mocker.patch.object(
-            signal_api.general, "health_check", new_callable=mocker.AsyncMock
-        )
-        health_check_mock.side_effect = HealthCheckError()
 
-        is_healthy = await signal_api.check_signal_service()
+async def test_check_signal_service_falls_back_to_other_protocol_in_auto_mode(
+    mocker: MockerFixture,
+):
+    signal_api = SignalAPI(SIGNAL_SERVICE, PHONE_NUMBER)
 
-        assert is_healthy is False
-        assert health_check_mock.call_count == 1
-        assert signal_api._uris.use_https is False
+    health_check_mock = mocker.patch.object(
+        signal_api.general, "health_check", new_callable=mocker.AsyncMock
+    )
+    health_check_mock.side_effect = [
+        HealthCheckError(),
+        mocker.Mock(status=HEALTH_CHECK_GOOD_STATUS),
+    ]
 
-    @pytest.mark.asyncio
-    async def test_check_signal_service_falls_back_to_other_protocol_in_auto_mode(
-        self, mocker: MockerFixture
-    ):
-        signal_api = SignalAPI(self.signal_service, self.phone_number)
+    is_healthy = await signal_api.check_signal_service()
 
-        health_check_mock = mocker.patch.object(
-            signal_api.general, "health_check", new_callable=mocker.AsyncMock
-        )
-        health_check_mock.side_effect = [
-            HealthCheckError(),
-            mocker.Mock(status=HEALTH_CHECK_GOOD_STATUS),
-        ]
+    assert is_healthy is True
+    assert signal_api._uris.use_https is False
 
-        is_healthy = await signal_api.check_signal_service()
 
-        assert is_healthy is True
-        assert signal_api._uris.use_https is False
+async def test_check_signal_service_auto_succeeds_without_fallback(
+    mocker: MockerFixture,
+):
+    signal_api = SignalAPI(
+        SIGNAL_SERVICE,
+        PHONE_NUMBER,
+        connection_mode=ConnectionMode.AUTO,
+    )
 
-    @pytest.mark.asyncio
-    async def test_check_signal_service_auto_succeeds_without_fallback(
-        self, mocker: MockerFixture
-    ):
-        signal_api = SignalAPI(
-            self.signal_service,
-            self.phone_number,
-            connection_mode=ConnectionMode.AUTO,
-        )
+    health_check_mock = mocker.patch.object(
+        signal_api.general, "health_check", new_callable=mocker.AsyncMock
+    )
+    health_check_mock.return_value = mocker.Mock(status=HEALTH_CHECK_GOOD_STATUS)
 
-        health_check_mock = mocker.patch.object(
-            signal_api.general, "health_check", new_callable=mocker.AsyncMock
-        )
-        health_check_mock.return_value = mocker.Mock(status=HEALTH_CHECK_GOOD_STATUS)
+    is_healthy = await signal_api.check_signal_service()
 
-        is_healthy = await signal_api.check_signal_service()
-
-        assert is_healthy is True
-        assert health_check_mock.call_count == 1
-        assert signal_api._uris.use_https is True
+    assert is_healthy is True
+    assert health_check_mock.call_count == 1
+    assert signal_api._uris.use_https is True

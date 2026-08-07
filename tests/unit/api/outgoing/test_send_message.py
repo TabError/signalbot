@@ -1,12 +1,10 @@
 from pathlib import Path as PathlibPath
 
-import pytest
 from anyio import Path as AnyIOPath
 
 from signalbot.api.outgoing import SendMessage, SendMessageMultiple
 
 
-@pytest.mark.asyncio
 async def test_send_message_serializes_as_sendv2_with_single_recipient(
     tmp_path: PathlibPath,
 ):
@@ -26,7 +24,6 @@ async def test_send_message_serializes_as_sendv2_with_single_recipient(
     assert result.base64_attachments == ["cGF5bG9hZA=="]
 
 
-@pytest.mark.asyncio
 async def test_send_message_multiple_serializes_as_sendv2_with_attachments(
     tmp_path: PathlibPath,
 ):

@@ -1,4 +1,5 @@
 import asyncio
+from dataclasses import dataclass
 
 import aiohttp
 import pytest
@@ -23,7 +24,10 @@ from signalbot.api.generated import (
 from signalbot.api.outgoing import CreatedPoll
 from signalbot.bot import SignalBotError
 from signalbot.context import DataMessageContext, ReadyContext
-from signalbot.test_utils import DummyHandler
+from signalbot.test_utils import ChatTestCase, DummyHandler
+from tests.conftest import GROUP_ID, GROUP_INTERNAL_ID, PHONE_NUMBER, SIGNAL_SERVICE
+
+HTTP_OK = 200
 
 FULL_GROUP_PERMISSIONS = GroupPermissions(
     add_members=AddMembers.EVERY_MEMBER,
@@ -31,54 +35,56 @@ FULL_GROUP_PERMISSIONS = GroupPermissions(
     send_messages=SendMessages.EVERY_MEMBER,
 )
 
+FAKE_GROUP = {
+    "admins": [],
+    "blocked": False,
+    "description": "",
+    "name": "mocked group",
+    "id": GROUP_ID,
+    "internal_id": GROUP_INTERNAL_ID,
+    "invite_link": "",
+    "members": [],
+    "pending_invites": [],
+    "pending_requests": [],
+    "permissions": FULL_GROUP_PERMISSIONS.model_dump(),
+}
+
+
+def _mock_receive(mocker: MockerFixture, raw_messages: list[str]) -> None:
+    mock_iterator = mocker.AsyncMock()
+    mock_iterator.__aiter__.return_value = raw_messages
+    mock = mocker.patch("websockets.connect")
+    mock.return_value.__aenter__.return_value = mock_iterator
+
+
+def _mock_get_all_groups(mocker: MockerFixture, groups: list[dict]) -> None:
+    json_mock = mocker.AsyncMock(return_value=groups)
+    get_groups_mock = mocker.patch(
+        "aiohttp.ClientSession.get", new_callable=mocker.AsyncMock
+    )
+    get_groups_mock.return_value = mocker.AsyncMock(
+        spec=aiohttp.ClientResponse,
+        status=HTTP_OK,
+        json=json_mock,
+    )
+
 
 class TestCommon:
-    signal_service = "127.0.0.1:8080"
-    phone_number = "+49123456789"
-    group_id = "group.OyZzqio1xDmYiLsQ1VsqRcUFOU4tK2TcECmYt2KeozHJwglMBHAPS7jlkrm="
-    internal_id = "Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8="
-
     @pytest.fixture(autouse=True)
     def _use_signal_bot(self, signal_bot: SignalBot) -> None:
         self.signal_bot = signal_bot
 
 
 class TestProducer(TestCommon):
-    @pytest.mark.asyncio
     async def test_produce(self, mocker: MockerFixture):
-        # Two messages
-        message1 = '{"account":"+49123456789","envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"serverReceivedTimestamp":1633169000000,"serverDeliveredTimestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 1","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER","revision":1},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'
-        message2 = '{"account":"+49123456789","envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"serverReceivedTimestamp":1633169000000,"serverDeliveredTimestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 2","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER","revision":1},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'
-        messages = [message1, message2]
-        mock_iterator = mocker.AsyncMock()
-        mock_iterator.__aiter__.return_value = messages
-        mock = mocker.patch("websockets.connect")
-        mock.return_value.__aenter__.return_value = mock_iterator
-
-        group_mock = mocker.AsyncMock()
-        group_mock.return_value = [
-            {
-                "admins": [],
-                "blocked": False,
-                "description": "",
-                "name": "mocked group",
-                "id": self.group_id,
-                "internal_id": self.internal_id,
-                "invite_link": "",
-                "members": [],
-                "pending_invites": [],
-                "pending_requests": [],
-                "permissions": FULL_GROUP_PERMISSIONS.model_dump(),
-            },
-        ]
-        get_group_mock = mocker.patch(
-            "aiohttp.ClientSession.get", new_callable=mocker.AsyncMock
+        _mock_receive(
+            mocker,
+            [
+                ChatTestCase.new_message("Message 1"),
+                ChatTestCase.new_message("Message 2"),
+            ],
         )
-        get_group_mock.return_value = mocker.AsyncMock(
-            spec=aiohttp.ClientResponse,
-            status_code=200,
-            json=group_mock,
-        )
+        _mock_get_all_groups(mocker, [FAKE_GROUP])
 
         # Any two commands
         self.signal_bot.register(DummyHandler())
@@ -94,7 +100,6 @@ class TestGetter(TestCommon):
     def test_null_group(self):
         assert not self.signal_bot.groups.get("none")
 
-    @pytest.mark.asyncio
     async def test_get_group(self, mocker: MockerFixture):
         class GroupInspector(DataMessageHandler):
             def __init__(self):
@@ -102,40 +107,14 @@ class TestGetter(TestCommon):
                 self.found_group = None
 
             async def handle_data_message(self, context: DataMessageContext) -> None:
+                assert context.message.group_info is not None
+                assert context.message.group_info.group_id is not None
                 self.found_group = context.bot.groups.get(
                     context.message.group_info.group_id
                 )
 
-        message = '{"account":"+49123456789","envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"serverReceivedTimestamp":1633169000000,"serverDeliveredTimestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 1","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER","revision":1},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'
-        messages = [message]
-        mock_iterator = mocker.AsyncMock()
-        mock_iterator.__aiter__.return_value = messages
-        mock = mocker.patch("websockets.connect")
-        mock.return_value.__aenter__.return_value = mock_iterator
-
-        group_mock = mocker.AsyncMock()
-        fake_group = {
-            "admins": [],
-            "blocked": False,
-            "description": "",
-            "name": "mocked group",
-            "id": self.group_id,
-            "internal_id": self.internal_id,
-            "invite_link": "",
-            "members": [],
-            "pending_invites": [],
-            "pending_requests": [],
-            "permissions": FULL_GROUP_PERMISSIONS.model_dump(),
-        }
-        group_mock.return_value = [fake_group]
-        get_group_mock = mocker.patch(
-            "aiohttp.ClientSession.get", new_callable=mocker.AsyncMock
-        )
-        get_group_mock.return_value = mocker.AsyncMock(
-            spec=aiohttp.ClientResponse,
-            status_code=200,
-            json=group_mock,
-        )
+        _mock_receive(mocker, [ChatTestCase.new_message("Message 1")])
+        _mock_get_all_groups(mocker, [FAKE_GROUP])
 
         inspector = GroupInspector()
         self.signal_bot.register(inspector)
@@ -146,20 +125,17 @@ class TestGetter(TestCommon):
 
         await self.signal_bot._pipeline._consume_new_item(1337)
 
-        expected_group = GroupEntry.model_validate(fake_group)
+        expected_group = GroupEntry.model_validate(FAKE_GROUP)
         assert inspector.found_group == expected_group
         assert inspector.found_group is not expected_group
 
 
 class TestSignalApiProtocolConfig:
-    signal_service = "127.0.0.1:8080"
-    phone_number = "+49123456789"
-
     def test_connection_mode_defaults_to_auto(self):
         signal_bot = SignalBot(
             {
-                "signal_service": self.signal_service,
-                "phone_number": self.phone_number,
+                "signal_service": SIGNAL_SERVICE,
+                "phone_number": PHONE_NUMBER,
                 "storage": {"type": "in-memory"},
             }
         )
@@ -170,8 +146,8 @@ class TestSignalApiProtocolConfig:
     def test_connection_mode_can_be_set_to_http_only(self):
         signal_bot = SignalBot(
             {
-                "signal_service": self.signal_service,
-                "phone_number": self.phone_number,
+                "signal_service": SIGNAL_SERVICE,
+                "phone_number": PHONE_NUMBER,
                 "storage": {"type": "in-memory"},
                 "connection_mode": ConnectionMode.HTTP_ONLY,
             }
@@ -183,8 +159,8 @@ class TestSignalApiProtocolConfig:
     def test_connection_mode_can_be_set_to_https_only(self):
         signal_bot = SignalBot(
             {
-                "signal_service": self.signal_service,
-                "phone_number": self.phone_number,
+                "signal_service": SIGNAL_SERVICE,
+                "phone_number": PHONE_NUMBER,
                 "storage": {"type": "in-memory"},
                 "connection_mode": ConnectionMode.HTTPS_ONLY,
             }
@@ -194,7 +170,6 @@ class TestSignalApiProtocolConfig:
         assert signal_bot._signal._uris.use_https is True
 
 
-@pytest.mark.asyncio
 class TestSignalApiVersionCheck(TestCommon):
     async def test_new_version_is_okay(self, mocker: MockerFixture):
         about_mock = mocker.patch.object(
@@ -251,20 +226,23 @@ class TestSignalApiVersionCheck(TestCommon):
 
 
 class TestUsernameValidation(TestCommon):
-    def test_valid_username(self):
-        valid_usernames = [
+    @pytest.mark.parametrize(
+        "username",
+        [
             "Usr.99",
             "UserName.99",
             "username.999999999",
             "UserName99.99",
             "_Use_rName99_.99",
             "usernameeeeeeeeeeeeeeeeeeeeeeeee.999999999",
-        ]
-        for valid_username in valid_usernames:
-            assert self.signal_bot._recipients._is_username(valid_username)
+        ],
+    )
+    def test_valid_username(self, username: str):
+        assert self.signal_bot._recipients._is_username(username)
 
-    def test_invalid_username(self):
-        invalid_usernames = [
+    @pytest.mark.parametrize(
+        "username",
+        [
             "Us.99",
             "Usr.9",
             ".UserName99",
@@ -277,9 +255,10 @@ class TestUsernameValidation(TestCommon):
             "UserName99.00",
             "UserName99.000000000",
             ".usernameeeeeeeeeeeeeeeeeeeeeeeeee.99",
-        ]
-        for invalid_username in invalid_usernames:
-            assert not self.signal_bot._recipients._is_username(invalid_username)
+        ],
+    )
+    def test_invalid_username(self, username: str):
+        assert not self.signal_bot._recipients._is_username(username)
 
 
 class TestRegisterHandler(TestCommon):
@@ -293,14 +272,12 @@ class TestRegisterHandler(TestCommon):
         self.signal_bot.register(DummyHandler())
         assert len(self.signal_bot._pipeline._handlers_to_register) == 3
 
-    @pytest.mark.asyncio
     async def test_register_single_contact(self):
         user_number = "+49987654321"
         self.signal_bot.register(DummyHandler(), contacts=[user_number])
         await self.signal_bot._pipeline.resolve_handlers()
         assert self.signal_bot.handlers[0][1] == [user_number]
 
-    @pytest.mark.asyncio
     async def test_register_multiple_contacts(self):
         user_number1 = "+49987654321"
         user_number2 = "+49987654322"
@@ -313,7 +290,6 @@ class TestRegisterHandler(TestCommon):
         expected_user_chats = [user_number1, user_number2, user_number3]
         assert self.signal_bot.handlers[0][1] == expected_user_chats
 
-    @pytest.mark.asyncio
     async def test_register_multiple_contacts_multiple_handlers(self):
         user_number1 = "+49987654321"
         user_number2 = "+49987654322"
@@ -337,7 +313,6 @@ class TrackingReadyHandler(ReadyHandler):
 
 
 class TestReadyHandler(TestCommon):
-    @pytest.mark.asyncio
     async def test_run_ready_handlers_calls_handle_ready(self):
         handler = TrackingReadyHandler()
         self.signal_bot.register(handler)
@@ -348,7 +323,6 @@ class TestReadyHandler(TestCommon):
         assert len(handler.contexts) == 1
         assert handler.contexts[0].bot is self.signal_bot
 
-    @pytest.mark.asyncio
     async def test_run_ready_handlers_skips_non_ready_handlers(self):
         self.signal_bot.register(DummyHandler())
         await self.signal_bot._pipeline.resolve_handlers()
@@ -357,7 +331,6 @@ class TestReadyHandler(TestCommon):
         # not raise (e.g. from trying to call a non-existent handle_ready).
         await self.signal_bot._pipeline.run_ready_handlers()
 
-    @pytest.mark.asyncio
     async def test_run_ready_handlers_calls_multiple_handlers_in_registration_order(
         self,
     ):
@@ -379,12 +352,10 @@ class TestReadyHandler(TestCommon):
 
         assert calls == ["first", "second"]
 
-    @pytest.mark.asyncio
     async def test_wait_until_ready_raises_if_bot_not_started(self):
         with pytest.raises(SignalBotError):
             await self.signal_bot.wait_until_ready()
 
-    @pytest.mark.asyncio
     async def test_wait_until_ready_awaits_init_task(self):
         async def noop() -> None:
             return None
@@ -396,7 +367,6 @@ class TestReadyHandler(TestCommon):
         assert self.signal_bot.init_task.done()
 
 
-@pytest.mark.asyncio
 class TestPipelineStop(TestCommon):
     async def test_stop_is_safe_to_call_from_a_tracked_task(self):
         """A "close" command handler runs on one of the pipeline's own
@@ -415,74 +385,57 @@ class TestPipelineStop(TestCommon):
         await asyncio.wait_for(task, timeout=1)
 
 
-@pytest.mark.asyncio
+@dataclass
+class PollCase:
+    recipient: str
+    question: str
+    answers: list[str]
+    allow_multiple: bool
+    timestamp: int
+
+
 class TestPoll(TestCommon):
-    async def test_poll_with_phone_number(self, mocker: MockerFixture):
-        recipient = "+49987654321"
-        question = "What's your favorite color?"
-        answers = ["Red", "Blue", "Green"]
-        timestamp = 1633169000000
-
-        # Mock the SignalAPI.poll method
-        poll_mock = mocker.AsyncMock()
-        poll_mock.return_value = mocker.Mock(timestamp=str(timestamp))
+    @pytest.mark.parametrize(
+        "case",
+        [
+            PollCase(
+                recipient="+49987654321",
+                question="What's your favorite color?",
+                answers=["Red", "Blue", "Green"],
+                allow_multiple=False,
+                timestamp=1633169000000,
+            ),
+            PollCase(
+                recipient=GROUP_ID,
+                question="What should we do?",
+                answers=["Option A", "Option B"],
+                allow_multiple=False,
+                timestamp=1633169000001,
+            ),
+            PollCase(
+                recipient="+49987654321",
+                question="Which colors do you like?",
+                answers=["Red", "Blue", "Green", "Yellow"],
+                allow_multiple=True,
+                timestamp=1633169000002,
+            ),
+        ],
+        ids=["phone_number", "group_id", "multiple_selections"],
+    )
+    async def test_poll(self, mocker: MockerFixture, case: PollCase):
+        poll_mock = mocker.AsyncMock(
+            return_value=mocker.Mock(timestamp=str(case.timestamp))
+        )
         mocker.patch.object(self.signal_bot._signal.polls, "create", poll_mock)
 
         create_poll_request = CreatePollRequest(
-            recipient=recipient,
-            question=question,
-            answers=answers,
-            allow_multiple_selections=False,
+            recipient=case.recipient,
+            question=case.question,
+            answers=case.answers,
+            allow_multiple_selections=case.allow_multiple,
         )
         result = await self.signal_bot.polls.create(create_poll_request)
 
         assert isinstance(result, CreatedPoll)
-        assert result.timestamp == timestamp
-        poll_mock.assert_called_once_with(create_poll_request)
-
-    async def test_poll_with_group_id(self, mocker: MockerFixture):
-        recipient = self.group_id
-        question = "What should we do?"
-        answers = ["Option A", "Option B"]
-        timestamp = 1633169000001
-
-        # Mock the SignalAPI.poll method
-        poll_mock = mocker.AsyncMock()
-        poll_mock.return_value = mocker.Mock(timestamp=str(timestamp))
-        mocker.patch.object(self.signal_bot._signal.polls, "create", poll_mock)
-
-        create_poll_request = CreatePollRequest(
-            recipient=recipient,
-            question=question,
-            answers=answers,
-            allow_multiple_selections=False,
-        )
-        result = await self.signal_bot.polls.create(create_poll_request)
-
-        assert isinstance(result, CreatedPoll)
-        assert result.timestamp == timestamp
-        poll_mock.assert_called_once_with(create_poll_request)
-
-    async def test_poll_with_multiple_selections(self, mocker: MockerFixture):
-        recipient = "+49987654321"
-        question = "Which colors do you like?"
-        answers = ["Red", "Blue", "Green", "Yellow"]
-        timestamp = 1633169000002
-        allow_multiple = True
-
-        # Mock the SignalAPI.poll method
-        poll_mock = mocker.AsyncMock()
-        poll_mock.return_value = mocker.Mock(timestamp=str(timestamp))
-        mocker.patch.object(self.signal_bot._signal.polls, "create", poll_mock)
-
-        create_poll_request = CreatePollRequest(
-            recipient=recipient,
-            question=question,
-            answers=answers,
-            allow_multiple_selections=allow_multiple,
-        )
-        result = await self.signal_bot.polls.create(create_poll_request)
-
-        assert isinstance(result, CreatedPoll)
-        assert result.timestamp == timestamp
+        assert result.timestamp == case.timestamp
         poll_mock.assert_called_once_with(create_poll_request)

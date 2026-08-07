@@ -1,48 +1,25 @@
-import aiohttp
-import pytest
-from pytest_mock import MockerFixture, MockType
+from collections.abc import Callable
+
+from pytest_mock import MockType
 
 from signalbot import SignalAPI
 from signalbot.api.generated import SendReactionRequest
+from tests.conftest import GROUP_ID, PHONE_NUMBER
+from tests.unit.api.client.conftest import HTTP_OK
 
-HTTP_OK = 200
 
+async def test_react(
+    signal_api: SignalAPI, mock_json_response: Callable[[str, dict | list], MockType]
+):
+    mock = mock_json_response("post", {})
 
-class TestReactions:
-    signal_service = "127.0.0.1:8080"
-    phone_number = "+49123456789"
-    group_id = "group.OyZzqio1xDmYiLsQ1VsqRcUFOU4tK2TcECmYt2KeozHJwglMBHAPS7jlkrm="
+    request = SendReactionRequest(
+        reaction="🎉",
+        recipient=GROUP_ID,
+        target_author=PHONE_NUMBER,
+        timestamp=1638715559464,
+    )
+    resp = await signal_api.reactions.react(request)
 
-    @pytest.fixture(autouse=True)
-    def _use_signal_api(self, signal_api: SignalAPI) -> None:
-        self.signal_api = signal_api
-
-    def _mock_json_response(
-        self, mocker: MockerFixture, verb: str, payload: dict | list
-    ) -> MockType:
-        mock2 = mocker.AsyncMock()
-        mock2.return_value = payload
-        mock = mocker.patch(
-            f"aiohttp.ClientSession.{verb}", new_callable=mocker.AsyncMock
-        )
-        mock.return_value = mocker.AsyncMock(
-            spec=aiohttp.ClientResponse,
-            status=HTTP_OK,
-            json=mock2,
-        )
-        return mock
-
-    @pytest.mark.asyncio
-    async def test_react(self, mocker: MockerFixture):
-        mock = self._mock_json_response(mocker, "post", {})
-
-        request = SendReactionRequest(
-            reaction="🎉",
-            recipient=self.group_id,
-            target_author=self.phone_number,
-            timestamp=1638715559464,
-        )
-        resp = await self.signal_api.reactions.react(request)
-
-        assert mock.call_count == 1
-        assert resp.status == HTTP_OK
+    assert mock.call_count == 1
+    assert resp.status == HTTP_OK

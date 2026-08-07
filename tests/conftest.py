@@ -6,6 +6,8 @@ from signalbot import SignalAPI, SignalBot
 
 SIGNAL_SERVICE = "127.0.0.1:8080"
 PHONE_NUMBER = "+49123456789"
+GROUP_ID = "group.OyZzqio1xDmYiLsQ1VsqRcUFOU4tK2TcECmYt2KeozHJwglMBHAPS7jlkrm="
+GROUP_INTERNAL_ID = "Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8="
 
 
 @pytest_asyncio.fixture
