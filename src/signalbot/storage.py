@@ -9,7 +9,7 @@ import enum
 import json
 import sqlite3
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, TypeAlias
+from typing import TYPE_CHECKING, Any, TypeAlias, cast
 
 from signalbot.errors import SignalBotError
 
@@ -207,7 +207,7 @@ class RedisStorage(Storage):
         Returns:
             True if the key exists, otherwise False.
         """
-        return self._redis.exists(key)
+        return bool(self._redis.exists(key))
 
     def read(self, key: str) -> JSONValue:
         """Read and deserialize a value from Redis storage.
@@ -222,13 +222,20 @@ class RedisStorage(Storage):
             StorageError: If the key does not exist or deserialization fails.
         """
         try:
-            result_bytes = self._redis.get(key)
-            result_str = result_bytes.decode("utf-8")
-        except (redis.RedisError, AttributeError) as e:
+            # This client is never configured with decode_responses=True, so
+            # get() only ever returns bytes or None.
+            result_bytes = cast("bytes | None", self._redis.get(key))
+        except redis.RedisError as e:
             raise StorageError(StorageBackend.REDIS, StorageOperation.LOAD, e) from e
 
+        if result_bytes is None:
+            error = KeyError(f"Key '{key}' does not exist")
+            raise StorageError(
+                StorageBackend.REDIS, StorageOperation.LOAD, error
+            ) from error
+
         try:
-            return json.loads(result_str)
+            return json.loads(result_bytes.decode("utf-8"))
         except json.JSONDecodeError as e:
             raise StorageError(StorageBackend.REDIS, StorageOperation.LOAD, e) from e
 

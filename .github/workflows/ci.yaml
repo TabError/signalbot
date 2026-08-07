@@ -18,6 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v6
+
+      - name: Install uv
+        uses: ./.github/workflows/install-uv
+
+      - name: Install dependencies, needed for ty
+        run: uv sync --locked --group examples
+
       - uses: j178/prek-action@v2
 
   unittest:

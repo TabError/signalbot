@@ -31,3 +31,9 @@ rev = "1.19.1"
 hooks = [
   { id = "yamlfix" }
 ]
+
+[[repos]]
+repo = "local"
+hooks = [
+  { id = "ty", name = "ty", entry = "uv run ty check", language = "system", types_or = ["python", "pyi"], pass_filenames = false }
+]
