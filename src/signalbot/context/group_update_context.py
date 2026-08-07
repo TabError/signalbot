@@ -5,4 +5,4 @@ from signalbot.context.context import Context
 
 
 class GroupUpdateContext(Context[GroupUpdate]):
-    pass
+    """Context passed to `GroupUpdateHandler.handle_group_update`."""

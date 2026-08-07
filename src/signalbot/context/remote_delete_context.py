@@ -5,4 +5,4 @@ from signalbot.context.context import Context
 
 
 class RemoteDeleteContext(Context[RemoteDelete]):
-    pass
+    """Context passed to `RemoteDeleteHandler.handle_remote_delete`."""

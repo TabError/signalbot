@@ -5,4 +5,4 @@ from signalbot.context.context import Context
 
 
 class ReactionContext(Context[Reaction]):
-    pass
+    """Context passed to `ReactionHandler.handle_reaction`."""

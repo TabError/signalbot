@@ -5,4 +5,4 @@ from signalbot.context.context import Context
 
 
 class TypingContext(Context[TypingMessage]):
-    pass
+    """Context passed to `TypingHandler.handle_typing`."""
