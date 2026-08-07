@@ -9,6 +9,7 @@ from typing import TYPE_CHECKING, TypeAlias
 from signalbot.api import ReceiveError
 from signalbot.api.incoming import (
     DataMessage,
+    EditMessage,
     GroupUpdate,
     Reaction,
     ReceivedMessage,
@@ -64,6 +65,7 @@ HandlerList: TypeAlias = list[
 # message type -> (handler role, context to build, handler method name to call)
 _MESSAGE_DISPATCH: dict[type, tuple[type, type, str]] = {
     DataMessage: (DataMessageHandler, DataMessageContext, "handle_data_message"),
+    EditMessage: (DataMessageHandler, DataMessageContext, "handle_data_message"),
     GroupUpdate: (GroupUpdateHandler, GroupUpdateContext, "handle_group_update"),
     RemoteDelete: (RemoteDeleteHandler, RemoteDeleteContext, "handle_remote_delete"),
     TypingMessage: (TypingHandler, TypingContext, "handle_typing"),
