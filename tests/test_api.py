@@ -83,8 +83,8 @@ class TestAPI:
 
     @pytest.mark.asyncio
     async def test_receive(self, mocker: MockerFixture):
-        message1 = '{"envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 1","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"group1","type":"DELIVER"},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
-        message2 = '{"envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 2","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"group1","type":"DELIVER"},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
+        message1 = '{"envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 1","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"group1","type":"DELIVER"},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'
+        message2 = '{"envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 2","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"group1","type":"DELIVER"},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'
         messages = [message1, message2]
         mock_iterator = mocker.AsyncMock()
         mock_iterator.__aiter__.return_value = messages
@@ -517,7 +517,7 @@ class TestAPI:
     @pytest.mark.asyncio
     async def test_send_with_basic_auth(self, mocker: MockerFixture):
         username = "user"
-        password = "pw"  # noqa: S105
+        password = "pw"
 
         credentials = f"{username}:{password}".encode()
         credential_string = base64.b64encode(credentials).decode("utf-8")
@@ -530,7 +530,7 @@ class TestAPI:
 
     @pytest.mark.asyncio
     async def test_send_with_bearer_auth(self, mocker: MockerFixture):
-        token = "token"  # noqa: S105
+        token = "token"
 
         auth = BearerAuthentication(token=token)
 

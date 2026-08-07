@@ -27,6 +27,6 @@ class WelcomeHandler(ReadyHandler):
                 SendMessage(recipient=self.recipient, text=handlers_msg)
             )
         else:
-            print(welcome_message)  # noqa: T201
-            print(commands_msg)  # noqa: T201
-            print(handlers_msg)  # noqa: T201
+            print(welcome_message)
+            print(commands_msg)
+            print(handlers_msg)

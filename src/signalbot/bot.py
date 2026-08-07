@@ -76,7 +76,7 @@ class SignalBot:
             Only available after `.start()` is called.
     """
 
-    def __init__(self, config: Config | Mapping | Path | str) -> None:  # noqa: PLR0915
+    def __init__(self, config: Config | Mapping | Path | str) -> None:
         """Initialization for the SignalBot.
 
         Args:
@@ -90,72 +90,88 @@ class SignalBot:
         ```
         """
         self.config = load_config(config)
-
         self._logger = initialize_logger(self.config.logging_level)
-
-        if isinstance(self.config.auth, BasicAuthConfig):
-            auth = BasicAuthentication(
-                self.config.auth.username, self.config.auth.password
-            )
-        elif isinstance(self.config.auth, BearerAuthConfig):
-            auth = BearerAuthentication(self.config.auth.token)
-        else:
-            if self.config.auth is not None:
-                error_msg = f"Unsupported auth type '{self.config.auth}', "
-                error_msg += "no authentication will be used."
-                self._logger.warning(error_msg)
-            auth = None
 
         self.init_task: None | asyncio.Task = None
         self._shutdown_task: None | asyncio.Task = None
 
+        self._signal = self._init_signal_api()
+        self._event_loop = self._init_event_loop()
+        self.scheduler = self._init_scheduler()
+        self.storage = self._init_storage()
+        self._init_actions()
+
+    def _resolve_auth(self) -> BasicAuthentication | BearerAuthentication | None:
+        if isinstance(self.config.auth, BasicAuthConfig):
+            return BasicAuthentication(
+                self.config.auth.username, self.config.auth.password
+            )
+        if isinstance(self.config.auth, BearerAuthConfig):
+            return BearerAuthentication(self.config.auth.token)
+
+        if self.config.auth is not None:
+            error_msg = f"Unsupported auth type '{self.config.auth}', "
+            error_msg += "no authentication will be used."
+            self._logger.warning(error_msg)
+        return None
+
+    def _init_signal_api(self) -> SignalAPI:
+        auth = self._resolve_auth()
         try:
-            self._signal = SignalAPI(
+            return SignalAPI(
                 self.config.signal_service,
                 self.config.phone_number,
                 auth,
-                self.config.download_attachments,
-                self.config.connection_mode,
+                download_attachments=self.config.download_attachments,
+                connection_mode=self.config.connection_mode,
             )
-        except KeyError:
-            raise SignalBotError("Could not initialize SignalAPI with given config")  # noqa: B904, EM101, TRY003
+        except KeyError as e:
+            error_msg = "Could not initialize SignalAPI with given config"
+            raise SignalBotError(error_msg) from e
 
+    def _init_event_loop(self) -> asyncio.AbstractEventLoop:
         try:
-            self._event_loop = asyncio.get_event_loop()
+            return asyncio.get_event_loop()
         except RuntimeError:
-            self._event_loop = asyncio.new_event_loop()
-            asyncio.set_event_loop(self._event_loop)
+            event_loop = asyncio.new_event_loop()
+            asyncio.set_event_loop(event_loop)
+            return event_loop
 
+    def _init_scheduler(self) -> AsyncIOScheduler:
         try:
-            self.scheduler = AsyncIOScheduler(event_loop=self._event_loop)
-        except Exception as e:  # noqa: BLE001
-            raise SignalBotError(f"Could not initialize scheduler: {e}")  # noqa: B904, EM102, TRY003
+            return AsyncIOScheduler(event_loop=self._event_loop)
+        except (TypeError, ValueError, LookupError) as e:
+            error_msg = f"Could not initialize scheduler: {e}"
+            raise SignalBotError(error_msg) from e
 
+    def _init_storage(self) -> SQLiteStorage | RedisStorage:
         if isinstance(self.config.storage, SQLiteConfig):
-            self.storage = SQLiteStorage(
+            storage = SQLiteStorage(
                 self.config.storage.db,
                 check_same_thread=self.config.storage.check_same_thread,
             )
             self._logger.info("sqlite storage initialized")
         elif isinstance(self.config.storage, RedisConfig):
-            self.storage = RedisStorage(
+            storage = RedisStorage(
                 self.config.storage.host,
                 self.config.storage.port,
                 self.config.storage.password,
             )
             self._logger.info("redis storage initialized")
         elif isinstance(self.config.storage, InMemoryConfig):
-            self.storage = SQLiteStorage()
+            storage = SQLiteStorage()
             self._logger.info("in-memory storage initialized")
         else:
-            self.storage = SQLiteStorage()
+            storage = SQLiteStorage()
             self._logger.warning(
                 " Using in-memory storage."
                 " Restarting will delete the storage!"
                 " Add storage: {'type': 'in-memory'}"
                 " to the config to silence this error.",
             )
+        return storage
 
+    def _init_actions(self) -> None:
         self.groups = GroupRegistry(self._signal, self._logger)
         self.group_actions = GroupActions(self._signal, self.groups, self._logger)
         self._recipients = RecipientResolver(self.groups)
@@ -182,8 +198,9 @@ class SignalBot:
     def register(
         self,
         handler: AnyHandler,
-        contacts: list[str] | bool = True,  # noqa: FBT001, FBT002
-        groups: list[str] | bool = True,  # noqa: FBT001, FBT002
+        *,
+        contacts: list[str] | bool = True,
+        groups: list[str] | bool = True,
         f: Callable[[ReceivedMessage], bool] | None = None,
     ) -> None:
         """Register a handler with optional contact/group filters.
@@ -194,7 +211,7 @@ class SignalBot:
             groups: Allowed groups or True for all.
             f: Optional function to further filter messages.
         """
-        self._pipeline.register(handler, contacts, groups, f)
+        self._pipeline.register(handler, contacts=contacts, groups=groups, f=f)
 
     async def _async_post_init(self) -> None:
         await self._check_signal_service()
@@ -235,7 +252,7 @@ class SignalBot:
             )
             raise RuntimeError(error_msg)
 
-    def start(self, run_forever: bool = True) -> None:  # noqa: FBT001, FBT002
+    def start(self, *, run_forever: bool = True) -> None:
         """Start the bot event loop and scheduler.
 
         Args:

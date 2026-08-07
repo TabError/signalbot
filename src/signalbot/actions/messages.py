@@ -46,9 +46,7 @@ class MessageActions(BotActionsBase):
         send_message_v2 = await message.to_generated(self._phone_number)
         send_message_response = await self._signal.messages.send(send_message_v2)
         timestamp = int(send_message_response.timestamp)
-        self._logger.info(
-            f"[Bot] New message {timestamp} sent:\n{message.text}"  # noqa: G004
-        )
+        self._logger.info("[Bot] New message %s sent:\n%s", timestamp, message.text)
 
         return SentMessage.from_send_message(message, timestamp)
 
@@ -72,9 +70,7 @@ class MessageActions(BotActionsBase):
         send_message_response = await self._signal.messages.send(send_message_v2)
         timestamp = int(send_message_response.timestamp)
 
-        self._logger.info(
-            f"[Bot] New message {timestamp} sent:\n{message.text}"  # noqa: G004
-        )
+        self._logger.info("[Bot] New message %s sent:\n%s", timestamp, message.text)
 
         return SentMessage.from_send_message_multiple(message, timestamp)
 
@@ -114,7 +110,8 @@ class MessageActions(BotActionsBase):
         )
         ret_timestamp = int(remote_delete_response.timestamp)
         self._logger.info(
-            f"[Bot] Deleted message with timestamp {remote_delete_request.timestamp}"  # noqa: G004
+            "[Bot] Deleted message with timestamp %s",
+            remote_delete_request.timestamp,
         )
 
         return ret_timestamp

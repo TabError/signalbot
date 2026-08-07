@@ -1,6 +1,6 @@
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Annotated, Any
+from typing import TYPE_CHECKING, Annotated
 
 from anyio import Path
 from pydantic_core import core_schema
@@ -17,7 +17,7 @@ class _PathPydanticAnnotation:
     @classmethod
     def __get_pydantic_core_schema__(
         cls,
-        _source_type: Any,  # noqa: ANN401
+        _source_type: type[Path],
         _handler: GetCoreSchemaHandler,
     ) -> core_schema.CoreSchema:
         from_str_schema = core_schema.chain_schema(

@@ -79,10 +79,31 @@ ignore = [
 [tool.ruff.lint.per-file-ignores]
 # Tests can ignore a few extra rules
 "**/tests/**.py" = [
+    "ANN001", # Missing type annotation for function argument
+    "ANN002", # Missing type annotation for *args
+    "ANN003", # Missing type annotation for **kwargs
     "ANN201", # Missing return type annotation for public function
+    "ANN202", # Missing return type annotation for private function
+    "ANN204", # Missing return type annotation for special method
+    "ARG002", # Unused method argument (pytest-mock fixtures/decorator passthrough)
+    "E501",   # Line too long (long JSON fixture literals)
+    "PLR2004", # Magic value used in comparison (test assertion literals)
     "S101",   # Use of assert is detected
+    "S105",   # Possible hardcoded password (dummy test credentials)
+    "S106",   # Possible hardcoded password (dummy test credentials)
     "INP001", # Missing __init__.py file
     "SLF001", # Access private attributes
+]
+
+# Testing helpers shipped for downstream users' test suites; reaching into the
+# bot's internals is the point.
+"src/signalbot/test_utils/**.py" = [
+    "SLF001", # Access private attributes
+]
+
+# Examples print directly to stdout for the person running them locally.
+"examples/**.py" = [
+    "T201", # `print` found
 ]
 
 # Ignore line too long for the generated models, since they are generated and not meant to be edited by hand.

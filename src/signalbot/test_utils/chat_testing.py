@@ -1,11 +1,13 @@
+from __future__ import annotations
+
 import functools
 import json
 import time
 import uuid
+from collections.abc import Awaitable, Callable
 from types import MappingProxyType
+from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, MagicMock
-
-from pytest_mock import MockerFixture
 
 from signalbot.api.generated import (
     About,
@@ -17,14 +19,25 @@ from signalbot.api.generated import (
     SendMessages,
 )
 from signalbot.bot import SignalBot
-from signalbot.context import DataMessageContext
 from signalbot.handlers import DataMessageHandler
 
+if TYPE_CHECKING:
+    from pytest_mock import MockerFixture
 
-def mock_chat(*messages: str):  # noqa: ANN201
-    def decorator_chat(func):  # noqa: ANN001, ANN202
+    from signalbot.context import DataMessageContext
+
+AsyncTestMethod = Callable[..., Awaitable[None]]
+
+
+def mock_chat(*messages: str) -> Callable[[AsyncTestMethod], AsyncTestMethod]:
+    def decorator_chat(func: AsyncTestMethod) -> AsyncTestMethod:
         @functools.wraps(func)
-        async def wrapper_chat(self, mocker: MockerFixture, *args, **kwargs):  # noqa: ANN001, ANN002, ANN003, ANN202
+        async def wrapper_chat(
+            self: ChatTestCase,
+            mocker: MockerFixture,
+            *args: object,
+            **kwargs: object,
+        ) -> None:
             self.react_mock = mocker.patch(
                 "signalbot.api.client.reactions.ReactionsClient.react",
                 new_callable=ReactMock,
@@ -51,7 +64,7 @@ def mock_chat(*messages: str):  # noqa: ANN201
             )
 
             receive_mock.define(messages)
-            await self.signal_bot._async_post_init()  # noqa: SLF001
+            await self.signal_bot._async_post_init()
             await self.run_bot()
 
             return await func(self, mocker, *args, **kwargs)
@@ -77,19 +90,19 @@ class ChatTestCase:
     )
 
     # Populated by `mock_chat` once a test is decorated with it.
-    send_mock: "SendMock"
-    react_mock: "ReactMock"
+    send_mock: SendMock
+    react_mock: ReactMock
 
     def setup(self) -> None:
         self.signal_bot = SignalBot(ChatTestCase.config)
 
-    async def run_bot(self):  # noqa: ANN201
+    async def run_bot(self) -> None:
         producer_id = 1337
         handler_ir = 4444
-        pipeline = self.signal_bot._pipeline  # noqa: SLF001
-        await pipeline._produce(producer_id)  # noqa: SLF001
-        while pipeline._q.qsize() > 0:  # noqa: SLF001
-            await pipeline._consume_new_item(handler_ir)  # noqa: SLF001
+        pipeline = self.signal_bot._pipeline
+        await pipeline._produce(producer_id)
+        while pipeline._q.qsize() > 0:
+            await pipeline._consume_new_item(handler_ir)
 
     @classmethod
     def new_reaction_message(cls, emoji: str) -> str:
@@ -138,7 +151,7 @@ class ChatTestCase:
         return json.dumps(message)
 
     @classmethod
-    def new_message(cls, text) -> str:  # noqa: ANN001
+    def new_message(cls, text: str) -> str:
         timestamp = int(time.time() * 1000)
         new_uuid = str(uuid.uuid4())
         message = {

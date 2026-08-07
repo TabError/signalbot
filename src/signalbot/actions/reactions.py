@@ -59,4 +59,4 @@ class ReactionActions(BotActionsBase):
             timestamp=message.timestamp,
         )
         await self._signal.reactions.react(reaction_request)
-        self._logger.info(f"[Bot] New reaction: {emoji}")  # noqa: G004
+        self._logger.info("[Bot] New reaction: %s", emoji)

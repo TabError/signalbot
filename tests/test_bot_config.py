@@ -61,7 +61,7 @@ class TestLoadConfig:
         config = load_config(self._dict_config)
         assert isinstance(config, Config)
         assert isinstance(config.storage, RedisConfig)
-        assert config.storage.password == "secret"  # noqa: S105
+        assert config.storage.password == "secret"
 
     def test_load_config_from_json_file(self):
         self._config.retry_interval = 3

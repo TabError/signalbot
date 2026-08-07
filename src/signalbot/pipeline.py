@@ -61,6 +61,15 @@ HandlerList: TypeAlias = list[
     ]
 ]
 
+# message type -> (handler role, context to build, handler method name to call)
+_MESSAGE_DISPATCH: dict[type, tuple[type, type, str]] = {
+    DataMessage: (DataMessageHandler, DataMessageContext, "handle_data_message"),
+    GroupUpdate: (GroupUpdateHandler, GroupUpdateContext, "handle_group_update"),
+    RemoteDelete: (RemoteDeleteHandler, RemoteDeleteContext, "handle_remote_delete"),
+    TypingMessage: (TypingHandler, TypingContext, "handle_typing"),
+    Reaction: (ReactionHandler, ReactionContext, "handle_reaction"),
+}
+
 
 class MessagePipeline:
     """Owns handler registration and the produce/consume queue that dispatches
@@ -91,8 +100,9 @@ class MessagePipeline:
     def register(
         self,
         handler: AnyHandler,
-        contacts: list[str] | bool = True,  # noqa: FBT001, FBT002
-        groups: list[str] | bool = True,  # noqa: FBT001, FBT002
+        *,
+        contacts: list[str] | bool = True,
+        groups: list[str] | bool = True,
         f: Callable[[ReceivedMessage], bool] | None = None,
     ) -> None:
         self._handlers_to_register.append((handler, contacts, groups, f))
@@ -174,7 +184,7 @@ class MessagePipeline:
             isinstance(message, GroupUpdate | DataMessage)
             and message.group_info is not None
             and message.group_info.group_id is not None
-            and self._groups._get_internal(message.group_info.group_id) is None  # noqa: SLF001
+            and message.group_info.group_id not in self._groups
         ):
             await self._groups.refresh()
 
@@ -182,10 +192,10 @@ class MessagePipeline:
             await self._groups.refresh_one(message.group_info.group_id)
 
     async def _produce(self, name: int) -> None:
-        self._logger.info(f"[Bot] Producer #{name} started")  # noqa: G004
+        self._logger.info("[Bot] Producer #%s started", name)
         try:
             async for raw_message in self._signal.messages.receive():
-                self._logger.info(f"[Raw Message] {raw_message}")  # noqa: G004
+                self._logger.info("[Raw Message] %s", raw_message)
 
                 try:
                     message = await parse(self._signal, raw_message)
@@ -197,14 +207,17 @@ class MessagePipeline:
                 await self._dispatch_to_handlers(message)
 
         except ReceiveError as e:
-            # TODO: retry strategy  # noqa: TD002, TD003
-            raise SignalBotError(f"Cannot receive messages: {e}")  # noqa: B904, EM102, TRY003
+            # No retry strategy here: `rerun_on_exception` (see `start()`) already
+            # restarts this coroutine from scratch on any uncaught exception.
+            error_msg = f"Cannot receive messages: {e}"
+            raise SignalBotError(error_msg) from e
 
     def _should_react_for_contact(
         self,
         message: ReceivedMessage,
-        contacts: list[str] | bool,  # noqa: FBT001
-        group_ids: list[str] | bool,  # noqa: FBT001
+        *,
+        contacts: list[str] | bool,
+        group_ids: list[str] | bool,
     ) -> bool:
         """Is the handler activated for a certain chat or group?"""
         # Case 1: Private message
@@ -226,8 +239,7 @@ class MessagePipeline:
                 return True
 
             # b) whitelisted group ids
-            group = self._groups._get_internal(message.source_or_group_id())  # noqa: SLF001
-            group_id = group.id if group is not None else None
+            group_id = self._groups.get_id(message.source_or_group_id())
             if isinstance(group_ids, list) and group_id and group_id in group_ids:
                 return True
 
@@ -245,7 +257,9 @@ class MessagePipeline:
 
     async def _dispatch_to_handlers(self, message: ReceivedMessage) -> None:
         for handler, contacts, group_ids, f in self.handlers:
-            if not self._should_react_for_contact(message, contacts, group_ids):
+            if not self._should_react_for_contact(
+                message, contacts=contacts, group_ids=group_ids
+            ):
                 continue
 
             if not self._should_react_for_lambda(message, f):
@@ -254,49 +268,42 @@ class MessagePipeline:
             await self._q.put((handler, message, time.perf_counter()))
 
     async def _consume(self, name: int) -> None:
-        self._logger.info(f"[Bot] Consumer #{name} started")  # noqa: G004
+        self._logger.info("[Bot] Consumer #%s started", name)
         while True:
             try:
                 await self._consume_new_item(name)
-            except Exception:  # noqa: BLE001, S112
-                continue
+            except Exception:  # noqa: BLE001
+                # Handler code is arbitrary user code and `_consume_new_item`
+                # already logs the failure; this loop must keep running
+                # regardless of what it raises.
+                self._logger.debug("[Bot] Consumer #%s recovered, resuming", name)
 
-    async def _consume_new_item(self, name: int) -> None:  # noqa: C901
+    async def _invoke_handler(
+        self, handler: AnyHandler, message: ReceivedMessage
+    ) -> None:
+        dispatch = _MESSAGE_DISPATCH.get(type(message))
+        if dispatch is None:
+            error_msg = f"[Bot] Unknown message type: {type(message)}, "
+            error_msg += "skipping handler execution"
+            self._logger.warning(error_msg)
+            return
+
+        handler_type, context_type, method_name = dispatch
+        if isinstance(handler, handler_type):
+            method = getattr(handler, method_name)
+            await method(context_type(self._bot, message))
+
+    async def _consume_new_item(self, name: int) -> None:
         handler, message, t = await self._q.get()
         now = time.perf_counter()
         self._logger.info(
-            f"[Bot] Consumer #{name} got new job in {now - t:0.5f} seconds"  # noqa: G004
+            "[Bot] Consumer #%s got new job in %0.5f seconds", name, now - t
         )
 
-        # dispatch to whichever handler role(s) `handler` implements
         try:
-            if isinstance(message, DataMessage):
-                if isinstance(handler, DataMessageHandler):
-                    await handler.handle_data_message(
-                        DataMessageContext(self._bot, message)
-                    )
-            elif isinstance(message, GroupUpdate):
-                if isinstance(handler, GroupUpdateHandler):
-                    await handler.handle_group_update(
-                        GroupUpdateContext(self._bot, message)
-                    )
-            elif isinstance(message, RemoteDelete):
-                if isinstance(handler, RemoteDeleteHandler):
-                    await handler.handle_remote_delete(
-                        RemoteDeleteContext(self._bot, message)
-                    )
-            elif isinstance(message, TypingMessage):
-                if isinstance(handler, TypingHandler):
-                    await handler.handle_typing(TypingContext(self._bot, message))
-            elif isinstance(message, Reaction):
-                if isinstance(handler, ReactionHandler):
-                    await handler.handle_reaction(ReactionContext(self._bot, message))
-            else:
-                error_msg = f"[Bot] Unknown message type: {type(message)}, "
-                error_msg += "skipping handler execution"
-                self._logger.warning(error_msg)
+            await self._invoke_handler(handler, message)
         except Exception:
-            self._logger.exception(f"[{handler.__class__.__name__}]")  # noqa: G004
+            self._logger.exception("[%s]", handler.__class__.__name__)
             raise
 
         # done

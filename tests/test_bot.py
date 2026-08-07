@@ -55,8 +55,8 @@ class TestProducer(TestCommon):
     @pytest.mark.asyncio
     async def test_produce(self, mocker: MockerFixture):
         # Two messages
-        message1 = '{"account":"+49123456789","envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"serverReceivedTimestamp":1633169000000,"serverDeliveredTimestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 1","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER","revision":1},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
-        message2 = '{"account":"+49123456789","envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"serverReceivedTimestamp":1633169000000,"serverDeliveredTimestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 2","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER","revision":1},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
+        message1 = '{"account":"+49123456789","envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"serverReceivedTimestamp":1633169000000,"serverDeliveredTimestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 1","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER","revision":1},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'
+        message2 = '{"account":"+49123456789","envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"serverReceivedTimestamp":1633169000000,"serverDeliveredTimestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 2","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER","revision":1},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'
         messages = [message1, message2]
         mock_iterator = mocker.AsyncMock()
         mock_iterator.__aiter__.return_value = messages
@@ -95,7 +95,7 @@ class TestProducer(TestCommon):
 
         await self.signal_bot._pipeline._produce(1337)
 
-        assert self.signal_bot._pipeline._q.qsize() == 4  # noqa: PLR2004
+        assert self.signal_bot._pipeline._q.qsize() == 4
 
 
 class TestGetter(TestCommon):
@@ -105,7 +105,7 @@ class TestGetter(TestCommon):
     @pytest.mark.asyncio
     async def test_get_group(self, mocker: MockerFixture):
         class GroupInspector(DataMessageHandler):
-            def __init__(self):  # noqa: ANN204
+            def __init__(self):
                 super().__init__()
                 self.found_group = None
 
@@ -114,7 +114,7 @@ class TestGetter(TestCommon):
                     context.message.group_info.group_id
                 )
 
-        message = '{"account":"+49123456789","envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"serverReceivedTimestamp":1633169000000,"serverDeliveredTimestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 1","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER","revision":1},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'  # noqa: E501
+        message = '{"account":"+49123456789","envelope":{"source":"+4901234567890","sourceNumber":"+4901234567890","sourceUuid":"asdf","sourceName":"name","sourceDevice":1,"timestamp":1633169000000,"serverReceivedTimestamp":1633169000000,"serverDeliveredTimestamp":1633169000000,"syncMessage":{"sentMessage":{"timestamp":1633169000000,"message":"Message 1","expiresInSeconds":0,"viewOnce":false,"mentions":[],"attachments":[],"contacts":[],"groupInfo":{"groupId":"Mg8LQTdaZJs8+LJCrtQgblqHx+xI2dX9JJ8hVA2kqt8=","type":"DELIVER","revision":1},"destination":null,"destinationNumber":null,"destinationUuid":null}}}}'
         messages = [message]
         mock_iterator = mocker.AsyncMock()
         mock_iterator.__aiter__.return_value = messages
@@ -299,7 +299,7 @@ class TestRegisterHandler(TestCommon):
         self.signal_bot.register(DummyHandler())
         self.signal_bot.register(DummyHandler())
         self.signal_bot.register(DummyHandler())
-        assert len(self.signal_bot._pipeline._handlers_to_register) == 3  # noqa: PLR2004
+        assert len(self.signal_bot._pipeline._handlers_to_register) == 3
 
     @pytest.mark.asyncio
     async def test_register_single_contact(self):
@@ -336,7 +336,7 @@ class TestRegisterHandler(TestCommon):
 
 
 class TrackingReadyHandler(ReadyHandler):
-    def __init__(self):  # noqa: ANN204
+    def __init__(self):
         super().__init__()
         self.contexts: list[ReadyContext] = []
 
@@ -372,11 +372,11 @@ class TestReadyHandler(TestCommon):
         calls = []
 
         class FirstHandler(ReadyHandler):
-            async def handle_ready(self, context: ReadyContext) -> None:  # noqa: ARG002
+            async def handle_ready(self, context: ReadyContext) -> None:
                 calls.append("first")
 
         class SecondHandler(ReadyHandler):
-            async def handle_ready(self, context: ReadyContext) -> None:  # noqa: ARG002
+            async def handle_ready(self, context: ReadyContext) -> None:
                 calls.append("second")
 
         self.signal_bot.register(FirstHandler())

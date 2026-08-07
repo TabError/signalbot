@@ -34,7 +34,8 @@ class RecipientResolver:
         if group_id is not None:
             return group_id
 
-        raise SignalBotError("Cannot resolve recipient.")  # noqa: EM101, TRY003
+        error_msg = "Cannot resolve recipient."
+        raise SignalBotError(error_msg)
 
     def _is_phone_number(self, phone_number: str) -> bool:
         try:
@@ -46,32 +47,43 @@ class RecipientResolver:
     def _is_valid_uuid(self, recipient_uuid: str) -> bool:
         try:
             uuid.UUID(str(recipient_uuid))
-            return True  # noqa: TRY300
         except ValueError:
             return False
+        else:
+            return True
 
-    def _is_username(self, recipient_username: str) -> bool:  # noqa: PLR0911
+    _USERNAME_PARTS = 2
+    _MIN_USERNAME_LENGTH = 3
+    _MAX_USERNAME_LENGTH = 32
+    _MIN_DISCRIMINATOR_DIGITS = 2
+    _MAX_DISCRIMINATOR_DIGITS = 9
+
+    def _is_username(self, recipient_username: str) -> bool:
         """
         Check if username has correct format, as described in
         https://support.signal.org/hc/en-us/articles/6712070553754-Phone-Number-Privacy-and-Usernames#username_req
         Additionally, cannot have more than 9 digits and the digits cannot be 00.
         """
         split_username = recipient_username.split(".")
-        if len(split_username) == 2:  # noqa: PLR2004
-            characters = split_username[0]
-            digits = split_username[1]
-            if len(characters) < 3 or len(characters) > 32:  # noqa: PLR2004
-                return False
-            if not re.match(r"^[A-Za-z\d_]+$", characters):
-                return False
-            if len(digits) < 2 or len(digits) > 9:  # noqa: PLR2004
-                return False
-            try:
-                digits = int(digits)
-                if digits == 0:  # noqa: SIM103
-                    return False
-                return True  # noqa: TRY300
-            except ValueError:
-                return False
-        else:
+        if len(split_username) != self._USERNAME_PARTS:
             return False
+
+        characters, digits = split_username
+        min_len, max_len = self._MIN_USERNAME_LENGTH, self._MAX_USERNAME_LENGTH
+        if not min_len <= len(characters) <= max_len:
+            return False
+        if not re.match(r"^[A-Za-z\d_]+$", characters):
+            return False
+        min_digits, max_digits = (
+            self._MIN_DISCRIMINATOR_DIGITS,
+            self._MAX_DISCRIMINATOR_DIGITS,
+        )
+        if not min_digits <= len(digits) <= max_digits:
+            return False
+
+        try:
+            discriminator = int(digits)
+        except ValueError:
+            return False
+
+        return discriminator != 0

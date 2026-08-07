@@ -1,9 +1,8 @@
 import pytest
 from pytest_mock import MockerFixture
 
+from examples.commands.ping import PingCommand
 from signalbot.test_utils import ChatTestCase, mock_chat
-
-from ..ping import PingCommand  # noqa: TID252
 
 
 class TestPingChatTest(ChatTestCase):
@@ -17,7 +16,7 @@ class TestPingChatTest(ChatTestCase):
         "ignore:There is no current event loop:DeprecationWarning"
     )
     @mock_chat("ping")
-    async def test_ping(self, mocker: MockerFixture, *args: object, **kwargs: object):  # noqa: ARG002
+    async def test_ping(self, mocker: MockerFixture, *args: object, **kwargs: object):
         replies = self.send_mock
         assert replies.call_count == 1
         assert len(replies.results()) == 1

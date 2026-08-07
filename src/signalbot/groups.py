@@ -36,6 +36,9 @@ class GroupRegistry:
     def __getitem__(self, index: int) -> GroupEntry:
         return list(self._by_internal_id.values())[index]
 
+    def __contains__(self, internal_id: str) -> bool:
+        return internal_id in self._by_internal_id
+
     def get(self, internal_id: str) -> GroupEntry | None:
         """Look up a cached group by its internal id, without hitting the network.
 
@@ -50,10 +53,19 @@ class GroupRegistry:
             return copy.deepcopy(self._by_internal_id[internal_id])
         return None
 
-    def _get_internal(self, internal_id: str) -> GroupEntry | None:
-        """Look up a group without copying it. For internal callers that only read
-        the result and never hand it to user code."""
-        return self._by_internal_id.get(internal_id)
+    def get_id(self, internal_id: str) -> str | None:
+        """Look up a group's canonical id by its internal id, without copying
+        the full `GroupEntry`. For hot-path callers (e.g. per-message,
+        per-handler dispatch checks) that only need the id.
+
+        Args:
+            internal_id: The group's internal id.
+
+        Returns:
+            The group's canonical id, or `None` if it isn't in the cache.
+        """
+        group = self._by_internal_id.get(internal_id)
+        return group.id if group is not None else None
 
     def resolve(self, group_id_or_name: str) -> str | None:
         group = self._by_id.get(group_id_or_name)
@@ -88,7 +100,7 @@ class GroupRegistry:
             self._by_internal_id[group.internal_id] = group
             self._by_name[group.name].append(group)
 
-        self._logger.info(f"[Bot] {len(self._by_internal_id)} groups detected")  # noqa: G004
+        self._logger.info("[Bot] %s groups detected", len(self._by_internal_id))
 
     async def refresh_one(self, group_internal_id: str) -> None:
         # look up group that requires update

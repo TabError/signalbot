@@ -36,7 +36,8 @@ class SignalAPI:
         signal_service: str,
         phone_number: str,
         auth: Authentication | None = None,
-        download_attachments: bool = True,  # noqa: FBT001, FBT002
+        *,
+        download_attachments: bool = True,
         connection_mode: ConnectionMode = ConnectionMode.AUTO,
     ) -> None:
         self.phone_number = phone_number

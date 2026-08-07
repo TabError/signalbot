@@ -29,10 +29,10 @@ class TestRedisStorage:
         mock_redis_mod = _make_mock_redis_module()
         with patch.dict(sys.modules, {"redis": mock_redis_mod}):
             importlib.reload(storage_mod)
-            storage_mod.RedisStorage(host="localhost", port=6379, password="secret")  # noqa: S106
+            storage_mod.RedisStorage(host="localhost", port=6379, password="secret")
             mock_redis_mod.Redis.assert_called_once_with(
                 host="localhost",
                 port=6379,
                 db=0,
-                password="secret",  # noqa: S106
+                password="secret",
             )

@@ -35,7 +35,8 @@ class GroupActions:
         """
         group_id = self._groups.resolve(update_group.group_id_or_name)
         if group_id is None:
-            raise SignalBotError("Cannot resolve recipient.")  # noqa: EM101, TRY003
+            error_msg = "Cannot resolve recipient."
+            raise SignalBotError(error_msg)
 
         wire_request = await update_group.to_generated()
         await self._signal.groups.update(group_id, wire_request)

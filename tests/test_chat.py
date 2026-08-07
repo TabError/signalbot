@@ -32,9 +32,9 @@ class TestSchnickSchnackSchnuckCommand(ChatTestCase):
     @mock_chat("schnick")
     async def test_schnick(
         self,
-        mocker: MockerFixture,  # noqa: ARG002
-        *args: object,  # noqa: ARG002
-        **kwargs: object,  # noqa: ARG002
+        mocker: MockerFixture,
+        *args: object,
+        **kwargs: object,
     ):
         replies = self.send_mock
         assert replies.call_count == 1
@@ -46,9 +46,9 @@ class TestSchnickSchnackSchnuckCommand(ChatTestCase):
     @mock_chat("schnack")
     async def test_schnack(
         self,
-        mocker: MockerFixture,  # noqa: ARG002
-        *args: object,  # noqa: ARG002
-        **kwargs: object,  # noqa: ARG002
+        mocker: MockerFixture,
+        *args: object,
+        **kwargs: object,
     ):
         replies = self.send_mock
         assert replies.call_count == 1
