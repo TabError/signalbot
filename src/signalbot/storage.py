@@ -100,7 +100,7 @@ class SQLiteStorage(Storage):
     def __init__(
         self,
         database: str | Path = ":memory:",
-        **kwargs: Any,  # noqa: ANN401 Using object, causes in type error in the sqlite3.connect signature
+        **kwargs: Any,  # noqa: ANN401 -- Using object, causes in type error in the sqlite3.connect signature
     ) -> None:
         """Initialize SQLite-backed storage.
 
