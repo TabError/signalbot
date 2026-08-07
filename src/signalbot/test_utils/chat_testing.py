@@ -98,95 +98,75 @@ class ChatTestCase:
 
     async def run_bot(self) -> None:
         producer_id = 1337
-        handler_ir = 4444
+        handler_id = 4444
         pipeline = self.signal_bot._pipeline
         await pipeline._produce(producer_id)
         while pipeline._q.qsize() > 0:
-            await pipeline._consume_new_item(handler_ir)
+            await pipeline._consume_new_item(handler_id)
+
+    @classmethod
+    def _sent_message_envelope(
+        cls, *, timestamp: int, new_uuid: str, **sent_message_body: object
+    ) -> str:
+        message = {
+            "account": ChatTestCase.phone_number,
+            "envelope": {
+                "source": ChatTestCase.phone_number,
+                "sourceNumber": ChatTestCase.phone_number,
+                "sourceUuid": new_uuid,
+                "sourceName": "some_source_name",
+                "sourceDevice": 1,
+                "timestamp": timestamp,
+                "serverReceivedTimestamp": timestamp,
+                "serverDeliveredTimestamp": timestamp,
+                "syncMessage": {
+                    "sentMessage": {
+                        "timestamp": timestamp,
+                        "expiresInSeconds": 0,
+                        "viewOnce": False,
+                        "mentions": [],
+                        "attachments": [],
+                        "contacts": [],
+                        "groupInfo": {
+                            "groupId": ChatTestCase.group_internal_id,
+                            "type": "DELIVER",
+                            "revision": 1,
+                        },
+                        "destination": None,
+                        "destinationNumber": None,
+                        "destinationUuid": None,
+                        **sent_message_body,
+                    },
+                },
+            },
+        }
+        return json.dumps(message)
 
     @classmethod
     def new_reaction_message(cls, emoji: str) -> str:
         timestamp = int(time.time() * 1000)
         new_uuid = str(uuid.uuid4())
-        message = {
-            "account": ChatTestCase.phone_number,
-            "envelope": {
-                "source": ChatTestCase.phone_number,
-                "sourceNumber": ChatTestCase.phone_number,
-                "sourceUuid": new_uuid,
-                "sourceName": "some_source_name",
-                "sourceDevice": 1,
-                "timestamp": timestamp,
-                "serverReceivedTimestamp": timestamp,
-                "serverDeliveredTimestamp": timestamp,
-                "syncMessage": {
-                    "sentMessage": {
-                        "timestamp": timestamp,
-                        "message": None,
-                        "expiresInSeconds": 0,
-                        "viewOnce": False,
-                        "reaction": {
-                            "emoji": emoji,
-                            "targetAuthor": ChatTestCase.phone_number,
-                            "targetAuthorNumber": ChatTestCase.phone_number,
-                            "targetAuthorUuid": new_uuid,
-                            "targetSentTimestamp": timestamp,
-                            "isRemove": False,
-                        },
-                        "mentions": [],
-                        "attachments": [],
-                        "contacts": [],
-                        "groupInfo": {
-                            "groupId": ChatTestCase.group_internal_id,
-                            "type": "DELIVER",
-                            "revision": 1,
-                        },
-                        "destination": None,
-                        "destinationNumber": None,
-                        "destinationUuid": None,
-                    },
-                },
+        return cls._sent_message_envelope(
+            timestamp=timestamp,
+            new_uuid=new_uuid,
+            message=None,
+            reaction={
+                "emoji": emoji,
+                "targetAuthor": ChatTestCase.phone_number,
+                "targetAuthorNumber": ChatTestCase.phone_number,
+                "targetAuthorUuid": new_uuid,
+                "targetSentTimestamp": timestamp,
+                "isRemove": False,
             },
-        }
-        return json.dumps(message)
+        )
 
     @classmethod
     def new_message(cls, text: str) -> str:
         timestamp = int(time.time() * 1000)
         new_uuid = str(uuid.uuid4())
-        message = {
-            "account": ChatTestCase.phone_number,
-            "envelope": {
-                "source": ChatTestCase.phone_number,
-                "sourceNumber": ChatTestCase.phone_number,
-                "sourceUuid": new_uuid,
-                "sourceName": "some_source_name",
-                "sourceDevice": 1,
-                "timestamp": timestamp,
-                "serverReceivedTimestamp": timestamp,
-                "serverDeliveredTimestamp": timestamp,
-                "syncMessage": {
-                    "sentMessage": {
-                        "timestamp": timestamp,
-                        "message": text,
-                        "expiresInSeconds": 0,
-                        "viewOnce": False,
-                        "mentions": [],
-                        "attachments": [],
-                        "contacts": [],
-                        "groupInfo": {
-                            "groupId": ChatTestCase.group_internal_id,
-                            "type": "DELIVER",
-                            "revision": 1,
-                        },
-                        "destination": None,
-                        "destinationNumber": None,
-                        "destinationUuid": None,
-                    },
-                },
-            },
-        }
-        return json.dumps(message)
+        return cls._sent_message_envelope(
+            timestamp=timestamp, new_uuid=new_uuid, message=text
+        )
 
 
 class ReceiveMock(MagicMock):
@@ -202,24 +182,19 @@ class ReceiveMock(MagicMock):
         self.return_value = mock_iterator
 
 
-class SendMock(AsyncMock):
+class _FirstArgResultsMock(AsyncMock):
+    def results(self) -> list:
+        return [call.args[0] for call in self.call_args_list]
+
+
+class SendMock(_FirstArgResultsMock):
     def __init__(self, **kwargs: str) -> None:
         super().__init__(**kwargs)
         self.return_value = SendMessageResponse(timestamp="1638715559464")
 
-    def results(self) -> list:
-        return self._extract_responses()
 
-    def _extract_responses(self) -> list:
-        return [call.args[0] for call in self.call_args_list]
-
-
-class ReactMock(AsyncMock):
-    def results(self) -> list:
-        return self._extract_responses()
-
-    def _extract_responses(self) -> list:
-        return [call.args[0] for call in self.call_args_list]
+class ReactMock(_FirstArgResultsMock):
+    pass
 
 
 class GetAllMock(AsyncMock):
