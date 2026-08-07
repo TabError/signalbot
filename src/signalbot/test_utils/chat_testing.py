@@ -4,7 +4,7 @@ import functools
 import json
 import time
 import uuid
-from collections.abc import Awaitable, Callable
+from collections.abc import Awaitable, Callable, Sequence
 from types import MappingProxyType
 from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, MagicMock
@@ -190,7 +190,7 @@ class ChatTestCase:
 
 
 class ReceiveMock(MagicMock):
-    def define(self, messages: list) -> None:
+    def define(self, messages: Sequence[str]) -> None:
         json_messages = [ChatTestCase.new_message(m) for m in messages]
         mock_iterator = AsyncMock()
         mock_iterator.__aiter__.return_value = json_messages

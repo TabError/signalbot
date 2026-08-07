@@ -57,7 +57,7 @@ HandlerList: TypeAlias = list[
     tuple[
         AnyHandler,
         list[str] | bool,  # contacts
-        list[str] | bool | None,  # groups
+        list[str] | bool,  # groups
         Callable[[ReceivedMessage], bool] | None,  # lambda filter
     ]
 ]
@@ -112,12 +112,10 @@ class MessagePipeline:
     async def resolve_handlers(self) -> None:
         self.handlers = []
         for handler, contacts, groups, f in self._handlers_to_register:
-            group_ids = None
-
+            group_ids: list[str] | bool
             if isinstance(groups, bool):
                 group_ids = groups
-
-            if isinstance(groups, list):
+            else:
                 group_ids = []
                 for group in groups:
                     group_id = self._groups.resolve(group)

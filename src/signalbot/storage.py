@@ -9,7 +9,7 @@ import enum
 import json
 import sqlite3
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING, Any, TypeAlias
 
 from signalbot.errors import SignalBotError
 
@@ -97,7 +97,11 @@ class StorageError(SignalBotError):
 class SQLiteStorage(Storage):
     """SQLite-backed storage."""
 
-    def __init__(self, database: str | Path = ":memory:", **kwargs: object) -> None:
+    def __init__(
+        self,
+        database: str | Path = ":memory:",
+        **kwargs: Any,  # noqa: ANN401 Using object, causes in type error in the sqlite3.connect signature
+    ) -> None:
         """Initialize SQLite-backed storage.
 
         Args:
