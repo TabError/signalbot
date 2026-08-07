@@ -6,7 +6,6 @@ import pytest_asyncio
 from pytest_mock import MockerFixture, MockType
 
 from signalbot import ConnectionMode, SignalAPI
-from signalbot.api import generated
 from signalbot.api.client.attachments import AttachmentsURIs
 from signalbot.api.client.base import HEALTH_CHECK_GOOD_STATUS, BaseURIs
 from signalbot.api.client.contacts import ContactsURIs
@@ -23,15 +22,14 @@ from signalbot.api.generated import (
     EditGroup,
     GroupEntry,
     GroupPermissions,
+    Receipt,
+    ReceiptType,
     RemoteDeleteRequest,
     SendMessages,
     SendMessageV2,
-)
-from signalbot.api.generated.api import (
-    Receipt,
-    ReceiptType,
     SendReactionRequest,
     TypingIndicatorRequest,
+    UpdateGroupRequest,
 )
 from signalbot.api.incoming import Attachment
 from signalbot.api.outgoing import UpdateContact
@@ -318,7 +316,7 @@ class TestAPI:
     async def test_update_group(self, mocker: MockerFixture):
         mock = self._mock_json_response(mocker, "put", {})
 
-        update_group_request = generated.UpdateGroupRequest(name="New Name")
+        update_group_request = UpdateGroupRequest(name="New Name")
         await self.signal_api.groups.update(self.group_id, update_group_request)
 
         assert mock.call_count == 1

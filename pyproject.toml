@@ -86,9 +86,18 @@ ignore = [
 ]
 
 # Ignore line too long for the generated models, since they are generated and not meant to be edited by hand.
+# Also exempt them from the banned-api rule below: the generated tree's own submodules
+# legitimately import from each other.
 "**/generated/**.py" = [
     "E501",
+    "TID251",
 ]
+
+[tool.ruff.lint.flake8-tidy-imports.banned-api]
+"signalbot.api.generated.api".msg = "Import generated models from signalbot.api.generated instead."
+"signalbot.api.generated.client".msg = "Import generated models from signalbot.api.generated instead."
+"signalbot.api.generated.data".msg = "Import generated models from signalbot.api.generated instead."
+"signalbot.api.generated.receive".msg = "Import generated models from signalbot.api.generated instead."
 
 [tool.ruff.lint.flake8-type-checking]
 runtime-evaluated-base-classes = [

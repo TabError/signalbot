@@ -3,10 +3,10 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from signalbot.actions.base import BotActionsBase
-from signalbot.api.generated.api.receipt import Receipt
+from signalbot.api.generated import Receipt
 
 if TYPE_CHECKING:
-    from signalbot.api.generated.api.receipt_type import ReceiptType
+    from signalbot.api.generated import ReceiptType
     from signalbot.api.incoming import DataMessage, EditMessage
 
 

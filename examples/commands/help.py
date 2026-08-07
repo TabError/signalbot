@@ -1,7 +1,12 @@
 from typing import Protocol, runtime_checkable
 
-from signalbot import DataMessageContext, DataMessageHandler, SignalBot, text_triggered
-from signalbot.api.outgoing import SendMessage
+from signalbot import (
+    DataMessageContext,
+    DataMessageHandler,
+    SendMessage,
+    SignalBot,
+    text_triggered,
+)
 
 
 @runtime_checkable

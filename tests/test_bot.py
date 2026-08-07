@@ -21,7 +21,7 @@ from signalbot.api.generated import (
     GroupPermissions,
     SendMessages,
 )
-from signalbot.api.outgoing.poll import CreatedPoll
+from signalbot.api.outgoing import CreatedPoll
 from signalbot.bot import SignalBotError
 from signalbot.context import DataMessageContext, ReadyContext
 from signalbot.test_utils import DummyHandler

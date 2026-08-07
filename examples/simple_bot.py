@@ -5,10 +5,10 @@ from signalbot import (
     Config,
     DataMessageContext,
     DataMessageHandler,
+    SendMessage,
     SignalBot,
     text_triggered,
 )
-from signalbot.api.outgoing import SendMessage
 
 
 class PingCommand(DataMessageHandler):

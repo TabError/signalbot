@@ -3,7 +3,7 @@ from __future__ import annotations
 from anyio import Path
 from pydantic import BaseModel
 
-from signalbot.api.generated.data.link_preview_type import LinkPreviewType
+from signalbot.api.generated import LinkPreviewType
 from signalbot.utils.attachment_base64 import attachment_to_base64
 from signalbot.utils.pydantic_anyio_path import PydanticPath
 

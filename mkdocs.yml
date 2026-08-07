@@ -18,7 +18,6 @@ nav:
   - Reference:
       - SignalBot: reference/bot.md
       - Config: reference/bot_config.md
-      - Message: reference/message.md
       - Context: reference/context.md
       - Actions: reference/actions.md
       - Groups: reference/groups.md

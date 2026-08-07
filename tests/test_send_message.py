@@ -3,7 +3,7 @@ from pathlib import Path as PathlibPath
 import pytest
 from anyio import Path as AnyIOPath
 
-from signalbot.api.outgoing.send_message import SendMessage, SendMessageMultiple
+from signalbot.api.outgoing import SendMessage, SendMessageMultiple
 
 
 @pytest.mark.asyncio

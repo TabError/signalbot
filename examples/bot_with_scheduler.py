@@ -2,8 +2,7 @@ import os
 
 import typer
 
-from signalbot import SignalBot
-from signalbot.api.outgoing import SendMessage
+from signalbot import SendMessage, SignalBot
 
 
 async def ping(bot: SignalBot, recipient: str) -> None:

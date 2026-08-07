@@ -8,8 +8,7 @@ from signalbot.api.incoming import DataMessage, EditMessage
 from signalbot.context.context import Context
 
 if TYPE_CHECKING:
-    from signalbot.api.generated.api.receipt_type import ReceiptType
-    from signalbot.api.generated.receive import Mention
+    from signalbot.api.generated import Mention, ReceiptType
     from signalbot.api.incoming import Attachment
     from signalbot.api.outgoing import SendMessage, SentMessage
 

@@ -1,6 +1,9 @@
-from signalbot import DataMessageHandler, text_triggered
-from signalbot.api.outgoing import SendMessage
-from signalbot.context import DataMessageContext
+from signalbot import (
+    DataMessageContext,
+    DataMessageHandler,
+    SendMessage,
+    text_triggered,
+)
 
 
 class ReplyCommand(DataMessageHandler):

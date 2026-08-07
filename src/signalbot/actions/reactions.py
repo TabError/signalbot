@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from signalbot.actions.base import BotActionsBase
-from signalbot.api.generated.api.send_reaction_request import SendReactionRequest
+from signalbot.api.generated import SendReactionRequest
 from signalbot.api.outgoing import SentMessage
 
 if TYPE_CHECKING:

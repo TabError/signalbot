@@ -1,5 +1,9 @@
-from signalbot import DataMessageContext, DataMessageHandler, text_triggered
-from signalbot.api.outgoing import SendMessage
+from signalbot import (
+    DataMessageContext,
+    DataMessageHandler,
+    SendMessage,
+    text_triggered,
+)
 
 
 class CloseCommand(DataMessageHandler):

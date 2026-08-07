@@ -10,14 +10,13 @@ from pydantic import (
     model_validator,
 )
 
-from signalbot.api.generated import MessageMention, SendMessageV2
-from signalbot.api.generated.api import TextMode
+from signalbot.api.generated import MessageMention, SendMessageV2, TextMode
 from signalbot.api.outgoing.link_preview import LinkPreview
 from signalbot.utils.attachment_base64 import attachment_to_base64
 from signalbot.utils.pydantic_anyio_path import PydanticPath
 
 if TYPE_CHECKING:
-    from signalbot.api.generated.data.link_preview_type import LinkPreviewType
+    from signalbot.api.generated import LinkPreviewType
 
 
 async def _resolve_base64_attachments(

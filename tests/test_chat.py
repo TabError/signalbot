@@ -1,9 +1,12 @@
 import pytest
 from pytest_mock import MockerFixture
 
-from signalbot import DataMessageHandler, text_triggered
-from signalbot.api.outgoing import SendMessage
-from signalbot.context import DataMessageContext
+from signalbot import (
+    DataMessageContext,
+    DataMessageHandler,
+    SendMessage,
+    text_triggered,
+)
 from signalbot.test_utils import ChatTestCase, mock_chat
 
 

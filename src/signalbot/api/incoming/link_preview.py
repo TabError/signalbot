@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from signalbot.api import generated
+from signalbot.api.generated import Preview
 
 
-class LinkPreview(generated.Preview):
+class LinkPreview(Preview):
     base64_thumbnail: str | None = None

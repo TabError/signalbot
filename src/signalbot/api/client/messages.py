@@ -13,8 +13,11 @@ if TYPE_CHECKING:
 
     import aiohttp
 
-    from signalbot.api.generated import RemoteDeleteRequest, SendMessageV2
-    from signalbot.api.generated.api import TypingIndicatorRequest
+    from signalbot.api.generated import (
+        RemoteDeleteRequest,
+        SendMessageV2,
+        TypingIndicatorRequest,
+    )
 
 
 class MessagesURIs(SectionURIs):

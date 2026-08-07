@@ -8,7 +8,7 @@ from signalbot.errors import SignalAPIError
 if TYPE_CHECKING:
     import aiohttp
 
-    from signalbot.api.generated.api import Receipt
+    from signalbot.api.generated import Receipt
 
 
 class ReceiptsURIs(SectionURIs):

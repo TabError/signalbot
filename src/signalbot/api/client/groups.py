@@ -9,7 +9,7 @@ from signalbot.errors import SignalAPIError
 if TYPE_CHECKING:
     import aiohttp
 
-    from signalbot.api import generated
+    from signalbot.api.generated import UpdateGroupRequest
 
 
 class GroupsURIs(SectionURIs):
@@ -47,7 +47,7 @@ class GroupsClient(BaseClient[GroupsURIs]):
         return GroupEntry.model_validate(await resp.json())
 
     async def update(
-        self, group_id: str, update_group_request: generated.UpdateGroupRequest
+        self, group_id: str, update_group_request: UpdateGroupRequest
     ) -> aiohttp.ClientResponse:
         """Update a group's metadata via the API.
 

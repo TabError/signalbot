@@ -1,5 +1,4 @@
-from signalbot import DataMessageHandler, text_triggered
-from signalbot.context.data_message_context import DataMessageContext
+from signalbot import DataMessageContext, DataMessageHandler, text_triggered
 
 
 class ReactCommand(DataMessageHandler):

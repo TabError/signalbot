@@ -3,7 +3,7 @@ from __future__ import annotations
 import json
 from typing import TYPE_CHECKING
 
-from signalbot.api.generated.data.message import Message
+from signalbot.api.generated import Message
 from signalbot.api.incoming.data_message import DataMessage
 from signalbot.api.incoming.edit_message import EditMessage
 from signalbot.api.incoming.group_update import GroupUpdate
@@ -13,8 +13,7 @@ from signalbot.api.incoming.typing_message import TypingMessage
 from signalbot.errors import SignalAPIError
 
 if TYPE_CHECKING:
-    from signalbot.api import SignalAPI
-    from signalbot.api.generated import DataMessage as GeneratedDataMessage
+    from signalbot.api import SignalAPI, generated
     from signalbot.api.generated import MessageEnvelope, SyncDataMessage
     from signalbot.api.incoming import ReceivedMessage
 
@@ -22,7 +21,7 @@ if TYPE_CHECKING:
 async def _parse_data_message_variant(
     signal: SignalAPI,
     message_envelope: MessageEnvelope,
-    data_message: GeneratedDataMessage | SyncDataMessage,
+    data_message: generated.DataMessage | SyncDataMessage,
 ) -> ReceivedMessage:
     if GroupUpdate.message_envelope_is_group_update(message_envelope):
         return GroupUpdate.from_message_envelope(message_envelope)

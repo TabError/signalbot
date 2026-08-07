@@ -7,10 +7,10 @@ from signalbot import (
     DataMessageHandler,
     GroupUpdateContext,
     GroupUpdateHandler,
+    SendMessage,
     SignalBot,
     text_triggered,
 )
-from signalbot.api.outgoing import SendMessage
 
 
 class GroupActivityHandler(DataMessageHandler, GroupUpdateHandler):
