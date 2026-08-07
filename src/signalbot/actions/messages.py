@@ -100,10 +100,6 @@ class MessageActions(BotActionsBase):
         Returns:
             The timestamp of the delete action.
         """
-        if sent_message.recipient is None:
-            error_msg = "Recipient must be set in SentMessage"
-            raise ValueError(error_msg)
-
         remote_delete_request = RemoteDeleteRequest(
             recipient=self._recipients.resolve(sent_message.recipient),
             timestamp=sent_message.timestamp,

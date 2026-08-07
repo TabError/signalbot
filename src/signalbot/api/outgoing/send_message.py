@@ -131,7 +131,8 @@ class SendMessageMultiple(BaseSendMessage):
         )
 
 
-class SentMessage(SendMessage):
+class SentMessage(BaseSendMessage):
+    recipient: str
     timestamp: int
 
     @classmethod

@@ -33,9 +33,6 @@ class ReactionActions(BotActionsBase):
             emoji: Emoji reaction value.
         """
         if isinstance(message, SentMessage):
-            if message.recipient is None:
-                error_msg = "Recipient must be set in SendMessage"
-                raise ValueError(error_msg)
             recipient = message.recipient
             target_author = self._phone_number
         else:
