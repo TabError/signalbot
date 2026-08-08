@@ -9,7 +9,7 @@ For any changes, check that the tests still pass as detailed below.
 2. Install [uv](https://docs.astral.sh/uv/).
 3. Create a venv and install signalbot with its dependencies in it (including extra dependencies to be able to run the examples)
     ```bash
-    uv sync --groups examples
+    uv sync --group examples
     ```
 
     * You can install signalbot as an editable depedency in another repository (e.g. your own bot repository) like so
