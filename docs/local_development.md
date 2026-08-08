@@ -36,7 +36,7 @@ uv run pytest
     ```bash
     uv sync --group docs
     ```
-2. Run the mkdocs serve command
+2. Run the zensical serve command
     ```bash
-    uv run mkdocs serve --livereload --watch ./
+    uv run zensical serve
     ```

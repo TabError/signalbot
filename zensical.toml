@@ -1,0 +1,160 @@
+[project]
+site_url = "https://signalbot-org.github.io/signalbot/"
+site_name = "Signalbot"
+site_description = "Documentation for Signalbot, a Python library for building Signal bots using the signal-cli-rest-api."
+site_author = "Gara Dorta"
+
+repo_url = "https://github.com/signalbot-org/signalbot"
+repo_name = "signalbot-org/signalbot"
+
+nav = [
+  { "Overview" = "index.md" },
+  { "Getting started" = "getting_started.md" },
+  { "Examples" = [
+    { "API overview" = "examples/api_overview.md" },
+    { "Bot config" = "examples/bot_config_options.md" },
+    { "Scheduler" = "examples/bot_with_scheduler.md" },
+    { "Combining handlers" = "examples/group_activity_bot.md" },
+  ] },
+  { "Additional information" = "additional_information.md" },
+  { "Reference" = [
+    { "SignalBot" = "reference/bot.md" },
+    { "Config" = "reference/bot_config.md" },
+    { "Context" = "reference/context.md" },
+    { "Actions" = "reference/actions.md" },
+    { "Groups" = "reference/groups.md" },
+    { "Storage" = "reference/storage.md" },
+    { "LinkPreview" = "reference/linkpreview.md" },
+    { "DataMessageHandler" = "reference/handlers.md" },
+    { "Logger" = "reference/logger.md" },
+    { "Authentication" = "reference/auth.md" },
+  ] },
+  { "Troubleshooting" = "troubleshooting.md" },
+  { "Contributing" = "local_development.md" },
+]
+
+[project.theme]
+language = "en"
+
+# Full features list carried over from `zensical new`'s recommended defaults
+# (a superset of the mkdocs-material features this project used to enable
+# explicitly: navigation.top, navigation.indexes, content.code.annotate,
+# content.code.copy).
+features = [
+  "announce.dismiss",
+  "content.code.annotate",
+  "content.code.copy",
+  "content.code.select",
+  "content.footnote.tooltips",
+  "content.tabs.link",
+  "content.tooltips",
+  "navigation.footer",
+  "navigation.indexes",
+  "navigation.instant",
+  "navigation.instant.prefetch",
+  "navigation.path",
+  "navigation.top",
+  "navigation.tracking",
+  "search.highlight",
+]
+
+[project.theme.icon]
+logo = "fontawesome/solid/book"
+repo = "fontawesome/brands/github"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme)"
+toggle.icon = "lucide/sun-moon"
+toggle.name = "Switch to light mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: light)"
+scheme = "default"
+toggle.icon = "lucide/sun"
+toggle.name = "Switch to dark mode"
+
+[[project.theme.palette]]
+media = "(prefers-color-scheme: dark)"
+scheme = "slate"
+toggle.icon = "lucide/moon"
+toggle.name = "Switch to system preference"
+
+# Declaring this section replaces Zensical's defaults entirely, so the full
+# default block (from `zensical new`) is carried over here, with additions:
+# pymdownx.snippets (used throughout docs/ for --8<-- includes), a custom
+# pymdownx.keys key_map, pymdownx.highlight.guess_lang, and pymdownx.saneheaders.
+[project.markdown_extensions]
+abbr = {}
+admonition = {}
+attr_list = {}
+def_list = {}
+footnotes = {}
+md_in_html = {}
+toc = {
+  permalink = true
+}
+pymdownx.arithmatex = {
+  generic = true
+}
+pymdownx.betterem = {}
+pymdownx.caret = {}
+pymdownx.details = {}
+pymdownx.emoji = {
+  emoji_generator = "zensical.extensions.emoji.to_svg",
+  emoji_index = "zensical.extensions.emoji.twemoji"
+}
+pymdownx.highlight = {
+  anchor_linenums = true,
+  line_spans = "__span",
+  pygments_lang_class = true,
+  guess_lang = false
+}
+pymdownx.inlinehilite = {}
+pymdownx.keys = {
+  key_map = {
+    click = "Click",
+    left-click = "Left Click",
+    right-click = "Right Click"
+  }
+}
+pymdownx.magiclink = {}
+pymdownx.mark = {}
+pymdownx.smartsymbols = {}
+pymdownx.saneheaders = {}
+pymdownx.snippets = {}
+pymdownx.superfences = {
+  custom_fences = [
+    {
+      name = "mermaid",
+      class = "mermaid",
+      format = "pymdownx.superfences.fence_code_format",
+    },
+  ],
+}
+pymdownx.tabbed = {
+  alternate_style = true,
+  combine_header_slug = true
+}
+pymdownx.tasklist = {
+  custom_checkbox = true
+}
+pymdownx.tilde = {}
+
+[project.plugins.mkdocstrings.handlers.python]
+inventories = [
+  "https://docs.python.org/3/objects.inv",
+  "https://mkdocstrings.github.io/griffe/objects.inv",
+  "https://docs.pydantic.dev/latest/objects.inv",
+  "https://apscheduler.readthedocs.io/en/3.x/objects.inv",
+]
+options = {
+  show_root_toc_entry = false,
+  separate_signature = true,
+  docstring_options = { ignore_init_summary = true },
+  merge_init_into_class = true,
+  show_signature_annotations = true,
+  signature_crossrefs = true
+}
+
+[project.extra.version]
+provider = "mike"
