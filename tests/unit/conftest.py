@@ -8,9 +8,11 @@ import pytest
 from signalbot.api.generated import (
     AddMembers,
     EditGroup,
+    GroupInfo,
     GroupPermissions,
     SendMessages,
 )
+from signalbot.api.incoming import DataMessage
 from tests.conftest import GROUP_ID, GROUP_INTERNAL_ID
 
 if TYPE_CHECKING:
@@ -27,6 +29,35 @@ FULL_GROUP_PERMISSIONS = GroupPermissions(
     edit_group=EditGroup.EVERY_MEMBER,
     send_messages=SendMessages.EVERY_MEMBER,
 )
+
+PRIVATE_NUMBER = "+49987654321"
+PRIVATE_UUID = "author-uuid"
+
+
+def make_data_message(**overrides: object) -> DataMessage:
+    """Build a minimal private `DataMessage` for unit tests.
+
+    Pass any `DataMessage` field (e.g. `text=`, `mentions=`, `group_info=`)
+    via `overrides` to customize it.
+    """
+    message = DataMessage(
+        server_delivered_timestamp=1,
+        server_received_timestamp=1,
+        timestamp=1,
+        source_number=PRIVATE_NUMBER,
+        source_uuid=PRIVATE_UUID,
+    )
+    return message.model_copy(update=overrides) if overrides else message
+
+
+def make_group_data_message(**overrides: object) -> DataMessage:
+    """Same as `make_data_message`, but defaults `group_info` to the shared
+    test group (`GROUP_INTERNAL_ID`)."""
+    fields: dict[str, object] = {
+        "group_info": GroupInfo(groupId=GROUP_INTERNAL_ID, revision=1),
+    }
+    fields.update(overrides)
+    return make_data_message(**fields)
 
 
 class TestCommon:

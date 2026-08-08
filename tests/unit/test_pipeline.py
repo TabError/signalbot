@@ -1,19 +1,28 @@
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING
+import logging
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
-from signalbot import ReadyHandler
+from signalbot import DataMessageHandler, ReadyHandler
 from signalbot.errors import SignalBotError
 from signalbot.test_utils import ChatTestCase, DummyHandler
-from tests.unit.conftest import TestCommon
+from tests.conftest import GROUP_ID
+from tests.unit.conftest import (
+    PRIVATE_NUMBER,
+    PRIVATE_UUID,
+    TestCommon,
+    make_data_message,
+    make_group_data_message,
+)
 
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from signalbot.context import ReadyContext
+    from signalbot.api.incoming import DataMessage, ReceivedMessage
+    from signalbot.context import DataMessageContext, ReadyContext
 
 
 class TestProducer(TestCommon):
@@ -163,3 +172,169 @@ class TestPipelineStop(TestCommon):
         pipeline._consume_tasks.add(task)
 
         await asyncio.wait_for(task, timeout=1)
+
+
+_private_message = make_data_message
+_group_message = make_group_data_message
+
+
+class TestShouldReactForContact(TestCommon):
+    @pytest.mark.parametrize(
+        ("message_factory", "contacts", "group_ids", "expected"),
+        [
+            pytest.param(
+                _private_message, True, True, True, id="private-contacts-true"
+            ),
+            pytest.param(
+                _private_message, False, True, False, id="private-contacts-false"
+            ),
+            pytest.param(
+                _private_message,
+                [PRIVATE_NUMBER],
+                False,
+                True,
+                id="private-matches-number",
+            ),
+            pytest.param(
+                _private_message, [PRIVATE_UUID], False, True, id="private-matches-uuid"
+            ),
+            pytest.param(
+                _private_message,
+                ["+49000000000"],
+                False,
+                False,
+                id="private-no-match",
+            ),
+            pytest.param(_group_message, True, True, True, id="group-ids-true"),
+            pytest.param(_group_message, True, False, False, id="group-ids-false"),
+        ],
+    )
+    def test_should_react_for_contact(
+        self,
+        message_factory: Callable[[], DataMessage],
+        *,
+        contacts: list[str] | bool,
+        group_ids: list[str] | bool,
+        expected: bool,
+    ):
+        pipeline = self.signal_bot._pipeline
+        result = pipeline._should_react_for_contact(
+            message_factory(), contacts=contacts, group_ids=group_ids
+        )
+        assert result is expected
+
+    async def test_group_message_matches_whitelisted_group_id(
+        self,
+        mock_get_all_groups: Callable[[list[dict]], None],
+        fake_group: dict,
+    ):
+        pipeline = self.signal_bot._pipeline
+        mock_get_all_groups([fake_group])
+        await self.signal_bot.groups.refresh()
+
+        result = pipeline._should_react_for_contact(
+            _group_message(), contacts=False, group_ids=[GROUP_ID]
+        )
+
+        assert result is True
+
+    def test_group_message_does_not_match_unknown_group(self):
+        pipeline = self.signal_bot._pipeline
+        # Registry has no entry for the message's group, so `get_id` returns None.
+        result = pipeline._should_react_for_contact(
+            _group_message(), contacts=False, group_ids=[GROUP_ID]
+        )
+        assert result is False
+
+
+class TestShouldReactForLambda(TestCommon):
+    def test_no_filter_always_matches(self):
+        pipeline = self.signal_bot._pipeline
+        assert pipeline._should_react_for_lambda(_private_message(), None) is True
+
+    def test_filter_true_matches(self):
+        pipeline = self.signal_bot._pipeline
+        result = pipeline._should_react_for_lambda(_private_message(), lambda _: True)
+        assert result is True
+
+    def test_filter_false_does_not_match(self):
+        pipeline = self.signal_bot._pipeline
+        result = pipeline._should_react_for_lambda(_private_message(), lambda _: False)
+        assert result is False
+
+
+class TrackingDataMessageHandler(DataMessageHandler):
+    def __init__(self) -> None:
+        self.contexts: list[DataMessageContext] = []
+
+    async def handle_data_message(self, context: DataMessageContext) -> None:
+        self.contexts.append(context)
+
+
+class TestInvokeHandler(TestCommon):
+    async def test_dispatches_known_message_type_to_matching_handler(self):
+        pipeline = self.signal_bot._pipeline
+        handler = TrackingDataMessageHandler()
+        message = _private_message()
+
+        await pipeline._invoke_handler(handler, message)
+
+        assert len(handler.contexts) == 1
+        assert handler.contexts[0].message is message
+
+    async def test_unknown_message_type_logs_warning_and_does_not_raise(
+        self, caplog: pytest.LogCaptureFixture
+    ):
+        pipeline = self.signal_bot._pipeline
+        handler = TrackingDataMessageHandler()
+
+        with caplog.at_level(logging.WARNING):
+            await pipeline._invoke_handler(handler, cast("ReceivedMessage", object()))
+
+        assert "Unknown message type" in caplog.text
+        assert handler.contexts == []
+
+
+class TestConsumeResilience(TestCommon):
+    async def test_consume_keeps_running_after_a_handler_raises(self):
+        pipeline = self.signal_bot._pipeline
+
+        class ExplodingHandler(DataMessageHandler):
+            async def handle_data_message(self, context: DataMessageContext) -> None:
+                error_msg = "boom"
+                raise RuntimeError(error_msg)
+
+        succeeded = asyncio.Event()
+
+        class RecoveringHandler(DataMessageHandler):
+            async def handle_data_message(self, context: DataMessageContext) -> None:
+                succeeded.set()
+
+        await pipeline._q.put(
+            (ExplodingHandler(), _private_message(), asyncio.get_running_loop().time())
+        )
+        await pipeline._q.put(
+            (RecoveringHandler(), _private_message(), asyncio.get_running_loop().time())
+        )
+
+        consume_task = asyncio.create_task(pipeline._consume(1))
+        try:
+            await asyncio.wait_for(succeeded.wait(), timeout=1)
+        finally:
+            consume_task.cancel()
+            await asyncio.gather(consume_task, return_exceptions=True)
+
+    async def test_consume_new_item_reraises_handler_exceptions(self):
+        pipeline = self.signal_bot._pipeline
+
+        class ExplodingHandler(DataMessageHandler):
+            async def handle_data_message(self, context: DataMessageContext) -> None:
+                error_msg = "boom"
+                raise RuntimeError(error_msg)
+
+        await pipeline._q.put(
+            (ExplodingHandler(), _private_message(), asyncio.get_running_loop().time())
+        )
+
+        with pytest.raises(RuntimeError, match="boom"):
+            await pipeline._consume_new_item(1)
