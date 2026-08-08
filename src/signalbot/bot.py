@@ -21,7 +21,7 @@ from signalbot.bot_config import Config, load_config
 from signalbot.bot_init import build_components
 from signalbot.errors import SignalBotError
 from signalbot.groups import GroupRegistry
-from signalbot.logger import initialize_logger
+from signalbot.logger import _initialize_logger
 from signalbot.pipeline import AnyHandler, HandlerList, MessagePipeline
 from signalbot.recipients import RecipientResolver
 from signalbot.utils.retry import rerun_on_exception
@@ -79,7 +79,7 @@ class SignalBot:
         ```
         """
         self.config = load_config(config)
-        self._logger = initialize_logger(self.config.logging_level)
+        self._logger = _initialize_logger(self.config.logging_level)
 
         self.init_task: None | asyncio.Task = None
         self._shutdown_task: None | asyncio.Task = None

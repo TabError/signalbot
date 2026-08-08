@@ -6,7 +6,7 @@ The logger name used by signalbot.
 """
 
 
-def initialize_logger(level: int = logging.WARNING) -> logging.Logger:
+def _initialize_logger(level: int = logging.WARNING) -> logging.Logger:
     """Creates a logger that outputs to console.
 
     Args:
