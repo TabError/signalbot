@@ -15,7 +15,7 @@ Neither list below is exhaustive — some message types need extra plumbing (e.g
 [`src/signalbot/groups/`](https://github.com/signalbot-org/signalbot/tree/main/src/signalbot/groups)) —
 so find the closest existing example and follow its shape.
 
-## Adding a new incoming message type
+## New incoming message
 
 1. **Get a message envelope.** Set a breakpoint in `_parse_main_messages`,
    `_parse_sync_messages`, or `_parse_data_message_variant` in
@@ -30,7 +30,6 @@ so find the closest existing example and follow its shape.
    with `_parse_data_message_variant` in
    [`parser.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/messages/parser.py),
    which already branches on the `reaction`/`remote_delete`/group-update sub-fields of a data message.
-
    If a field is missing from the generated models, it
    is missing from upstream
    [signal-cli-rest-api](https://github.com/bbernhard/signal-cli-rest-api)'s own swagger schema — open
@@ -64,12 +63,17 @@ so find the closest existing example and follow its shape.
      [`Attachment.base64_content`][signalbot.attachments.Attachment] in
      [`src/signalbot/attachments/attachment.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/attachments/attachment.py).
    - If a container field then needs to point at one of these wrapped types instead of the generated
-     type it replaces, that's a genuine override of the generated base class — annotate it with
-     `# pyright: ignore[reportIncompatibleVariableOverride]` plus a one-line comment explaining why it's
-     sound, e.g. `GroupEntry.permissions` in
+     type it replaces, that's a genuine override of the generated base class. pyright flags this as
+     `reportIncompatibleVariableOverride` because narrowing a mutable attribute's type in a subclass is
+     unsound in general — but it's sound here: every wrapped type is a strict superset of the generated
+     type it replaces (same fields, same validation, plus extra), and pydantic validates the value
+     against the narrower type on construction, so nothing bypasses it. Annotate the field with a bare
+     `# pyright: ignore[reportIncompatibleVariableOverride]` — the rationale above is why.
+     See `GroupEntry.permissions` in
      [`src/signalbot/groups/group_entry.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/groups/group_entry.py)
      or `Quote.attachments` in
-     [`src/signalbot/messages/data_message_content.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/messages/data_message_content.py).
+     [`src/signalbot/messages/data_message_content.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/messages/data_message_content.py)
+     for the pattern.
 
 5. **Wire it into the parser.** Add a branch in `_parse_main_messages` and/or `_parse_sync_messages` in
    [`parser.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/messages/parser.py),
@@ -124,7 +128,7 @@ so find the closest existing example and follow its shape.
    [`docs/examples/`](https://github.com/signalbot-org/signalbot/tree/main/docs/examples), under the
    section of the bot that you are editing.
 
-## Adding a new outgoing action
+## New outgoing action
 
 1. **Find the endpoint** in the
    [signal-cli-rest-api Swagger docs](https://bbernhard.github.io/signal-cli-rest-api/) — note its

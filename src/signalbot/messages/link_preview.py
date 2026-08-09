@@ -16,8 +16,7 @@ class Preview(GeneratedPreview):
     """
 
     base64_thumbnail: str | None = None
-    # Additive: Attachment is a strict superset of the generated type it wraps,
-    # so this narrowing is sound; pydantic validates it on construction.
+    # Narrowed to a wrapped type; rationale in docs/05_extending.md.
     image: Attachment | None = None  # pyright: ignore[reportIncompatibleVariableOverride]
 
 
