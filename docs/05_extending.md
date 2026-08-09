@@ -50,12 +50,33 @@ so find the closest existing example and follow its shape.
    [`BaseMessage`][signalbot.events.BaseMessage] or
    [`BaseMessageWithGroup`][signalbot.events.BaseMessageWithGroup] as appropriate.
 
-4. **Wire it into the parser.** Add a branch in `_parse_main_messages` and/or `_parse_sync_messages` in
+4. **Wrap any nested `_generated` types your class exposes.** No `signalbot._generated` type may appear
+   on the public API, directly or nested inside a field —
+   [`tests/unit/test_public_api_surface.py`](https://github.com/signalbot-org/signalbot/blob/main/tests/unit/test_public_api_surface.py)
+   enforces this and will fail your PR if you skip it. For each generated type your class reaches:
+
+   - If nothing about it needs to change, still give it a thin domain subclass with a docstring —
+     `class GroupInfo(GeneratedGroupInfo): """..."""` — even with zero added fields. The generated tree
+     is produced from a bare JSON schema and carries no docstrings of its own, so this subclass is the
+     only place that documentation exists, and it's what actually gets rendered under `docs/reference/`.
+   - Add real fields or methods only when the domain type needs state or behavior the wire format
+     doesn't have — pattern:
+     [`Attachment.base64_content`][signalbot.attachments.Attachment] in
+     [`src/signalbot/attachments/attachment.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/attachments/attachment.py).
+   - If a container field then needs to point at one of these wrapped types instead of the generated
+     type it replaces, that's a genuine override of the generated base class — annotate it with
+     `# pyright: ignore[reportIncompatibleVariableOverride]` plus a one-line comment explaining why it's
+     sound, e.g. `GroupEntry.permissions` in
+     [`src/signalbot/groups/group_entry.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/groups/group_entry.py)
+     or `Quote.attachments` in
+     [`src/signalbot/messages/data_message_content.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/messages/data_message_content.py).
+
+5. **Wire it into the parser.** Add a branch in `_parse_main_messages` and/or `_parse_sync_messages` in
    [`parser.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/messages/parser.py),
    and extend the [`ReceivedMessage`][signalbot.messages.ReceivedMessage] type
    alias.
 
-5. **Write a [`Context`][signalbot.context.Context] class** in
+6. **Write a [`Context`][signalbot.context.Context] class** in
    [`src/signalbot/context/`](https://github.com/signalbot-org/signalbot/tree/main/src/signalbot/context)
    (pattern:
    [`TypingContext`][signalbot.context.TypingContext] in
@@ -65,18 +86,18 @@ so find the closest existing example and follow its shape.
    (pattern: [`TypingHandler`][signalbot.handlers.TypingHandler]) with one
    abstract `handle_xxx(self, context: ...)` method.
 
-6. **Register the dispatch.** Add an entry to `_MESSAGE_DISPATCH` in
+7. **Register the dispatch.** Add an entry to `_MESSAGE_DISPATCH` in
    [`src/signalbot/_pipeline.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/_pipeline.py)
    mapping your new class to `(YourHandler, YourContext, "handle_xxx")`. This is the one place that
    ties parsing to dispatch — nothing reaches a handler without an entry here.
 
-7. **(Optional) Write a trigger decorator** in
+8. **(Optional) Write a trigger decorator** in
    [`handlers.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/handlers.py) if
    handlers for this type commonly filter on a field — follow
    [`reaction_triggered`][signalbot.handlers.reaction_triggered] as the smallest
    example: it checks `isinstance(context, YourContext)`, filters, and calls through.
 
-8. **Write a test.** Follow
+9. **Write a test.** Follow
    [`tests/unit/messages/test_message.py`](https://github.com/signalbot-org/signalbot/blob/main/tests/unit/messages/test_message.py)'s
    pattern: build the raw envelope JSON inline (this repo doesn't use fixture files for envelopes), call
    [`parse(signal, raw_json_str)`][signalbot.messages.parse], and assert
@@ -84,7 +105,7 @@ so find the closest existing example and follow its shape.
    [`tests/unit/test_pipeline.py`](https://github.com/signalbot-org/signalbot/blob/main/tests/unit/test_pipeline.py)
    if relevant.
 
-9. **Write an example handler** under
+10. **Write an example handler** under
    [`examples/handlers/`](https://github.com/signalbot-org/signalbot/tree/main/examples/handlers) or
    [`examples/commands/`](https://github.com/signalbot-org/signalbot/tree/main/examples/commands),
    following
@@ -99,7 +120,7 @@ so find the closest existing example and follow its shape.
    [`examples/bot.py`](https://github.com/signalbot-org/signalbot/blob/main/examples/bot.py)) with
    [`bot.register(YourHandler())`][signalbot.bot.SignalBot.register].
 
-10. **Add a new page to the docs** under
+11. **Add a new page to the docs** under
    [`docs/examples/`](https://github.com/signalbot-org/signalbot/tree/main/docs/examples), under the
    section of the bot that you are editing.
 
@@ -122,54 +143,77 @@ so find the closest existing example and follow its shape.
    [`src/signalbot/_generated/README.md`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/_generated/README.md)).
    Don't hand-add wire models.
 
-3. **Add a client method** in the relevant
+3. **Write the domain-facing request model** that a bot author actually constructs, in the relevant
+   top-level package (e.g. `src/signalbot/polls/`). Pick the shape based on whether every field is
+   knowable at construction time:
+
+   - **Straight subclass of the generated request** — `class X(GeneratedXRequest): """..."""` — when
+     nothing needs to be filled in later. Narrowing a field to a wrapped type (as in the incoming-flow
+     guidance above) is fine here too, same rule: additive narrowing is sound, mark it with
+     `# pyright: ignore[reportIncompatibleVariableOverride]` and a reason.
+   - **Standalone `BaseModel` with a `to_generated()` method** when a field the wire format requires
+     won't be known until later — most commonly `recipient`/`group_id_or_name`, which a
+     [`Context`][signalbot.context.Context] convenience method fills in from the received message.
+     Follow [`SendMessage`][signalbot.messages.SendMessage] in
+     [`send_message.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/messages/send_message.py),
+     [`UpdateGroup`][signalbot.groups.UpdateGroup], or
+     [`CreatePoll`][signalbot.polls.CreatePoll]: `to_generated()` raises a `ValueError` if the deferred
+     field is still `None` when called.
+
+4. **Add a client method** in the relevant
    [`src/signalbot/_client/`](https://github.com/signalbot-org/signalbot/tree/main/src/signalbot/_client)
    file (or a new file for a new API section): add a URI method on the `*URIs` class (pattern:
-   `MessagesURIs.remote_delete_uri()`) and a method on the `*Client` class that builds the payload with
-   `model_dump_json(exclude_none=True, by_alias=True)`, calls
+   `MessagesURIs.remote_delete_uri()`) and a method on the `*Client` class, **typed to accept the
+   generated request model**, that builds the
+   payload with `model_dump_json(exclude_none=True, by_alias=True)`, calls
    `self._request(verb, uri, error_cls=..., payload=...)`, and parses the response (pattern:
    `MessagesClient.remote_delete` in
    [`src/signalbot/_client/messages.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/_client/messages.py)).
    Define a dedicated `*Error(`[`SignalAPIError`][signalbot.SignalAPIError]`)` class alongside it.
 
-4. **Expose it on [`SignalAPI`][signalbot.client.SignalAPI]** if it's a new
+5. **Expose it on [`SignalAPI`][signalbot.client.SignalAPI]** if it's a new
    section
    ([`src/signalbot/_client/signal_api.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/_client/signal_api.py))
    — existing sections (`.messages`, `.reactions`, `.groups`, ...) already route to their client class.
 
-5. **Add a method on the matching `*Actions` class** in
+6. **Add a method on the matching `*Actions` class** in
    [`src/signalbot/_actions/`](https://github.com/signalbot-org/signalbot/tree/main/src/signalbot/_actions)
    (pattern:
    [`MessageActions.remote_delete`][signalbot._actions.MessageActions.remote_delete]
    in
    [`src/signalbot/_actions/messages.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/_actions/messages.py)):
-   resolve any recipient via `self._recipients.resolve(...)`, build the generated request model, call
-   the client method, log via `self._logger.info(...)`, and return a friendly domain-level result if
-   useful (e.g. [`SentMessage`][signalbot.messages.SentMessage]).
+   resolve any recipient via `self._recipients.resolve(...)`, convert to the wire request — call
+   `.to_generated()` on the domain model if it has one (pattern:
+   [`PollActions.create`][signalbot._actions.PollActions.create]), or construct the generated model
+   directly for simple cases that never needed a domain wrapper (pattern:
+   `MessageActions.remote_delete` building a `RemoteDeleteRequest` inline) — call the client method, log
+   via `self._logger.info(...)`, and return a friendly domain-level result if useful (e.g.
+   [`SentMessage`][signalbot.messages.SentMessage]).
 
-6. **Wire it up if it's a new Actions class** — instantiate and attach it to
+7. **Wire it up if it's a new Actions class** — instantiate and attach it to
    [`SignalBot`][signalbot.bot.SignalBot] in
    [`src/signalbot/_bot_init.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/_bot_init.py)
    next to `self.messages`/`self.reactions`/etc.
 
-7. **Add a [`Context`][signalbot.context.Context] convenience method** in
+8. **Add a [`Context`][signalbot.context.Context] convenience method** in
    [`src/signalbot/context/context.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/context/context.py)
    if handlers should be able to call it directly — follow how
    [`context.react(...)`][signalbot.context.DataMessageContext.react] /
-   `context.send(...)` delegate to the Actions layer.
+   `context.send(...)` delegate to the Actions layer. This is usually exactly where the deferred field
+   from step 3 gets filled in — e.g. `create_poll_request.recipient = received_message.source_or_group_id()`.
 
-8. **Write a test** for the new `Actions` method (mock/stub [`SignalAPI`][signalbot.client.SignalAPI], assert the right client method
+9. **Write a test** for the new `Actions` method (mock/stub [`SignalAPI`][signalbot.client.SignalAPI], assert the right client method
    and payload) — check
    [`tests/unit`](https://github.com/signalbot-org/signalbot/tree/main/tests/unit) for the existing
    pattern for `_actions/*` classes.
 
-9. **Write an example** command/handler under
+10. **Write an example** command/handler under
    [`examples/commands/`](https://github.com/signalbot-org/signalbot/tree/main/examples/commands) or
    [`examples/handlers/`](https://github.com/signalbot-org/signalbot/tree/main/examples/handlers) that
    calls the new action (pattern:
    [`examples/commands/reaction.py`](https://github.com/signalbot-org/signalbot/blob/main/examples/commands/reaction.py)),
    registered in one of the example bots.
 
-10. **Add a new page to the docs** under
+11. **Add a new page to the docs** under
    [`docs/examples/`](https://github.com/signalbot-org/signalbot/tree/main/docs/examples), under the
    section of the bot that you are editing.
