@@ -67,8 +67,8 @@ Confirm that the server is running in the correct mode by visiting http://127.0.
     python bot.py
     ```
 
-    By default, `SignalBot` starts with `HTTPS/WSS` and will fallback to `HTTP/WS` if needed.
-    This behaviour can be changed by setting the `connection_mode` in the [Config][signalbot.Config] argument of the bot.
+    By default, [`SignalBot`][signalbot.SignalBot] starts with `HTTPS/WSS` and will fallback to `HTTP/WS` if needed.
+    This behaviour can be changed by setting the `connection_mode` ([ConnectionMode][signalbot.ConnectionMode]) in the [Config][signalbot.Config] argument of the bot.
 
 7. The logs should indicate that one "producer" and three "consumers" have started.
 The producer checks for new messages sent to the linked account using a web socket connection.
