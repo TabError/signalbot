@@ -20,7 +20,7 @@ To set it up follow the steps in the [getting started page](01_getting_started.m
 
 The bot can do a lot more, here is a quick overview of the most common methods:
 
-- [bot.register(command)][signalbot.bot.SignalBot.register] ``: Register a new command
+- [bot.register(command)][signalbot.bot.SignalBot.register]: Register a new command
 - `bot.start()`: Start the bot
 - `bot.messages.send(SendMessage(recipient=..., text=...))`: Send a new message
 - `bot.messages.start_typing(recipient)`: Start typing
