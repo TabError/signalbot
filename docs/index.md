@@ -33,8 +33,6 @@ The bot can do a lot more, here is a quick overview of the most common methods:
 - `bot.attachments.delete(attachment)`: Delete the local copy of an attachment
 - `bot.scheduler`: Schedule tasks, see the [scheduler examples](examples/03_bot_with_scheduler.md).
 
-Each of these is grouped under a namespace matching the underlying `signal-cli-rest-api` tag it belongs to (`messages`, `reactions`, `receipts`, `groups`, `contacts`, `attachments`, `polls`, `general`), mirroring how [`SignalAPI`](reference/bot.md) is organized. `groups` is the one exception: `bot.groups` is a read-only cache of the groups the bot is a member of, while updates go through `bot.group_actions`.
-
 ## Real world bot examples
 
 There are many real world examples of bot implementations using this library.
