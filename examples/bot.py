@@ -37,11 +37,13 @@ from signalbot import Config, SignalBot
 def main() -> None:
     phone_number = os.environ["PHONE_NUMBER"]
 
+    # Replace the recipient with your own phone number or group ID to
+    # receive the welcome message and the broadcast message.
+    contact_phone_number = os.environ.get("CONTACT_PHONE_NUMBER")
+
     bot = SignalBot(Config(phone_number=phone_number))
 
-    # Replace the recipient with your own phone number or group ID to
-    # receive the welcome message.
-    bot.register(WelcomeHandler(recipient=None))
+    bot.register(WelcomeHandler(recipient=contact_phone_number))
 
     # By default the handlers are enabled for all contacts and all groups
     bot.register(HelpCommand())
@@ -75,7 +77,8 @@ def main() -> None:
 
     # Replace with the phone numbers or group IDs that should receive the
     # broadcast message
-    bot.register(BroadcastCommand(recipients=[phone_number]))
+    broadcast_recipients = [contact_phone_number] if contact_phone_number else []
+    bot.register(BroadcastCommand(recipients=broadcast_recipients))
 
     # The handler will only trigger the group named "My Group"
     bot.register(TypingCommand(), groups=["My Group"])

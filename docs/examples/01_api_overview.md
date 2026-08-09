@@ -19,9 +19,23 @@ uv sync --group examples
 
 ### Commands
 
+<details><summary>AboutCommand</summary>
+``` python
+--8<-- "examples/commands/about.py"
+```
+</details>
+
+
 <details><summary>AttachmentCommand</summary>
 ``` python
 --8<-- "examples/commands/attachments.py"
+```
+</details>
+
+
+<details><summary>BroadcastCommand</summary>
+``` python
+--8<-- "examples/commands/broadcast.py"
 ```
 </details>
 
@@ -33,6 +47,13 @@ uv sync --group examples
 </details>
 
 
+<details><summary>UpdateContactCommand</summary>
+``` python
+--8<-- "examples/commands/contact.py"
+```
+</details>
+
+
 <details><summary>DeleteCommand & DeleteLocalAttachmentCommand</summary>
 ``` python
 --8<-- "examples/commands/delete.py"
@@ -40,9 +61,16 @@ uv sync --group examples
 </details>
 
 
-<details><summary>EditCommand</summary>
+<details><summary>EditCommand & EditNotifierCommand</summary>
 ``` python
 --8<-- "examples/commands/edit.py"
+```
+</details>
+
+
+<details><summary>UpdateGroupCommand</summary>
+``` python
+--8<-- "examples/commands/group.py"
 ```
 </details>
 
@@ -75,9 +103,23 @@ uv sync --group examples
 </details>
 
 
+<details><summary>PollCommand</summary>
+``` python
+--8<-- "examples/commands/poll.py"
+```
+</details>
+
+
 <details><summary>ReactCommand</summary>
 ``` python
 --8<-- "examples/commands/reaction.py"
+```
+</details>
+
+
+<details><summary>ReceiptCommand</summary>
+``` python
+--8<-- "examples/commands/receipt.py"
 ```
 </details>
 
@@ -111,6 +153,13 @@ uv sync --group examples
 
 ### Handlers
 
+<details><summary>GroupUpdateNotifierHandler</summary>
+``` python
+--8<-- "examples/handlers/group_update.py"
+```
+</details>
+
+
 <details><summary>ReactionDetailsHandler & FilteredReactionHandler</summary>
 ``` python
 --8<-- "examples/handlers/reaction.py"
@@ -128,5 +177,12 @@ uv sync --group examples
 <details><summary>WelcomeHandler</summary>
 ``` python
 --8<-- "examples/handlers/ready.py"
+```
+</details>
+
+
+<details><summary>TypingIndicatorHandler</summary>
+``` python
+--8<-- "examples/handlers/typing.py"
 ```
 </details>
