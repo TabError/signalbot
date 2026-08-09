@@ -53,10 +53,6 @@ scheme = "slate"
 toggle.icon = "lucide/moon"
 toggle.name = "Switch to system preference"
 
-# Declaring this section replaces Zensical's defaults entirely, so the full
-# default block (from `zensical new`) is carried over here, with additions:
-# pymdownx.snippets (used throughout docs/ for --8<-- includes), a custom
-# pymdownx.keys key_map, pymdownx.highlight.guess_lang, and pymdownx.saneheaders.
 [project.markdown_extensions]
 abbr = {}
 admonition = {}
@@ -65,37 +61,29 @@ def_list = {}
 footnotes = {}
 md_in_html = {}
 toc = {
-  permalink = true
+  permalink = true,
 }
 pymdownx.arithmatex = {
-  generic = true
+  generic = true,
 }
 pymdownx.betterem = {}
 pymdownx.caret = {}
 pymdownx.details = {}
 pymdownx.emoji = {
   emoji_generator = "zensical.extensions.emoji.to_svg",
-  emoji_index = "zensical.extensions.emoji.twemoji"
+  emoji_index = "zensical.extensions.emoji.twemoji",
 }
 pymdownx.highlight = {
   anchor_linenums = true,
   line_spans = "__span",
   pygments_lang_class = true,
-  guess_lang = false
 }
 pymdownx.inlinehilite = {}
-pymdownx.keys = {
-  key_map = {
-    click = "Click",
-    left-click = "Left Click",
-    right-click = "Right Click"
-  }
-}
+pymdownx.keys = {}
 pymdownx.magiclink = {}
 pymdownx.mark = {}
 pymdownx.smartsymbols = {}
-pymdownx.saneheaders = {}
-pymdownx.snippets = {}
+pymdownx.snippets = {} # Enable --8<-- code includes
 pymdownx.superfences = {
   custom_fences = [
     {
@@ -107,10 +95,10 @@ pymdownx.superfences = {
 }
 pymdownx.tabbed = {
   alternate_style = true,
-  combine_header_slug = true
+  combine_header_slug = true,
 }
 pymdownx.tasklist = {
-  custom_checkbox = true
+  custom_checkbox = true,
 }
 pymdownx.tilde = {}
 
