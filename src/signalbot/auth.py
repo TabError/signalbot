@@ -26,16 +26,12 @@ class Authentication(ABC):
 
 @dataclass
 class BasicAuthentication(Authentication):
-    """
-    Username and password based authentication.
-
-    Attributes:
-        username: The username for the authentication.
-        password: The password used for authentication.
-    """
+    """Username and password based authentication."""
 
     username: str
+    """The username for the authentication."""
     password: str
+    """The password used for authentication."""
 
     @property
     def header(self) -> str:
@@ -46,14 +42,10 @@ class BasicAuthentication(Authentication):
 
 @dataclass
 class BearerAuthentication(Authentication):
-    """
-    Token based authentication.
-
-    Attributes:
-        token: The token used for authentication.
-    """
+    """Token based authentication."""
 
     token: str
+    """The token used for authentication."""
 
     @property
     def header(self) -> str:

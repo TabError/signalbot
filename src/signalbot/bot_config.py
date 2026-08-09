@@ -6,113 +6,103 @@ from pathlib import Path
 from typing import Literal
 
 import yaml
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from signalbot.client import ConnectionMode
 
 
 class RedisConfig(BaseModel):
-    """
-    The configuration for the
+    """The configuration for the
     [RedisStorage](storage.md#signalbot.storage.RedisStorage) backend.
-
-    Attributes:
-        type: The type of storage. Defaults to `redis`.
-        host: The hostname of the Redis server.
-        port: The port number of the Redis server.
-        password: The password for Redis authentication. Defaults to `None`.
     """
 
-    type: Literal["redis"] = "redis"
-    host: str
-    port: int
-    password: str | None = None
+    type: Literal["redis"] = Field(
+        default="redis", description="The type of storage. Defaults to `redis`."
+    )
+    host: str = Field(description="The hostname of the Redis server.")
+    port: int = Field(description="The port number of the Redis server.")
+    password: str | None = Field(
+        default=None, description="The password for Redis authentication."
+    )
 
 
 class SQLiteConfig(BaseModel):
-    """
-    The configuration for the
+    """The configuration for the
     [SQLiteStorage](storage.md#signalbot.storage.SQLiteStorage) backend.
-
-    Attributes:
-        type: The type of storage. Defaults to `sqlite`.
-        db: The path to the SQLite database file.
-        check_same_thread: Whether to check the same thread when accessing the database.
     """
 
-    type: Literal["sqlite"] = "sqlite"
-    db: str | Path
-    check_same_thread: bool = True
+    type: Literal["sqlite"] = Field(
+        default="sqlite", description="The type of storage. Defaults to `sqlite`."
+    )
+    db: str | Path = Field(description="The path to the SQLite database file.")
+    check_same_thread: bool = Field(
+        default=True,
+        description="Whether to check the same thread when accessing the database.",
+    )
 
 
 class InMemoryConfig(BaseModel):
-    """
-    The configuration for the in-memory storage backend, which defaults to
+    """The configuration for the in-memory storage backend, which defaults to
     [SQLiteStorage](storage.md#signalbot.storage.SQLiteStorage) with memory storage.
-
-    Attributes:
-        type: The type of storage. Defaults to `in-memory`.
     """
 
-    type: Literal["in-memory"] = "in-memory"
+    type: Literal["in-memory"] = Field(
+        default="in-memory", description="The type of storage. Defaults to `in-memory`."
+    )
 
 
 class BasicAuthConfig(BaseModel):
-    """
-    The configuration for username and password based authentication.
+    """The configuration for username and password based authentication."""
 
-    Attributes:
-        type: The type of authentication. Defaults to `basic`.
-        username: The username for the authentication.
-        password: The password used for authentication.
-    """
-
-    type: Literal["basic"] = "basic"
-    username: str
-    password: str
+    type: Literal["basic"] = Field(
+        default="basic", description="The type of authentication. Defaults to `basic`."
+    )
+    username: str = Field(description="The username for the authentication.")
+    password: str = Field(description="The password used for authentication.")
 
 
 class BearerAuthConfig(BaseModel):
-    """
-    The configuration for token based authentication.
+    """The configuration for token based authentication."""
 
-    Attributes:
-        type: The type of authentication. Defaults to `bearer`.
-        token: The token used for authentication.
-    """
-
-    type: Literal["bearer"] = "bearer"
-    token: str
+    type: Literal["bearer"] = Field(
+        default="bearer",
+        description="The type of authentication. Defaults to `bearer`.",
+    )
+    token: str = Field(description="The token used for authentication.")
 
 
 class Config(BaseModel):
-    """
-    The configuration for SignalBot.
+    """The configuration for SignalBot."""
 
-    Attributes:
-        phone_number: The phone number of the bot.
-        signal_service: The URL of the `signal-cli-rest-api` service to connect to,
-            without protocol.
-        auth: The authentication config used for http requests. Defaults to `None`.
-        storage: The configuration for the storage backend to use. Defaults to `None`.
-        retry_interval: The interval in seconds to wait before retrying a failed
-            connection to the signal service.
-        download_attachments: Whether to download attachments from messages. Defaults to
-            `True`.
-        connection_mode: The connection mode to use when connecting to the Signal
-            service. Defaults to `ConnectionMode.AUTO`.
-        logging_level: The logging level for the bot. Defaults to `logging.WARN`.
-    """
-
-    phone_number: str
-    signal_service: str = "localhost:8080"
-    auth: BasicAuthConfig | BearerAuthConfig | None = None
-
-    storage: RedisConfig | SQLiteConfig | InMemoryConfig | None = None
-    retry_interval: int = 1
-    download_attachments: bool = True
-    connection_mode: ConnectionMode = ConnectionMode.AUTO
-    logging_level: int = WARNING
+    phone_number: str = Field(description="The phone number of the bot.")
+    signal_service: str = Field(
+        default="localhost:8080",
+        description="The URL of the `signal-cli-rest-api` service to connect to, "
+        "without protocol.",
+    )
+    auth: BasicAuthConfig | BearerAuthConfig | None = Field(
+        default=None,
+        description="The authentication config used for http requests.",
+    )
+    storage: RedisConfig | SQLiteConfig | InMemoryConfig | None = Field(
+        default=None, description="The configuration for the storage backend to use."
+    )
+    retry_interval: int = Field(
+        default=1,
+        description="The interval in seconds to wait before retrying a failed "
+        "connection to the signal service.",
+    )
+    download_attachments: bool = Field(
+        default=True,
+        description="Whether to download attachments from messages.",
+    )
+    connection_mode: ConnectionMode = Field(
+        default=ConnectionMode.AUTO,
+        description="The connection mode to use when connecting to the Signal service.",
+    )
+    logging_level: int = Field(
+        default=WARNING, description="The logging level for the bot."
+    )
 
 
 def load_config(config: Config | Mapping | Path | str) -> Config:

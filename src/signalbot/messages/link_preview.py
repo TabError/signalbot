@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 from anyio import Path
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
 
 from signalbot._generated import LinkPreviewType
 from signalbot._generated import Preview as GeneratedPreview
@@ -21,21 +21,15 @@ class Preview(GeneratedPreview):
 
 
 class LinkPreview(BaseModel):
-    """
-    LinkPreview
+    """A link preview to attach to an outgoing message."""
 
-    Attributes:
-        description: The description of the link preview.
-        title: The title of the link preview.
-        url: The URL of the link preview.
-        thumbnail : The thumbnail of the link preview. This can be a Path or a base64
-            encoded string of the image content.
-    """
-
-    description: str
-    title: str
-    url: str
-    thumbnail: PydanticPath | str
+    description: str = Field(description="The description of the link preview.")
+    title: str = Field(description="The title of the link preview.")
+    url: str = Field(description="The URL of the link preview.")
+    thumbnail: PydanticPath | str = Field(
+        description="The thumbnail of the link preview. This can be a Path or a "
+        "base64 encoded string of the image content."
+    )
 
     async def to_generated(self) -> LinkPreviewType:
         base64_thumbnail = (

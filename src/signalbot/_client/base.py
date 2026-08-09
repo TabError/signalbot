@@ -12,17 +12,14 @@ if TYPE_CHECKING:
 
 
 class ConnectionMode(StrEnum):
-    """Protocol strategy for connecting to `signal-cli-rest-api`.
-
-    Attributes:
-        HTTPS_ONLY: Always use HTTPS/WSS.
-        HTTP_ONLY: Always use HTTP/WS.
-        AUTO: Start with HTTPS/WSS and fallback to HTTP/WS if unavailable.
-    """
+    """Protocol strategy for connecting to `signal-cli-rest-api`."""
 
     HTTPS_ONLY = "https_only"
+    """Always use HTTPS/WSS."""
     HTTP_ONLY = "http_only"
+    """Always use HTTP/WS."""
     AUTO = "auto"
+    """Start with HTTPS/WSS and fallback to HTTP/WS if unavailable."""
 
 
 HEALTH_CHECK_GOOD_STATUS = 204
