@@ -44,24 +44,26 @@ class SignalBot:
     start the bot, and interact with messages.
 
     Attributes:
-        config: The configuration for the bot.
-        groups: Cache of the groups the bot is a member of, with
+        config (Config): The configuration for the bot.
+        groups (GroupRegistry): Cache of the groups the bot is a member of, with
             lookup helpers. Only populated after `.start()` is called and
             `init_task` is done.
-        group_actions: Update group metadata.
-        handlers: A list of registered handlers with their filters.
+        group_actions (GroupActions): Update group metadata.
+        handlers (HandlerList): A list of registered handlers with their filters.
             Only available after `.start()` is called and `init_task` is done.
-        messages: Send, edit, or delete messages, and manage typing
+        messages (MessageActions): Send, edit, or delete messages, and manage typing
             indicators.
-        polls: Create polls.
-        reactions: React to messages.
-        receipts: Send read/viewed receipts.
-        contacts: Update contact metadata.
-        attachments: Delete local attachment copies.
-        general: Miscellaneous `signal-cli-rest-api` info.
-        storage (SQLiteStorage | RedisStorage): The storage backend used by the bot.
-        scheduler (AsyncIOScheduler): The scheduler for running scheduled tasks.
-        init_task: The initialization async task for the bot.
+        polls (PollActions): Create polls.
+        reactions (ReactionActions): React to messages.
+        receipts (ReceiptActions): Send read/viewed receipts.
+        contacts (ContactActions): Update contact metadata.
+        attachments (AttachmentActions): Delete local attachment copies.
+        general (GeneralActions): Miscellaneous `signal-cli-rest-api` info.
+        storage (signalbot.storage.SQLiteStorage | signalbot.storage.RedisStorage): The
+            storage backend used by the bot.
+        scheduler (apscheduler.schedulers.asyncio.AsyncIOScheduler): The scheduler for
+            running scheduled tasks.
+        init_task (asyncio.Task | None): The initialization async task for the bot.
             Only available after `.start()` is called.
     """
 
