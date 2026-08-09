@@ -130,7 +130,7 @@ so find the closest existing example and follow its shape.
    `self._request(verb, uri, error_cls=..., payload=...)`, and parses the response (pattern:
    `MessagesClient.remote_delete` in
    [`src/signalbot/_client/messages.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/_client/messages.py)).
-   Define a dedicated `*Error(SignalAPIError)` class alongside it.
+   Define a dedicated `*Error(`[`SignalAPIError`][signalbot.SignalAPIError]`)` class alongside it.
 
 4. **Expose it on [`SignalAPI`][signalbot.client.SignalAPI]** if it's a new
    section
