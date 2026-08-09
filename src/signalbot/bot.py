@@ -30,8 +30,11 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
     from pathlib import Path
 
+    from apscheduler.schedulers.asyncio import AsyncIOScheduler
+
     from signalbot.handlers import AnyHandler, HandlerList
     from signalbot.messages import ReceivedMessage
+    from signalbot.storage import RedisStorage, SQLiteStorage
 
 MIN_SIGNAL_CLI_REST_API_VERSION = Version("0.95.0")
 """
@@ -43,29 +46,40 @@ class SignalBot:
     """
     SignalBot is the main class for the bot. It provides methods to register handlers,
     start the bot, and interact with messages.
+    """
 
-    Attributes:
-        config (Config): The configuration for the bot.
-        groups (GroupRegistry): Cache of the groups the bot is a member of, with
-            lookup helpers. Only populated after `.start()` is called and
-            `init_task` is done.
-        group_actions (GroupActions): Update group metadata.
-        handlers (HandlerList): A list of registered handlers with their filters.
-            Only available after `.start()` is called and `init_task` is done.
-        messages (MessageActions): Send, edit, or delete messages, and manage typing
-            indicators.
-        polls (PollActions): Create polls.
-        reactions (ReactionActions): React to messages.
-        receipts (ReceiptActions): Send read/viewed receipts.
-        contacts (ContactActions): Update contact metadata.
-        attachments (AttachmentActions): Delete local attachment copies.
-        general (GeneralActions): Miscellaneous `signal-cli-rest-api` info.
-        storage (signalbot.storage.SQLiteStorage | signalbot.storage.RedisStorage): The
-            storage backend used by the bot.
-        scheduler (apscheduler.schedulers.asyncio.AsyncIOScheduler): The scheduler for
-            running scheduled tasks.
-        init_task (asyncio.Task | None): The initialization async task for the bot.
-            Only available after `.start()` is called.
+    config: Config
+    """The configuration for the bot."""
+    groups: GroupRegistry
+    """Cache of the groups the bot is a member of, with lookup helpers. Only
+    populated after [SignalBot.start()][signalbot.bot.SignalBot.start] is called
+    and [SignalBot.init_task][signalbot.bot.SignalBot.init_task] is done."""
+    group_actions: GroupActions
+    """Update group metadata."""
+    messages: MessageActions
+    """Send, edit, or delete messages, and manage typing indicators."""
+    polls: PollActions
+    """Create polls."""
+    reactions: ReactionActions
+    """React to messages."""
+    receipts: ReceiptActions
+    """Send read/viewed receipts."""
+    contacts: ContactActions
+    """Update contact metadata."""
+    attachments: AttachmentActions
+    """Delete local attachment copies."""
+    general: GeneralActions
+    """Miscellaneous `signal-cli-rest-api` info."""
+    storage: SQLiteStorage | RedisStorage
+    """The storage backend used by the bot."""
+    scheduler: AsyncIOScheduler
+    """The scheduler for running scheduled tasks."""
+    init_task: asyncio.Task | None
+    """The initialization async task for the bot.
+
+    Warning:
+        Only available after [SignalBot.start()][signalbot.bot.SignalBot.start]
+        is called.
     """
 
     def __init__(self, config: Config | Mapping | Path | str) -> None:
@@ -84,7 +98,7 @@ class SignalBot:
         self.config = load_config(config)
         self._logger = _initialize_logger(self.config.logging_level)
 
-        self.init_task: asyncio.Task | None = None
+        self.init_task = None
         self._shutdown_task: asyncio.Task | None = None
 
         components = build_components(self.config, self._logger)
@@ -117,6 +131,12 @@ class SignalBot:
 
     @property
     def handlers(self) -> HandlerList:
+        """A list of registered handlers with their filters.
+
+        Warning:
+            Only available after [SignalBot.start()][signalbot.bot.SignalBot.start]
+            is called and [SignalBot.init_task][signalbot.bot.SignalBot.init_task]
+            is done."""
         return self._pipeline.handlers
 
     def register(
@@ -200,11 +220,13 @@ class SignalBot:
                 self._event_loop.add_signal_handler(sig, self.request_stop)
 
     def request_stop(self) -> None:
-        """Schedule `stop()` without blocking the caller.
+        """Schedule [SignalBot.stop()][signalbot.bot.SignalBot.stop] without
+        blocking the caller.
 
         The non-blocking way to trigger shutdown from within a message
-        handler; see `stop()` for why calling it directly also works, just
-        not without blocking the handler until shutdown completes.
+        handler; see [SignalBot.stop()][signalbot.bot.SignalBot.stop] for why
+        calling it directly also works, just not without blocking the handler
+        until shutdown completes.
         """
         # Keep a hard reference to the task so it isn't garbage-collected mid-run
         self._shutdown_task = self._event_loop.create_task(self.stop())
@@ -215,15 +237,17 @@ class SignalBot:
         Warning:
             Not safe to call while the pipeline's producer/consumer tasks may
             still be making requests through this session — it pulls the
-            connection out from under them mid-request. `stop()` avoids this
-            by cancelling and awaiting those tasks first; call this directly
-            only once you know none of them are still running.
+            connection out from under them mid-request.
+            [SignalBot.stop()][signalbot.bot.SignalBot.stop] avoids this by
+            cancelling and awaiting those tasks first; call this directly only
+            once you know none of them are still running.
         """
         await self._signal.close()
 
     async def stop(self) -> None:
         """Gracefully stop the bot: cancel background tasks, close the shared
-        HTTP session, and stop the event loop started by `.start()`.
+        HTTP session, and stop the event loop started by
+        [SignalBot.start()][signalbot.bot.SignalBot.start].
         """
         if self.scheduler.running:
             self.scheduler.shutdown(wait=False)
