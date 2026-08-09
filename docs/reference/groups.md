@@ -1,1 +1,5 @@
+---
+title: Groups
+---
+
 ::: signalbot.groups

@@ -1,3 +1,7 @@
+---
+title: Overview
+---
+
 # Signalbot
 
 Python package to build your own Signal bots.
@@ -10,7 +14,7 @@ Here is minimal example of what that looks like:
 --8<-- "examples/simple_bot.py"
 ```
 
-To set it up follow the steps in the [getting started page](getting_started.md).
+To set it up follow the steps in the [getting started page](01_getting_started.md).
 
 ### Methods overview
 
@@ -29,7 +33,7 @@ The bot can do a lot more, here is a quick overview of the most common methods:
 - `bot.receipts.send(message, receipt_type)`: Mark a message as read
 - `bot.group_actions.update(update_group_request)`: Change group settings
 - `bot.attachments.delete(attachment)`: Delete the local copy of an attachment
-- `bot.scheduler`: Schedule tasks, see the [scheduler examples](examples/bot_with_scheduler.md).
+- `bot.scheduler`: Schedule tasks, see the [scheduler examples](examples/03_bot_with_scheduler.md).
 
 Each of these is grouped under a namespace matching the underlying `signal-cli-rest-api` tag it belongs to (`messages`, `reactions`, `receipts`, `groups`, `contacts`, `attachments`, `polls`, `general`), mirroring how [`SignalAPI`](reference/bot.md) is organized. `groups` is the one exception: `bot.groups` is a read-only cache of the groups the bot is a member of, while updates go through `bot.group_actions`.
 

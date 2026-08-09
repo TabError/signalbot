@@ -1,3 +1,7 @@
+---
+title: Troubleshooting
+---
+
 - Check that you linked your account successfully
 - Can you receive messages using `wscat` (websockets) and send messages using `curl` (http)?
 - Do you see incoming messages in the API logs?

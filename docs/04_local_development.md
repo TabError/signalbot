@@ -1,3 +1,7 @@
+---
+title: Contributing
+---
+
 Contributions are welcome.
 
 The first step to contribute is to install the package in editable mode.

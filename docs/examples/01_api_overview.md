@@ -1,3 +1,7 @@
+---
+title: API overview
+---
+
 This bot showcases how to use most of the features in the library.
 Check the [commands section](#commands) and [handlers section](#handlers) to see the implementation of each command and handler.
 The code shown here can be found the [examples folder](https://github.com/signalbot-org/signalbot/tree/main/examples).

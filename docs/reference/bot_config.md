@@ -1,3 +1,7 @@
+---
+title: Config
+---
+
 ::: signalbot.bot_config
     options:
       merge_init_into_class: false

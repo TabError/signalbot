@@ -7,32 +7,6 @@ site_author = "Gara Dorta"
 repo_url = "https://github.com/signalbot-org/signalbot"
 repo_name = "signalbot-org/signalbot"
 
-nav = [
-  { "Overview" = "index.md" },
-  { "Getting started" = "getting_started.md" },
-  { "Examples" = [
-    { "API overview" = "examples/api_overview.md" },
-    { "Bot config" = "examples/bot_config_options.md" },
-    { "Scheduler" = "examples/bot_with_scheduler.md" },
-    { "Combining handlers" = "examples/group_activity_bot.md" },
-  ] },
-  { "Additional information" = "additional_information.md" },
-  { "Reference" = [
-    { "SignalBot" = "reference/bot.md" },
-    { "Config" = "reference/bot_config.md" },
-    { "Context" = "reference/context.md" },
-    { "Actions" = "reference/actions.md" },
-    { "Groups" = "reference/groups.md" },
-    { "Storage" = "reference/storage.md" },
-    { "Messages" = "reference/messages.md" },
-    { "DataMessageHandler" = "reference/handlers.md" },
-    { "Logger" = "reference/logger.md" },
-    { "Authentication" = "reference/auth.md" },
-  ] },
-  { "Troubleshooting" = "troubleshooting.md" },
-  { "Contributing" = "local_development.md" },
-]
-
 [project.theme]
 language = "en"
 

@@ -1,1 +1,5 @@
+---
+title: SignalBot
+---
+
 ::: signalbot.bot

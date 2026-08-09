@@ -1,3 +1,6 @@
+---
+title: Getting started
+---
 
 Signalbot uses [signal-cli-rest-api](https://github.com/bbernhard/signal-cli-rest-api) to communicate with Signal.
 The first step is to set it up.
@@ -90,7 +93,7 @@ Confirm that the bot received a raw message, that the consumer worked on the mes
     <date> signalbot [INFO] - send - [Bot] New message 1760797696983 sent:
     Pong
     ```
-9. Check the other examples in the [examples section](examples/api_overview.md).
+9. Check the other examples in the [examples section](examples/01_api_overview.md).
 
 
 ## Mock chat
