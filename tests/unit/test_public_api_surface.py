@@ -123,3 +123,44 @@ def test_no_generated_types_leak_through_public_api():
         "signalbot._generated types leak through the public API:\n"
         + "\n".join(sorted(errors))
     )
+
+
+def test_no_generated_required_field_weakened_to_optional():
+    """A domain class may narrow a `_generated` base's field to point at another
+    wrapped type (e.g. `GroupEntry.permissions`) - pydantic validates that on
+    every construction, so it's sound even though it's an override. What it must
+    never do is turn a field that's required on the generated base into an
+    optional one on the subclass: that breaks substitutability wherever the
+    subclass is handed to code that trusts the generated base's contract (e.g. a
+    `_client` method typed on the generated request), and pydantic can't catch it
+    for you. `ty` (what actually runs in CI) has no equivalent static check, so
+    this is the only enforcement.
+    """
+    classes = _collect_public_classes()
+    errors: list[str] = []
+
+    for full_name, cls in classes.items():
+        if not (isinstance(cls, type) and issubclass(cls, BaseModel)):
+            continue
+        for base in cls.__bases__:
+            if not (
+                issubclass(base, BaseModel)
+                and base.__module__.startswith("signalbot._generated")
+            ):
+                continue
+            for field_name, field_info in cls.model_fields.items():
+                base_field = base.model_fields.get(field_name)
+                if (
+                    base_field is not None
+                    and base_field.is_required()
+                    and not field_info.is_required()
+                ):
+                    errors.append(f"{full_name}.{field_name}")
+
+    assert not errors, (
+        "Field(s) required on a signalbot._generated base class were weakened to "
+        "optional on the public subclass, breaking substitutability wherever the "
+        "subclass stands in for its generated base - use a standalone model with "
+        "a to_generated() conversion instead (see SendMessage/UpdateGroup):\n"
+        + "\n".join(sorted(errors))
+    )

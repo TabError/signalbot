@@ -8,7 +8,7 @@ from signalbot.errors import SignalAPIError
 if TYPE_CHECKING:
     import aiohttp
 
-    from signalbot.contacts import UpdateContact
+    from signalbot._generated import UpdateContactRequest
 
 
 class ContactsURIs(SectionURIs):
@@ -19,10 +19,12 @@ class ContactsURIs(SectionURIs):
 class ContactsClient(BaseClient[ContactsURIs]):
     async def update(
         self,
-        update_contact: UpdateContact,
+        update_contact_request: UpdateContactRequest,
     ) -> aiohttp.ClientResponse:
         uri = self._uris.contacts_uri()
-        payload = update_contact.model_dump_json(exclude_none=True, by_alias=True)
+        payload = update_contact_request.model_dump_json(
+            exclude_none=True, by_alias=True
+        )
         return await self._request(
             "put", uri, error_cls=UpdateContactError, payload=payload
         )

@@ -61,4 +61,4 @@ class TestPoll(TestCommon):
 
         assert isinstance(result, CreatedPoll)
         assert result.timestamp == case.timestamp
-        poll_mock.assert_called_once_with(create_poll_request)
+        poll_mock.assert_called_once_with(create_poll_request.to_generated())

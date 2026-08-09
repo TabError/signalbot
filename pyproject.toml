@@ -141,15 +141,6 @@ runtime-evaluated-base-classes = [
   "signalbot._generated.QuotedAttachment",
 ]
 
-[tool.pyright]
-# Domain classes throughout this codebase wrap a `_generated` pydantic model and
-# narrow one of its fields to point at another wrapped type (e.g.
-# `GroupEntry.permissions`, `Quote.mentions`) instead of leaking the generated
-# type through the public API. Pydantic validates on
-# every construction, so this is sound, but pyright's mutable-attribute
-# invariance check can't see that and flags every such field.
-reportIncompatibleVariableOverride = false
-
 [tool.yamlfix]
 explicit_start = false
 whitelines = 1

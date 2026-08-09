@@ -16,7 +16,9 @@ class Preview(GeneratedPreview):
     """
 
     base64_thumbnail: str | None = None
-    image: Attachment | None = None
+    # Additive: Attachment is a strict superset of the generated type it wraps,
+    # so this narrowing is sound; pydantic validates it on construction.
+    image: Attachment | None = None  # pyright: ignore[reportIncompatibleVariableOverride]
 
 
 class LinkPreview(BaseModel):

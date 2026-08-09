@@ -25,12 +25,19 @@ class Sticker(GeneratedSticker):
 class QuotedAttachment(GeneratedQuotedAttachment):
     """An attachment on the message a received message quotes."""
 
-    thumbnail: Attachment | None = None
+    # Additive: Attachment is a strict superset of the generated type it wraps,
+    # so this narrowing is sound; pydantic validates it on construction.
+    thumbnail: Attachment | None = None  # pyright: ignore[reportIncompatibleVariableOverride]
 
 
 class Quote(GeneratedQuote):
     """The quoted message a received message replies to."""
 
-    attachments: list[QuotedAttachment] | None = None
-    mentions: list[Mention] | None = None
-    text_styles: list[TextStyle] | None = Field(default=None, alias="textStyles")
+    # Additive: each wrapped type below is a strict superset of the generated
+    # type it replaces, so narrowing these three fields is sound; pydantic
+    # validates it on construction.
+    attachments: list[QuotedAttachment] | None = None  # pyright: ignore[reportIncompatibleVariableOverride]
+    mentions: list[Mention] | None = None  # pyright: ignore[reportIncompatibleVariableOverride]
+    text_styles: list[TextStyle] | None = Field(  # pyright: ignore[reportIncompatibleVariableOverride]
+        default=None, alias="textStyles"
+    )

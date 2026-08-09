@@ -22,4 +22,5 @@ class ContactActions(BotActionsBase):
             error_msg = "Recipient must be set in UpdateContact"
             raise ValueError(error_msg)
         update_contact.recipient = self._recipients.resolve(update_contact.recipient)
-        await self._signal.contacts.update(update_contact)
+        wire_request = update_contact.to_generated()
+        await self._signal.contacts.update(wire_request)
