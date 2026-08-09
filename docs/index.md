@@ -7,7 +7,7 @@ title: Overview
 Python package to build your own Signal bots.
 
 The package provides methods to easily listen for incoming messages and responding or reacting on them.
-It also provides a class to develop new commands, which then can be registered within the bot.
+It also provides a class to develop new handlers, which then can be registered within the bot.
 
 Here is minimal example of what that looks like:
 ```python
@@ -20,7 +20,7 @@ To set it up follow the steps in the [getting started page](01_getting_started.m
 
 The bot can do a lot more, here is a quick overview of the most common methods:
 
-- [bot.register(command)][signalbot.bot.SignalBot.register]: Register a new command
+- [bot.register(handler)][signalbot.bot.SignalBot.register]: Register a new handler
 - `bot.start()`: Start the bot
 - `bot.messages.send(SendMessage(recipient=..., text=...))`: Send a new message
 - `bot.messages.start_typing(recipient)`: Start typing

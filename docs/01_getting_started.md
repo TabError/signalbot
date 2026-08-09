@@ -72,7 +72,7 @@ Confirm that the server is running in the correct mode by visiting http://127.0.
 
 7. The logs should indicate that one "producer" and three "consumers" have started.
 The producer checks for new messages sent to the linked account using a web socket connection.
-It creates a task for every registered command and the consumers work off the tasks.
+It creates a task for every registered handler and the consumers work off the tasks.
 If your bot has many blocking function calls, adjust the number of consumers such that the bot stays reactive.
     ```
     <date> signalbot [WARNING] - __init__ - [Bot] Could not initialize Redis and no SQLite DB name was given. In-memory storage will be used. Restarting will delete the storage! Add storage: {'type': 'in-memory'} to the config to silence this error.
