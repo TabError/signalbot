@@ -16,7 +16,7 @@ from .receipt import ReceiptCommand
 from .regex_triggered import RegexTriggeredCommand
 from .reply import ReplyCommand
 from .styles import StylesCommand
-from .typing import TypingCommand
+from .typing import TypingCommand, TypingIndicatorToggleCommand
 
 __all__ = [
     "AboutCommand",
@@ -38,6 +38,7 @@ __all__ = [
     "StylesCommand",
     "TriggeredCommand",
     "TypingCommand",
+    "TypingIndicatorToggleCommand",
     "UpdateContactCommand",
     "UpdateGroupCommand",
 ]

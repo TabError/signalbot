@@ -20,6 +20,7 @@ from examples.commands import (
     StylesCommand,
     TriggeredCommand,
     TypingCommand,
+    TypingIndicatorToggleCommand,
     UpdateContactCommand,
     UpdateGroupCommand,
 )
@@ -65,7 +66,12 @@ def main() -> None:
     bot.register(FilteredReactionHandler())
     bot.register(DeletionNotifierHandler())
     bot.register(GroupUpdateNotifierHandler())
-    bot.register(TypingIndicatorHandler())
+
+    # Disabled by default; toggle it with the enable_typing_indicator /
+    # disable_typing_indicator commands.
+    typing_indicator_handler = TypingIndicatorHandler()
+    bot.register(typing_indicator_handler)
+    bot.register(TypingIndicatorToggleCommand(typing_indicator_handler))
 
     # The handler will only trigger for group messages
     bot.register(AttachmentCommand(), contacts=False)
