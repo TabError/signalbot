@@ -18,7 +18,7 @@ from signalbot._actions import (
     ReceiptActions,
 )
 from signalbot._bot_init import build_components
-from signalbot._pipeline import AnyHandler, HandlerList, MessagePipeline
+from signalbot._pipeline import MessagePipeline
 from signalbot._recipients import RecipientResolver
 from signalbot._utils.retry import rerun_on_exception
 from signalbot.bot_config import Config, load_config
@@ -30,6 +30,7 @@ if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
     from pathlib import Path
 
+    from signalbot.handlers import AnyHandler, HandlerList
     from signalbot.messages import ReceivedMessage
 
 MIN_SIGNAL_CLI_REST_API_VERSION = Version("0.95.0")

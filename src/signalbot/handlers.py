@@ -3,18 +3,19 @@ from __future__ import annotations
 import functools
 import re
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, ParamSpec, TypeVar
+from collections.abc import Callable
+from typing import TYPE_CHECKING, Any, ParamSpec, TypeAlias, TypeVar
 
 from signalbot.context import (
     DataMessageContext,
     ReactionContext,
 )
+from signalbot.messages import ReceivedMessage
 
 T = TypeVar("T")
 P = ParamSpec("P")
 
 if TYPE_CHECKING:
-    from collections.abc import Callable
     from types import CoroutineType
 
     from signalbot.context import (
@@ -247,3 +248,26 @@ class ReadyHandler(ABC):
         Args:
             context: Context giving access to the bot.
         """
+
+
+AnyHandler: TypeAlias = (
+    DataMessageHandler
+    | GroupUpdateHandler
+    | RemoteDeleteHandler
+    | TypingHandler
+    | ReactionHandler
+    | ReadyHandler
+)
+"""Union of all concrete `Handler` ABCs that can be passed to `SignalBot.register`."""
+
+HandlerList: TypeAlias = list[
+    tuple[
+        AnyHandler,
+        list[str] | bool,  # contacts
+        list[str] | bool,  # groups
+        Callable[[ReceivedMessage], bool] | None,  # lambda filter
+    ]
+]
+"""A list of registered handlers together with their contact/group/lambda filters,
+as tracked internally by `SignalBot`.
+"""

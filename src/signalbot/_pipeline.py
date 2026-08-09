@@ -3,8 +3,7 @@ from __future__ import annotations
 import asyncio
 import itertools
 import time
-from collections.abc import Callable
-from typing import TYPE_CHECKING, TypeAlias
+from typing import TYPE_CHECKING
 
 from signalbot._utils.retry import rerun_on_exception
 from signalbot.context import (
@@ -18,8 +17,10 @@ from signalbot.context import (
 from signalbot.errors import SignalBotError
 from signalbot.groups import GroupUpdate
 from signalbot.handlers import (
+    AnyHandler,
     DataMessageHandler,
     GroupUpdateHandler,
+    HandlerList,
     ReactionHandler,
     ReadyHandler,
     RemoteDeleteHandler,
@@ -39,28 +40,11 @@ from signalbot.reactions import Reaction
 
 if TYPE_CHECKING:
     import logging
+    from collections.abc import Callable
 
     from signalbot.bot import SignalBot
     from signalbot.client import SignalAPI
     from signalbot.groups import GroupRegistry
-
-AnyHandler: TypeAlias = (
-    DataMessageHandler
-    | GroupUpdateHandler
-    | RemoteDeleteHandler
-    | TypingHandler
-    | ReactionHandler
-    | ReadyHandler
-)
-
-HandlerList: TypeAlias = list[
-    tuple[
-        AnyHandler,
-        list[str] | bool,  # contacts
-        list[str] | bool,  # groups
-        Callable[[ReceivedMessage], bool] | None,  # lambda filter
-    ]
-]
 
 # message type -> (handler role, context to build, handler method name to call)
 _MESSAGE_DISPATCH: dict[type, tuple[type, type, str]] = {
