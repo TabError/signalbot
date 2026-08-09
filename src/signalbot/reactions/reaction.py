@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from signalbot.messages.base import BaseMessageWithGroup
+from signalbot._events import BaseMessageWithGroup
 
 if TYPE_CHECKING:
     from signalbot import _generated as generated

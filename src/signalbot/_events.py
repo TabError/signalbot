@@ -8,6 +8,8 @@ from signalbot import _generated as generated
 
 
 class BaseMessage(ABC, BaseModel):
+    """Shared shape and fields common to every received event."""
+
     server_delivered_timestamp: int
     server_received_timestamp: int
     source: str | None = Field(default=None, deprecated=True)
@@ -44,6 +46,8 @@ class BaseMessage(ABC, BaseModel):
 
 
 class BaseMessageWithGroup(BaseMessage):
+    """BaseMessage variant for events that may originate from a group."""
+
     group_info: generated.GroupInfo | None = None
 
     def is_group(self) -> bool:

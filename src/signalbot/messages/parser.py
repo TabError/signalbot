@@ -5,17 +5,17 @@ from typing import TYPE_CHECKING, TypeAlias
 
 from signalbot._generated import Message
 from signalbot.errors import SignalAPIError
+from signalbot.groups import GroupUpdate
 from signalbot.messages.data_message import DataMessage
 from signalbot.messages.edit_message import EditMessage
 from signalbot.messages.remote_delete import RemoteDelete
 from signalbot.messages.typing_message import TypingMessage
+from signalbot.reactions import Reaction
 
 if TYPE_CHECKING:
     from signalbot import _generated as generated
     from signalbot._generated import MessageEnvelope, SyncDataMessage
     from signalbot.client import SignalAPI
-    from signalbot.groups import GroupUpdate
-    from signalbot.reactions import Reaction
 
 ReceivedMessage: TypeAlias = (
     "DataMessage | GroupUpdate | RemoteDelete | TypingMessage | EditMessage | Reaction"
@@ -27,11 +27,6 @@ async def _parse_data_message_variant(
     message_envelope: MessageEnvelope,
     data_message: generated.DataMessage | SyncDataMessage,
 ) -> ReceivedMessage:
-    # Deferred: groups/reactions import signalbot.messages.base at module
-    # level, so importing them here at module level would be circular.
-    from signalbot.groups import GroupUpdate  # noqa: PLC0415
-    from signalbot.reactions import Reaction  # noqa: PLC0415
-
     if GroupUpdate.message_envelope_is_group_update(message_envelope):
         return GroupUpdate.from_message_envelope(message_envelope)
     if data_message.reaction is not None:

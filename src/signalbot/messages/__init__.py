@@ -1,5 +1,4 @@
 from signalbot._generated import MessageMention, TextMode
-from signalbot.messages.base import BaseMessage, BaseMessageWithGroup
 from signalbot.messages.data_message import DataMessage
 from signalbot.messages.edit_message import EditMessage
 from signalbot.messages.errors import (
@@ -22,8 +21,6 @@ from signalbot.messages.send_message import (
 from signalbot.messages.typing_message import TypingAction, TypingMessage
 
 __all__ = [
-    "BaseMessage",
-    "BaseMessageWithGroup",
     "BaseSendMessage",
     "DataMessage",
     "EditMessage",

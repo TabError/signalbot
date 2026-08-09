@@ -5,6 +5,7 @@ from copy import deepcopy
 from pathlib import Path
 from typing import TYPE_CHECKING
 
+from signalbot._events import BaseMessageWithGroup
 from signalbot._generated import (
     Mention,
     MessageMention,
@@ -14,7 +15,6 @@ from signalbot._generated import (
     TextStyle,
 )
 from signalbot.attachments import Attachment
-from signalbot.messages.base import BaseMessageWithGroup
 from signalbot.messages.link_preview import LinkPreview, Preview
 from signalbot.messages.send_message import SendMessage
 
