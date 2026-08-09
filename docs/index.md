@@ -20,9 +20,7 @@ To set it up follow the steps in the [getting started page](01_getting_started.m
 
 The bot can do a lot more, here is a quick overview of the most common methods:
 
-- `bot.register(command, contacts=True, groups=True)`: Register a new command, listen in all contacts and groups, same as `bot.register(command)`
-- `bot.register(command, contacts=False, groups=["Hello World"])`: Only listen in the "Hello World" group
-- `bot.register(command, contacts=["+49123456789"], groups=False)`: Only respond to one contact
+- [bot.register(command)][signalbot.bot.SignalBot.register] ``: Register a new command
 - `bot.start()`: Start the bot
 - `bot.messages.send(SendMessage(recipient=..., text=...))`: Send a new message
 - `bot.messages.start_typing(recipient)`: Start typing
