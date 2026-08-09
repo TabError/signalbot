@@ -22,6 +22,9 @@ class PollActions(BotActionsBase):
         Returns:
             A CreatedPoll instance.
         """
+        if create_poll_request.recipient is None:
+            error_msg = "Recipient must be set in CreatePoll"
+            raise ValueError(error_msg)
         create_poll_request.recipient = self._recipients.resolve(
             create_poll_request.recipient
         )

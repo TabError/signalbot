@@ -6,6 +6,8 @@ from signalbot._generated import CreatePollRequest
 class CreatePoll(CreatePollRequest):
     """The fields to create a poll with, passed to `bot.polls.create`."""
 
+    recipient: str | None = None
+
 
 class CreatedPoll(CreatePoll):
     """A poll after it was successfully created, with its send timestamp attached."""

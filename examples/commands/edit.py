@@ -1,7 +1,7 @@
 import asyncio
 
 from signalbot import DataMessageContext, DataMessageHandler, text_triggered
-from signalbot.messages import SendMessage
+from signalbot.messages import EditMessage, SendMessage
 
 
 class EditCommand(DataMessageHandler):
@@ -17,4 +17,22 @@ class EditCommand(DataMessageHandler):
         await context.edit(
             SendMessage(text="This message has been edited."),
             sent_message,
+        )
+
+
+class EditNotifierCommand(DataMessageHandler):
+    """`EditMessage` is a `DataMessage` subclass, so edits are dispatched to the
+    same `handle_data_message` method as regular messages — check `isinstance`
+    to tell them apart.
+    """
+
+    def help_message(self) -> str:
+        return "Message edited: 📝 Notifies when someone edits a sent message."
+
+    async def handle_data_message(self, context: DataMessageContext) -> None:
+        if not isinstance(context.message, EditMessage):
+            return
+
+        await context.send(
+            SendMessage(text=f"You edited your message to: {context.message.text}")
         )

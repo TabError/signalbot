@@ -10,6 +10,7 @@ if TYPE_CHECKING:
     from signalbot.contacts import UpdateContact
     from signalbot.groups import UpdateGroup
     from signalbot.messages import ReceivedMessage, SendMessage, SentMessage
+    from signalbot.polls import CreatedPoll, CreatePoll
 
 MessageT = TypeVar("MessageT", bound="ReceivedMessage")
 
@@ -81,3 +82,11 @@ class Context(Generic[MessageT]):
             raise ValueError(error_msg)
         update_group.group_id_or_name = received_message.source_or_group_id()
         await self.bot.group_actions.update(update_group)
+
+    async def create_poll(self, create_poll_request: CreatePoll) -> CreatedPoll:
+        """Same as
+        [signalbot.PollActions.create()](actions.md#signalbot._actions.PollActions.create)
+         but with the recipient set to the message's recipient."""
+        received_message = cast("ReceivedMessage", self.message)
+        create_poll_request.recipient = received_message.source_or_group_id()
+        return await self.bot.polls.create(create_poll_request)

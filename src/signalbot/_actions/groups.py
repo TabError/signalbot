@@ -32,6 +32,10 @@ class GroupActions:
         Args:
             update_group: Group update payload.
         """
+        if update_group.group_id_or_name is None:
+            error_msg = "group_id_or_name must be set in UpdateGroup"
+            raise ValueError(error_msg)
+
         group_id = self._groups.resolve(update_group.group_id_or_name)
         if group_id is None:
             raise SignalBotError.cannot_resolve_recipient()

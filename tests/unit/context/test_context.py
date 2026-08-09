@@ -8,6 +8,7 @@ from signalbot.contacts import UpdateContact
 from signalbot.context.context import Context
 from signalbot.groups import UpdateGroup
 from signalbot.messages import SendMessage
+from signalbot.polls import CreatePoll
 from tests.conftest import GROUP_INTERNAL_ID
 from tests.unit.conftest import (
     PRIVATE_UUID,
@@ -127,3 +128,34 @@ class TestContext(TestCommon):
             )
 
         update_mock.assert_not_awaited()
+
+    async def test_create_poll_sets_recipient_from_message_source(
+        self, mocker: MockerFixture
+    ):
+        message = _private_message()
+        create_mock = mocker.patch.object(
+            self.signal_bot.polls, "create", mocker.AsyncMock(return_value="poll")
+        )
+        context = Context(self.signal_bot, message)
+
+        poll = CreatePoll(question="Cats or dogs?", answers=["Cats", "Dogs"])
+        result = await context.create_poll(poll)
+
+        create_mock.assert_awaited_once_with(poll)
+        assert poll.recipient == PRIVATE_UUID
+        assert result == "poll"
+
+    async def test_create_poll_sets_recipient_from_group_message(
+        self, mocker: MockerFixture
+    ):
+        message = _group_message()
+        create_mock = mocker.patch.object(
+            self.signal_bot.polls, "create", mocker.AsyncMock(return_value="poll")
+        )
+        context = Context(self.signal_bot, message)
+
+        poll = CreatePoll(question="Cats or dogs?", answers=["Cats", "Dogs"])
+        await context.create_poll(poll)
+
+        (poll_arg,), _ = create_mock.call_args
+        assert poll_arg.recipient == GROUP_INTERNAL_ID

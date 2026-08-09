@@ -1,25 +1,34 @@
 import os
 
 from examples.commands import (
+    AboutCommand,
     AttachmentCommand,
+    BroadcastCommand,
     CloseCommand,
     DeleteCommand,
     DeleteLocalAttachmentCommand,
     EditCommand,
+    EditNotifierCommand,
     HelpCommand,
     LinkPreviewCommand,
     PingCommand,
+    PollCommand,
     ReactCommand,
+    ReceiptCommand,
     RegexTriggeredCommand,
     ReplyCommand,
     StylesCommand,
     TriggeredCommand,
     TypingCommand,
+    UpdateContactCommand,
+    UpdateGroupCommand,
 )
 from examples.handlers import (
     DeletionNotifierHandler,
     FilteredReactionHandler,
+    GroupUpdateNotifierHandler,
     ReactionDetailsHandler,
+    TypingIndicatorHandler,
     WelcomeHandler,
 )
 from signalbot import Config, SignalBot
@@ -41,17 +50,32 @@ def main() -> None:
     bot.register(RegexTriggeredCommand())
     bot.register(ReactCommand())
     bot.register(EditCommand())
+    bot.register(EditNotifierCommand())
     bot.register(DeleteCommand())
     bot.register(DeleteLocalAttachmentCommand())
     bot.register(StylesCommand())
     bot.register(LinkPreviewCommand())
     bot.register(CloseCommand())
+    bot.register(PollCommand())
+    bot.register(ReceiptCommand())
+    bot.register(AboutCommand())
     bot.register(ReactionDetailsHandler())
     bot.register(FilteredReactionHandler())
     bot.register(DeletionNotifierHandler())
+    bot.register(GroupUpdateNotifierHandler())
+    bot.register(TypingIndicatorHandler())
 
     # The handler will only trigger for group messages
     bot.register(AttachmentCommand(), contacts=False)
+    bot.register(UpdateGroupCommand(), contacts=False)
+
+    # The handler will only trigger for private messages, since updating a
+    # contact's metadata doesn't apply to groups
+    bot.register(UpdateContactCommand(), groups=False)
+
+    # Replace with the phone numbers or group IDs that should receive the
+    # broadcast message
+    bot.register(BroadcastCommand(recipients=[phone_number]))
 
     # The handler will only trigger the group named "My Group"
     bot.register(TypingCommand(), groups=["My Group"])
