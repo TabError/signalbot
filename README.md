@@ -29,10 +29,10 @@ from signalbot import (
     Config,
     DataMessageContext,
     DataMessageHandler,
-    SendMessage,
     SignalBot,
     text_triggered,
 )
+from signalbot.messages import SendMessage
 
 
 class PingCommand(DataMessageHandler):
