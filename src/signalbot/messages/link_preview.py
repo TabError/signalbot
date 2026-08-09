@@ -7,6 +7,7 @@ from signalbot._generated import LinkPreviewType
 from signalbot._generated import Preview as GeneratedPreview
 from signalbot._utils.attachment_base64 import attachment_to_base64
 from signalbot._utils.pydantic_anyio_path import PydanticPath
+from signalbot.attachments import Attachment
 
 
 class Preview(GeneratedPreview):
@@ -15,6 +16,7 @@ class Preview(GeneratedPreview):
     """
 
     base64_thumbnail: str | None = None
+    image: Attachment | None = None
 
 
 class LinkPreview(BaseModel):

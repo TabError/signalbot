@@ -1,4 +1,4 @@
-from signalbot._generated import Quote
+from signalbot.messages import Quote
 
 AUTHOR = "+490123456789"
 QUOTE_TIMESTAMP = 1632576001632

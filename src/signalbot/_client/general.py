@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from signalbot._client.base import BaseClient, SectionURIs
-from signalbot._generated import About
-from signalbot.errors import SignalAPIError
+from signalbot.general.about import About
+from signalbot.general.errors import AboutError, HealthCheckError
 
 if TYPE_CHECKING:
     import aiohttp
@@ -27,11 +27,3 @@ class GeneralClient(BaseClient[GeneralURIs]):
         uri = self._uris.about_uri()
         resp = await self._request("get", uri, error_cls=AboutError)
         return About.model_validate(await resp.json())
-
-
-class HealthCheckError(SignalAPIError):
-    """Raised when the `signal-cli-rest-api` health check endpoint fails."""
-
-
-class AboutError(SignalAPIError):
-    """Raised when fetching `signal-cli-rest-api` version/capability info fails."""

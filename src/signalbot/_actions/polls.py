@@ -6,18 +6,18 @@ from signalbot._actions.base import BotActionsBase
 from signalbot.polls import CreatedPoll
 
 if TYPE_CHECKING:
-    from signalbot._generated import CreatePollRequest
+    from signalbot.polls import CreatePoll
 
 
 class PollActions(BotActionsBase):
     async def create(
         self,
-        create_poll_request: CreatePollRequest,
+        create_poll_request: CreatePoll,
     ) -> CreatedPoll:
         """Create a poll.
 
         Args:
-            create_poll_request: Request payload for poll creation.
+            create_poll_request: The fields to create the poll with.
 
         Returns:
             A CreatedPoll instance.

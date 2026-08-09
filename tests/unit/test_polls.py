@@ -3,8 +3,7 @@ from dataclasses import dataclass
 import pytest
 from pytest_mock import MockerFixture
 
-from signalbot._generated import CreatePollRequest
-from signalbot.polls import CreatedPoll
+from signalbot.polls import CreatedPoll, CreatePoll
 from tests.conftest import GROUP_ID
 from tests.unit.conftest import TestCommon
 
@@ -52,7 +51,7 @@ class TestPoll(TestCommon):
         )
         mocker.patch.object(self.signal_bot._signal.polls, "create", poll_mock)
 
-        create_poll_request = CreatePollRequest(
+        create_poll_request = CreatePoll(
             recipient=case.recipient,
             question=case.question,
             answers=case.answers,

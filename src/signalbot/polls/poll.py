@@ -3,7 +3,11 @@ from __future__ import annotations
 from signalbot._generated import CreatePollRequest
 
 
-class CreatedPoll(CreatePollRequest):
+class CreatePoll(CreatePollRequest):
+    """The fields to create a poll with, passed to `bot.polls.create`."""
+
+
+class CreatedPoll(CreatePoll):
     """A poll after it was successfully created, with its send timestamp attached."""
 
     timestamp: int

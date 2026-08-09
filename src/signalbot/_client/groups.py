@@ -3,8 +3,8 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from signalbot._client.base import BaseClient, SectionURIs
-from signalbot._generated import GroupEntry
-from signalbot.errors import SignalAPIError
+from signalbot.groups.errors import GetGroupsError, UpdateGroupError
+from signalbot.groups.group_entry import GroupEntry
 
 if TYPE_CHECKING:
     import aiohttp
@@ -60,11 +60,3 @@ class GroupsClient(BaseClient[GroupsURIs]):
         return await self._request(
             "put", uri, error_cls=UpdateGroupError, payload=payload
         )
-
-
-class GetGroupsError(SignalAPIError):
-    """Raised when fetching group data from the API fails."""
-
-
-class UpdateGroupError(SignalAPIError):
-    """Raised when the API rejects a group metadata update."""

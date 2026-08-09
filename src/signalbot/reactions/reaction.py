@@ -2,7 +2,8 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from signalbot.events import BaseMessageWithGroup
+from signalbot._utils.generated_conversion import from_generated
+from signalbot.events import BaseMessageWithGroup, GroupInfo
 
 if TYPE_CHECKING:
     from signalbot import _generated as generated
@@ -29,6 +30,7 @@ class Reaction(BaseMessageWithGroup):
         data_message: DataMessage | SyncDataMessage,
         reaction_message: generated.Reaction,
     ) -> Reaction:
+        group_info = from_generated(GroupInfo, data_message.group_info)
         return cls(
             server_delivered_timestamp=message_envelope.server_delivered_timestamp,
             server_received_timestamp=message_envelope.server_received_timestamp,
@@ -38,7 +40,7 @@ class Reaction(BaseMessageWithGroup):
             source_number=message_envelope.source_number,
             source_uuid=message_envelope.source_uuid,
             timestamp=reaction_message.target_sent_timestamp,
-            group_info=data_message.group_info,
+            group_info=group_info,
             emoji=reaction_message.emoji,
             is_remove=reaction_message.is_remove,
             target_author=reaction_message.target_author,

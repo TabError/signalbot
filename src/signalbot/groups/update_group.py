@@ -3,9 +3,10 @@ from __future__ import annotations
 from anyio import Path
 from pydantic import AliasChoices, BaseModel, Field
 
-from signalbot._generated import GroupLink, GroupPermissions, UpdateGroupRequest
+from signalbot._generated import GroupLink, UpdateGroupRequest
 from signalbot._utils.attachment_base64 import attachment_to_base64
 from signalbot._utils.pydantic_anyio_path import PydanticPath
+from signalbot.groups.group_permissions import GroupPermissions
 
 
 class UpdateGroup(BaseModel):

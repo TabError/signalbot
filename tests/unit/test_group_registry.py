@@ -3,7 +3,7 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from signalbot import DataMessageHandler
-from signalbot._generated import GroupEntry
+from signalbot.groups import GroupEntry
 from signalbot.test_utils import ChatTestCase
 from tests.unit.conftest import TestCommon
 

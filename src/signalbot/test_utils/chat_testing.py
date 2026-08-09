@@ -10,15 +10,15 @@ from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, MagicMock
 
 from signalbot._generated import (
-    About,
     AddMembers,
     EditGroup,
-    GroupEntry,
-    GroupPermissions,
     SendMessageResponse,
     SendMessages,
 )
 from signalbot.bot import SignalBot
+from signalbot.general.about import About
+from signalbot.groups.group_entry import GroupEntry
+from signalbot.groups.group_permissions import GroupPermissions
 from signalbot.handlers import DataMessageHandler
 
 if TYPE_CHECKING:

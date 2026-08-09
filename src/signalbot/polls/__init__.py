@@ -1,9 +1,8 @@
-from signalbot._generated import CreatePollRequest
 from signalbot.polls.errors import CreatePollError
-from signalbot.polls.poll import CreatedPoll
+from signalbot.polls.poll import CreatedPoll, CreatePoll
 
 __all__ = [
+    "CreatePoll",
     "CreatePollError",
-    "CreatePollRequest",
     "CreatedPoll",
 ]

@@ -1,7 +1,7 @@
 from __future__ import annotations
 
 import asyncio
-from typing import TYPE_CHECKING, Self
+from typing import TYPE_CHECKING, Self, cast
 
 from pydantic import (
     AliasChoices,
@@ -10,13 +10,23 @@ from pydantic import (
     model_validator,
 )
 
-from signalbot._generated import MessageMention, SendMessageV2, TextMode
+from signalbot._generated import SendMessageV2, TextMode
 from signalbot._utils.attachment_base64 import attachment_to_base64
 from signalbot._utils.pydantic_anyio_path import PydanticPath
 from signalbot.messages.link_preview import LinkPreview
+from signalbot.messages.message_mention import MessageMention
 
 if TYPE_CHECKING:
     from signalbot._generated import LinkPreviewType
+    from signalbot._generated import MessageMention as GeneratedMessageMention
+
+
+def _as_generated_mentions(
+    mentions: list[MessageMention] | None,
+) -> list[GeneratedMessageMention] | None:
+    # `MessageMention` adds no fields over the generated type it wraps, so this
+    # is safe; list is invariant, so the type checker can't see that on its own.
+    return cast("list[GeneratedMessageMention] | None", mentions)
 
 
 async def _resolve_base64_attachments(
@@ -94,12 +104,12 @@ class SendMessage(BaseSendMessage):
             base64_attachments=base64_attachments,
             edit_timestamp=self.edit_timestamp,
             link_preview=link_preview,
-            mentions=self.mentions,
+            mentions=_as_generated_mentions(self.mentions),
             message=self.text or "",
             notify_self=self.notify_self,
             number=number,
             quote_author=self.quote_author,
-            quote_mentions=self.quote_mentions,
+            quote_mentions=_as_generated_mentions(self.quote_mentions),
             quote_message=self.quote_text,
             quote_timestamp=self.quote_timestamp,
             recipients=[self.recipient],
@@ -122,12 +132,12 @@ class SendMessageMultiple(BaseSendMessage):
             base64_attachments=base64_attachments,
             edit_timestamp=self.edit_timestamp,
             link_preview=link_preview,
-            mentions=self.mentions,
+            mentions=_as_generated_mentions(self.mentions),
             message=self.text or "",
             notify_self=self.notify_self,
             number=number,
             quote_author=self.quote_author,
-            quote_mentions=self.quote_mentions,
+            quote_mentions=_as_generated_mentions(self.quote_mentions),
             quote_message=self.quote_text,
             quote_timestamp=self.quote_timestamp,
             recipients=self.recipients,

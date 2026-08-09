@@ -5,17 +5,13 @@ from copy import deepcopy
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from signalbot._generated import (
-    Mention,
-    MessageMention,
-    Quote,
-    Sticker,
-    TextMode,
-    TextStyle,
-)
+from signalbot._generated import TextMode
+from signalbot._utils.generated_conversion import from_generated, from_generated_list
 from signalbot.attachments import Attachment
-from signalbot.events import BaseMessageWithGroup
+from signalbot.events import BaseMessageWithGroup, GroupInfo
+from signalbot.messages.data_message_content import Mention, Quote, Sticker, TextStyle
 from signalbot.messages.link_preview import LinkPreview, Preview
+from signalbot.messages.message_mention import MessageMention
 from signalbot.messages.send_message import SendMessage
 
 if TYPE_CHECKING:
@@ -70,25 +66,20 @@ class DataMessage(BaseMessageWithGroup):
         data_message: generated.DataMessage | SyncDataMessage,
         signal: SignalAPI,
     ) -> DataMessage:
-        attachments = None
-        if data_message.attachments is not None:
-            attachments = [
-                Attachment.model_validate(attachment.model_dump())
-                for attachment in data_message.attachments
-            ]
-
-        link_previews = None
-        if data_message.previews is not None:
-            link_previews = [
-                Preview.model_validate(preview.model_dump())
-                for preview in data_message.previews
-            ]
+        attachments = from_generated_list(Attachment, data_message.attachments)
+        link_previews = from_generated_list(Preview, data_message.previews)
 
         timestamp = (
             data_message.timestamp
             if data_message.timestamp is not None
             else message_envelope.timestamp
         )
+
+        mentions = from_generated_list(Mention, data_message.mentions)
+        quote = from_generated(Quote, data_message.quote)
+        sticker = from_generated(Sticker, data_message.sticker)
+        text_styles = from_generated_list(TextStyle, data_message.text_styles)
+        group_info = from_generated(GroupInfo, data_message.group_info)
 
         received_data_message = DataMessage(
             server_delivered_timestamp=message_envelope.server_delivered_timestamp,
@@ -98,16 +89,16 @@ class DataMessage(BaseMessageWithGroup):
             source_name=message_envelope.source_name,
             source_number=message_envelope.source_number,
             source_uuid=message_envelope.source_uuid,
-            group_info=data_message.group_info,
+            group_info=group_info,
             timestamp=timestamp,
             attachments=attachments,
             expires_in_seconds=data_message.expires_in_seconds,
-            mentions=data_message.mentions,
+            mentions=mentions,
             text=data_message.text,
             previews=link_previews,
-            quote=data_message.quote,
-            sticker=data_message.sticker,
-            text_styles=data_message.text_styles,
+            quote=quote,
+            sticker=sticker,
+            text_styles=text_styles,
             view_once=data_message.view_once,
         )
 

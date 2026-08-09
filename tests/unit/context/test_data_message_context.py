@@ -3,9 +3,8 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from signalbot._generated import Mention, MessageMention
 from signalbot.context.data_message_context import DataMessageContext
-from signalbot.messages import SendMessage
+from signalbot.messages import Mention, MessageMention, SendMessage
 from signalbot.receipts import ReceiptType
 from tests.unit.conftest import (
     PRIVATE_NUMBER,

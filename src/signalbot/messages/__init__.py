@@ -1,5 +1,12 @@
-from signalbot._generated import MessageMention, TextMode
+from signalbot._generated import TextMode
 from signalbot.messages.data_message import DataMessage
+from signalbot.messages.data_message_content import (
+    Mention,
+    Quote,
+    QuotedAttachment,
+    Sticker,
+    TextStyle,
+)
 from signalbot.messages.edit_message import EditMessage
 from signalbot.messages.errors import (
     ReceiveError,
@@ -10,6 +17,7 @@ from signalbot.messages.errors import (
     TypingError,
 )
 from signalbot.messages.link_preview import LinkPreview, Preview
+from signalbot.messages.message_mention import MessageMention
 from signalbot.messages.parser import ReceivedMessage, UnknownMessageFormatError, parse
 from signalbot.messages.remote_delete import RemoteDelete
 from signalbot.messages.send_message import (
@@ -25,8 +33,11 @@ __all__ = [
     "DataMessage",
     "EditMessage",
     "LinkPreview",
+    "Mention",
     "MessageMention",
     "Preview",
+    "Quote",
+    "QuotedAttachment",
     "ReceiveError",
     "ReceivedMessage",
     "RemoteDelete",
@@ -36,8 +47,10 @@ __all__ = [
     "SendMessageMultiple",
     "SentMessage",
     "StartTypingError",
+    "Sticker",
     "StopTypingError",
     "TextMode",
+    "TextStyle",
     "TypingAction",
     "TypingError",
     "TypingMessage",

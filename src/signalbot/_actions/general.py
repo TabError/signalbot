@@ -5,7 +5,7 @@ from typing import TYPE_CHECKING
 from signalbot._actions.base import BotActionsBase
 
 if TYPE_CHECKING:
-    from signalbot._generated import About
+    from signalbot.general.about import About
 
 
 class GeneralActions(BotActionsBase):

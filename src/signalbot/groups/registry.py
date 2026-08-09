@@ -9,8 +9,8 @@ if TYPE_CHECKING:
     import logging
     from collections.abc import Iterator
 
-    from signalbot._generated import GroupEntry
     from signalbot.client import SignalAPI
+    from signalbot.groups.group_entry import GroupEntry
 
 
 class GroupRegistry:

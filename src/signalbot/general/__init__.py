@@ -1,4 +1,4 @@
-from signalbot._generated import About
+from signalbot.general.about import About
 from signalbot.general.errors import AboutError, HealthCheckError
 
 __all__ = [

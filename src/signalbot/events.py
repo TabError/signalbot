@@ -4,7 +4,11 @@ from abc import ABC, abstractmethod
 
 from pydantic import BaseModel, Field
 
-from signalbot import _generated as generated
+from signalbot._generated import GroupInfo as GeneratedGroupInfo
+
+
+class GroupInfo(GeneratedGroupInfo):
+    """The group a received event originated from, if any."""
 
 
 class BaseMessage(ABC, BaseModel):
@@ -48,7 +52,7 @@ class BaseMessage(ABC, BaseModel):
 class BaseMessageWithGroup(BaseMessage):
     """BaseMessage variant for events that may originate from a group."""
 
-    group_info: generated.GroupInfo | None = None
+    group_info: GroupInfo | None = None
 
     def is_group(self) -> bool:
 

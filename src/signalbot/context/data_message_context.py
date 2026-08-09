@@ -3,14 +3,14 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
-from signalbot._generated import MessageMention
 from signalbot.context.context import Context
 from signalbot.messages import DataMessage, EditMessage
+from signalbot.messages.message_mention import MessageMention
 
 if TYPE_CHECKING:
-    from signalbot._generated import Mention
     from signalbot.attachments import Attachment
     from signalbot.messages import SendMessage, SentMessage
+    from signalbot.messages.data_message_content import Mention
     from signalbot.receipts import ReceiptType
 
 
