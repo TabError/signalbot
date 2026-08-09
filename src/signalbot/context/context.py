@@ -13,6 +13,8 @@ if TYPE_CHECKING:
     from signalbot.polls import CreatedPoll, CreatePoll
 
 MessageT = TypeVar("MessageT", bound="ReceivedMessage")
+"""Type variable for the kind of message a `Context` was created from, e.g.
+`Context[DataMessage]` in a handler that only fires for data messages."""
 
 
 class Context(Generic[MessageT]):

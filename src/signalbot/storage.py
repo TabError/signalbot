@@ -19,6 +19,8 @@ if TYPE_CHECKING:
 JSONValue: TypeAlias = (
     "str | int | float | bool | dict[str, JSONValue] | list[JSONValue] | None"
 )
+"""Any value that round-trips through `json.dumps`/`json.loads`, used for the
+values a `Storage` backend reads and writes."""
 
 
 class Storage(ABC):

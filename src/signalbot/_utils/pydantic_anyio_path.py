@@ -47,3 +47,5 @@ class _PathPydanticAnnotation:
 
 
 PydanticPath = Annotated[Path, _PathPydanticAnnotation]
+"""An `anyio.Path` that pydantic can validate from and serialize to a plain
+string, for use as a field type on pydantic models."""
