@@ -116,7 +116,7 @@ options = {
   show_signature_annotations = true,
   signature_crossrefs = true,
   show_if_no_docstring = true,
-  extensions = [ { griffe_pydantic = { schema = true } } ]
+  extensions = [ { griffe_pydantic = {} } ]
 }
 
 [project.extra.version]
