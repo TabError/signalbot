@@ -10,8 +10,8 @@ predictable set of files:
 - **Outgoing** — a bot author calls a method that turns into an HTTP request against a
   [signal-cli-rest-api](https://bbernhard.github.io/signal-cli-rest-api/) endpoint.
 
-Neither list below is exhaustive — some message types need extra plumbing (e.g. `GroupUpdate` also
-touches the group registry in
+Neither list below is exhaustive — some message types need extra plumbing (e.g.
+[`GroupUpdate`](reference/groups.md#signalbot.groups.GroupUpdate) also touches the group registry in
 [`src/signalbot/groups/`](https://github.com/signalbot-org/signalbot/tree/main/src/signalbot/groups)) —
 so find the closest existing example and follow its shape.
 
@@ -46,22 +46,26 @@ so find the closest existing example and follow its shape.
    [`src/signalbot/messages/typing_message.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/messages/typing_message.py)
    for a simple case, or
    [`src/signalbot/reactions/reaction.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/reactions/reaction.py)
-   for one that reaches back into the envelope's nested data. Subclass `BaseMessage` or
-   `BaseMessageWithGroup` from
+   for one that reaches back into the envelope's nested data. Subclass
+   [`BaseMessage`](reference/events.md#signalbot.events.BaseMessage) or
+   [`BaseMessageWithGroup`](reference/events.md#signalbot.events.BaseMessageWithGroup) from
    [`src/signalbot/events.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/events.py)
    as appropriate.
 
 4. **Wire it into the parser.** Add a branch in `_parse_main_messages` and/or `_parse_sync_messages` in
    [`parser.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/messages/parser.py),
-   and extend the `ReceivedMessage` type alias.
+   and extend the [`ReceivedMessage`](reference/messages.md#signalbot.messages.ReceivedMessage) type
+   alias.
 
 5. **Write a `Context` class** in
    [`src/signalbot/context/`](https://github.com/signalbot-org/signalbot/tree/main/src/signalbot/context)
    (pattern:
+   [`TypingContext`](reference/context.md#signalbot.context.TypingContext) in
    [`typing_context.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/context/typing_context.py)),
    and a `Handler` ABC in
    [`src/signalbot/handlers.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/handlers.py)
-   (pattern: `TypingHandler`) with one abstract `handle_xxx(self, context: ...)` method.
+   (pattern: [`TypingHandler`](reference/handlers.md#signalbot.handlers.TypingHandler)) with one
+   abstract `handle_xxx(self, context: ...)` method.
 
 6. **Register the dispatch.** Add an entry to `_MESSAGE_DISPATCH` in
    [`src/signalbot/_pipeline.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/_pipeline.py)
@@ -70,14 +74,15 @@ so find the closest existing example and follow its shape.
 
 7. **(Optional) Write a trigger decorator** in
    [`handlers.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/handlers.py) if
-   handlers for this type commonly filter on a field — follow `reaction_triggered` as the smallest
+   handlers for this type commonly filter on a field — follow
+   [`reaction_triggered`](reference/handlers.md#signalbot.handlers.reaction_triggered) as the smallest
    example: it checks `isinstance(context, YourContext)`, filters, and calls through.
 
 8. **Write a test.** Follow
    [`tests/unit/messages/test_message.py`](https://github.com/signalbot-org/signalbot/blob/main/tests/unit/messages/test_message.py)'s
    pattern: build the raw envelope JSON inline (this repo doesn't use fixture files for envelopes), call
-   `parse(signal, raw_json_str)`, and assert `isinstance(result, YourClass)` plus field values. Add
-   dispatch coverage in
+   [`parse(signal, raw_json_str)`](reference/messages.md#signalbot.messages.parse), and assert
+   `isinstance(result, YourClass)` plus field values. Add dispatch coverage in
    [`tests/unit/test_pipeline.py`](https://github.com/signalbot-org/signalbot/blob/main/tests/unit/test_pipeline.py)
    if relevant.
 
@@ -86,12 +91,15 @@ so find the closest existing example and follow its shape.
    [`examples/commands/`](https://github.com/signalbot-org/signalbot/tree/main/examples/commands),
    following
    [`examples/commands/reaction.py`](https://github.com/signalbot-org/signalbot/blob/main/examples/commands/reaction.py)
-   (`@text_triggered` + `context.react(...)`) or
+   (`@`[`text_triggered`](reference/handlers.md#signalbot.handlers.text_triggered) +
+   [`context.react(...)`](reference/context.md#signalbot.context.DataMessageContext.react)) or
    [`examples/handlers/reaction.py`](https://github.com/signalbot-org/signalbot/blob/main/examples/handlers/reaction.py)
-   (`ReactionHandler` + `@reaction_triggered`) as templates, and register it in one of the example bots
+   ([`ReactionHandler`](reference/handlers.md#signalbot.handlers.ReactionHandler) +
+   `@`[`reaction_triggered`](reference/handlers.md#signalbot.handlers.reaction_triggered)) as templates,
+   and register it in one of the example bots
    ([`examples/simple_bot.py`](https://github.com/signalbot-org/signalbot/blob/main/examples/simple_bot.py) /
    [`examples/bot.py`](https://github.com/signalbot-org/signalbot/blob/main/examples/bot.py)) with
-   `bot.register(YourHandler())`.
+   [`bot.register(YourHandler())`](reference/bot.md#signalbot.bot.SignalBot.register).
 
 10. **Add a new page to the docs** under
    [`docs/examples/`](https://github.com/signalbot-org/signalbot/tree/main/docs/examples), under the
@@ -126,25 +134,30 @@ so find the closest existing example and follow its shape.
    [`src/signalbot/_client/messages.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/_client/messages.py)).
    Define a dedicated `*Error(SignalAPIError)` class alongside it.
 
-4. **Expose it on `SignalAPI`** if it's a new section
+4. **Expose it on [`SignalAPI`](reference/bot_config.md#signalbot.client.SignalAPI)** if it's a new
+   section
    ([`src/signalbot/_client/signal_api.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/_client/signal_api.py))
    — existing sections (`.messages`, `.reactions`, `.groups`, ...) already route to their client class.
 
 5. **Add a method on the matching `*Actions` class** in
    [`src/signalbot/_actions/`](https://github.com/signalbot-org/signalbot/tree/main/src/signalbot/_actions)
-   (pattern: `MessageActions.remote_delete` in
+   (pattern:
+   [`MessageActions.remote_delete`](reference/actions.md#signalbot._actions.MessageActions.remote_delete)
+   in
    [`src/signalbot/_actions/messages.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/_actions/messages.py)):
    resolve any recipient via `self._recipients.resolve(...)`, build the generated request model, call
    the client method, log via `self._logger.info(...)`, and return a friendly domain-level result if
-   useful (e.g. `SentMessage`).
+   useful (e.g. [`SentMessage`](reference/messages.md#signalbot.messages.SentMessage)).
 
-6. **Wire it up if it's a new Actions class** — instantiate and attach it to `SignalBot` in
+6. **Wire it up if it's a new Actions class** — instantiate and attach it to
+   [`SignalBot`](reference/bot.md#signalbot.bot.SignalBot) in
    [`src/signalbot/_bot_init.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/_bot_init.py)
    next to `self.messages`/`self.reactions`/etc.
 
 7. **Add a `Context` convenience method** in
    [`src/signalbot/context/context.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/context/context.py)
-   if handlers should be able to call it directly — follow how `context.react(...)` /
+   if handlers should be able to call it directly — follow how
+   [`context.react(...)`](reference/context.md#signalbot.context.DataMessageContext.react) /
    `context.send(...)` delegate to the Actions layer.
 
 8. **Write a test** for the new `Actions` method (mock/stub `SignalAPI`, assert the right client method
