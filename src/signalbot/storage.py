@@ -17,7 +17,7 @@ if TYPE_CHECKING:
     from pathlib import Path
 
 JSONValue: TypeAlias = (
-    "str | int | float | bool | None | dict[str, JSONValue] | list[JSONValue]"
+    "str | int | float | bool | dict[str, JSONValue] | list[JSONValue] | None"
 )
 
 
