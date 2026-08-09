@@ -5,14 +5,14 @@ from typing import TYPE_CHECKING
 import aiohttp
 import pytest
 
-from signalbot.api.generated import (
+from signalbot._generated import (
     AddMembers,
     EditGroup,
     GroupInfo,
     GroupPermissions,
     SendMessages,
 )
-from signalbot.api.incoming import DataMessage
+from signalbot.messages import DataMessage
 from tests.conftest import GROUP_ID, GROUP_INTERNAL_ID
 
 if TYPE_CHECKING:

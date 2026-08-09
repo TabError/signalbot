@@ -3,9 +3,10 @@ from __future__ import annotations
 import logging
 from typing import TYPE_CHECKING
 
-from signalbot.api.generated import Mention, MessageMention, ReceiptType
-from signalbot.api.outgoing import SendMessage
+from signalbot._generated import Mention, MessageMention
 from signalbot.context.data_message_context import DataMessageContext
+from signalbot.messages import SendMessage
+from signalbot.receipts import ReceiptType
 from tests.unit.conftest import (
     PRIVATE_NUMBER,
     PRIVATE_UUID,
@@ -17,7 +18,7 @@ if TYPE_CHECKING:
     import pytest
     from pytest_mock import MockerFixture
 
-    from signalbot.api.incoming import DataMessage
+    from signalbot.messages import DataMessage
 
 SOURCE_UUID = PRIVATE_UUID
 SOURCE_NUMBER = PRIVATE_NUMBER

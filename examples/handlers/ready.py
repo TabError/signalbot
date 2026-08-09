@@ -1,5 +1,6 @@
 from examples.commands.help import build_help_messages
-from signalbot import ReadyContext, ReadyHandler, SendMessage
+from signalbot import ReadyContext, ReadyHandler
+from signalbot.messages import SendMessage
 
 
 class WelcomeHandler(ReadyHandler):

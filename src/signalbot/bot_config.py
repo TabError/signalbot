@@ -8,7 +8,7 @@ from typing import Literal
 import yaml
 from pydantic import BaseModel
 
-from signalbot.api import ConnectionMode
+from signalbot.client import ConnectionMode
 
 
 class RedisConfig(BaseModel):

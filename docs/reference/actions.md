@@ -1,1 +1,1 @@
-::: signalbot.actions
+::: signalbot._actions

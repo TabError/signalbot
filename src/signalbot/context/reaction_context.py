@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from signalbot.api.incoming import Reaction
 from signalbot.context.context import Context
+from signalbot.reactions import Reaction
 
 
 class ReactionContext(Context[Reaction]):

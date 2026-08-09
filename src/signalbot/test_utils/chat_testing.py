@@ -9,7 +9,7 @@ from types import MappingProxyType
 from typing import TYPE_CHECKING
 from unittest.mock import AsyncMock, MagicMock
 
-from signalbot.api.generated import (
+from signalbot._generated import (
     About,
     AddMembers,
     EditGroup,
@@ -39,27 +39,27 @@ def mock_chat(*messages: str) -> Callable[[AsyncTestMethod], AsyncTestMethod]:
             **kwargs: object,
         ) -> None:
             self.react_mock = mocker.patch(
-                "signalbot.api.client.reactions.ReactionsClient.react",
+                "signalbot._client.reactions.ReactionsClient.react",
                 new_callable=ReactMock,
             )
             self.send_mock = mocker.patch(
-                "signalbot.api.client.messages.MessagesClient.send",
+                "signalbot._client.messages.MessagesClient.send",
                 new_callable=SendMock,
             )
             receive_mock = mocker.patch(
-                "signalbot.api.client.messages.MessagesClient.receive",
+                "signalbot._client.messages.MessagesClient.receive",
                 new_callable=ReceiveMock,
             )
             mocker.patch(
-                "signalbot.api.client.groups.GroupsClient.get_all",
+                "signalbot._client.groups.GroupsClient.get_all",
                 new_callable=GetAllMock,
             )
             mocker.patch(
-                "signalbot.api.client.general.GeneralClient.about",
+                "signalbot._client.general.GeneralClient.about",
                 new_callable=AboutMock,
             )
             mocker.patch(
-                "signalbot.SignalAPI.check_signal_service",
+                "signalbot.client.SignalAPI.check_signal_service",
                 new_callable=CheckSignalServiceMock,
             )
 

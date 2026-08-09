@@ -119,24 +119,24 @@ ignore = [
 # Ignore line too long for the generated models, since they are generated and not meant to be edited by hand.
 # Also exempt them from the banned-api rule below: the generated tree's own submodules
 # legitimately import from each other.
-"**/generated/**.py" = [
+"**/_generated/**.py" = [
     "E501",
     "TID251",
 ]
 
 [tool.ruff.lint.flake8-tidy-imports.banned-api]
-"signalbot.api.generated.api".msg = "Import generated models from signalbot.api.generated instead."
-"signalbot.api.generated.client".msg = "Import generated models from signalbot.api.generated instead."
-"signalbot.api.generated.data".msg = "Import generated models from signalbot.api.generated instead."
-"signalbot.api.generated.receive".msg = "Import generated models from signalbot.api.generated instead."
+"signalbot._generated.api".msg = "Import generated models from signalbot._generated instead."
+"signalbot._generated.client".msg = "Import generated models from signalbot._generated instead."
+"signalbot._generated.data".msg = "Import generated models from signalbot._generated instead."
+"signalbot._generated.receive".msg = "Import generated models from signalbot._generated instead."
 
 [tool.ruff.lint.flake8-type-checking]
 runtime-evaluated-base-classes = [
   "pydantic.BaseModel",
-  "signalbot.api.incoming.BaseMessage",
-  "signalbot.api.incoming.base_message.BaseMessage",
-  "signalbot.api.incoming.BaseMessageWithGroup",
-  "signalbot.api.incoming.base_message.BaseMessageWithGroup",
+  "signalbot.messages.BaseMessage",
+  "signalbot.messages.base.BaseMessage",
+  "signalbot.messages.BaseMessageWithGroup",
+  "signalbot.messages.base.BaseMessageWithGroup",
 ]
 
 [tool.yamlfix]
@@ -145,10 +145,10 @@ whitelines = 1
 line_length = 120 # This should be 88 but the formatter breaks some }} in the github workflows.
 
 [tool.datamodel-codegen.profiles.signal-cli-rest-api]
-input = "src/signalbot/api/json_schema/signal-cli-rest-api.json"
+input = "src/signalbot/_generated/json_schema/signal-cli-rest-api.json"
 input-file-type = "jsonschema"
-aliases = "src/signalbot/api/json_schema/aliases.json"
-serialization-aliases = "src/signalbot/api/json_schema/serialization-aliases.json"
+aliases = "src/signalbot/_generated/json_schema/aliases.json"
+serialization-aliases = "src/signalbot/_generated/json_schema/serialization-aliases.json"
 output-model-type = "pydantic_v2.BaseModel"
 formatters = ["ruff-check", "ruff-format"]
 snake-case-field = true
@@ -162,4 +162,4 @@ module-split-mode = "single"
 no-use-type-checking-imports = true
 all-exports-scope = "recursive"
 all-exports-collision-strategy = "minimal-prefix"
-output = "src/signalbot/api/generated"
+output = "src/signalbot/_generated"

@@ -3,10 +3,10 @@ from typing import Protocol, runtime_checkable
 from signalbot import (
     DataMessageContext,
     DataMessageHandler,
-    SendMessage,
     SignalBot,
     text_triggered,
 )
+from signalbot.messages import SendMessage
 
 
 @runtime_checkable

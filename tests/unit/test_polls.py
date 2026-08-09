@@ -3,8 +3,8 @@ from dataclasses import dataclass
 import pytest
 from pytest_mock import MockerFixture
 
-from signalbot.api.generated import CreatePollRequest
-from signalbot.api.outgoing import CreatedPoll
+from signalbot._generated import CreatePollRequest
+from signalbot.polls import CreatedPoll
 from tests.conftest import GROUP_ID
 from tests.unit.conftest import TestCommon
 

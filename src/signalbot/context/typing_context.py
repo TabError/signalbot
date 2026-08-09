@@ -1,7 +1,7 @@
 from __future__ import annotations
 
-from signalbot.api.incoming import TypingMessage
 from signalbot.context.context import Context
+from signalbot.messages import TypingMessage
 
 
 class TypingContext(Context[TypingMessage]):

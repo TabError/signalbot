@@ -4,8 +4,10 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from signalbot.api.outgoing import SendMessage, UpdateContact, UpdateGroup
+from signalbot.contacts import UpdateContact
 from signalbot.context.context import Context
+from signalbot.groups import UpdateGroup
+from signalbot.messages import SendMessage
 from tests.conftest import GROUP_INTERNAL_ID
 from tests.unit.conftest import (
     PRIVATE_UUID,

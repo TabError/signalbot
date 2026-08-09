@@ -6,7 +6,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from signalbot.utils.retry import rerun_on_exception
+from signalbot._utils.retry import rerun_on_exception
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
@@ -37,7 +37,7 @@ def _monotonic_sequence(values: Iterable[float]):
 def _quiet_traceback(mocker: MockerFixture):
     # rerun_on_exception prints a traceback for every retried exception;
     # silence it so the retry tests below don't spam stderr.
-    mocker.patch("signalbot.utils.retry.traceback.print_exc")
+    mocker.patch("signalbot._utils.retry.traceback.print_exc")
 
 
 class TestRerunOnException:
@@ -45,7 +45,7 @@ class TestRerunOnException:
         self, mocker: MockerFixture
     ):
         sleep_mock = mocker.patch(
-            "signalbot.utils.retry.asyncio.sleep", mocker.AsyncMock()
+            "signalbot._utils.retry.asyncio.sleep", mocker.AsyncMock()
         )
         logger = mocker.MagicMock()
 
@@ -72,7 +72,7 @@ class TestRerunOnException:
         self, mocker: MockerFixture
     ):
         sleep_mock = mocker.patch(
-            "signalbot.utils.retry.asyncio.sleep", mocker.AsyncMock()
+            "signalbot._utils.retry.asyncio.sleep", mocker.AsyncMock()
         )
         logger = mocker.MagicMock()
 
@@ -88,7 +88,7 @@ class TestRerunOnException:
         self, mocker: MockerFixture
     ):
         sleep_mock = mocker.patch(
-            "signalbot.utils.retry.asyncio.sleep", mocker.AsyncMock()
+            "signalbot._utils.retry.asyncio.sleep", mocker.AsyncMock()
         )
         logger = mocker.MagicMock()
 
@@ -120,14 +120,14 @@ class TestRerunOnException:
         self, mocker: MockerFixture
     ):
         sleep_mock = mocker.patch(
-            "signalbot.utils.retry.asyncio.sleep", mocker.AsyncMock()
+            "signalbot._utils.retry.asyncio.sleep", mocker.AsyncMock()
         )
         logger = mocker.MagicMock()
         # loop 1: start=0, fails, end=0            -> within reset window
         # loop 2: start=1000, fails, end=1200       -> ran 200s (>= 180s reset)
         # loop 3: start=2000, succeeds
         mocker.patch(
-            "signalbot.utils.retry.time.monotonic",
+            "signalbot._utils.retry.time.monotonic",
             side_effect=_monotonic_sequence([0, 0, 1000, 1200, 2000]),
         )
 

@@ -3,14 +3,15 @@ from __future__ import annotations
 from copy import deepcopy
 from typing import TYPE_CHECKING
 
-from signalbot.api.generated import MessageMention
-from signalbot.api.incoming import DataMessage, EditMessage
+from signalbot._generated import MessageMention
 from signalbot.context.context import Context
+from signalbot.messages import DataMessage, EditMessage
 
 if TYPE_CHECKING:
-    from signalbot.api.generated import Mention, ReceiptType
-    from signalbot.api.incoming import Attachment
-    from signalbot.api.outgoing import SendMessage, SentMessage
+    from signalbot._generated import Mention
+    from signalbot.attachments import Attachment
+    from signalbot.messages import SendMessage, SentMessage
+    from signalbot.receipts import ReceiptType
 
 
 class DataMessageContext(Context[DataMessage | EditMessage]):
@@ -18,7 +19,7 @@ class DataMessageContext(Context[DataMessage | EditMessage]):
         self, new_message: SendMessage, original_message: SentMessage
     ) -> SentMessage:
         """Same as
-         [signalbot.MessageActions.edit()](actions.md#signalbot.actions.MessageActions.edit)
+         [signalbot.MessageActions.edit()](actions.md#signalbot._actions.MessageActions.edit)
         but with the recipient set to the message's recipient."""
         new_message = deepcopy(new_message)
         new_message.recipient = self.message.source_or_group_id()
@@ -29,7 +30,7 @@ class DataMessageContext(Context[DataMessage | EditMessage]):
         message: SendMessage,
     ) -> SentMessage:
         """Same as
-         [signalbot.MessageActions.send()](actions.md#signalbot.actions.MessageActions.send)
+         [signalbot.MessageActions.send()](actions.md#signalbot._actions.MessageActions.send)
         but with the quote arguments set to the message's."""
         send_mentions = self._convert_receive_mentions_into_send_mentions(
             self.message.mentions,
@@ -45,24 +46,24 @@ class DataMessageContext(Context[DataMessage | EditMessage]):
 
     async def react(self, emoji: str) -> None:
         """Same as
-         [signalbot.ReactionActions.react()](actions.md#signalbot.actions.ReactionActions.react)
+         [signalbot.ReactionActions.react()](actions.md#signalbot._actions.ReactionActions.react)
         but with the recipient set to the message's recipient."""
         await self.bot.reactions.react(self.message, emoji)
 
     async def remote_delete(self, sent_message: SentMessage) -> int:
         """Same as
-        [signalbot.MessageActions.remote_delete()](actions.md#signalbot.actions.MessageActions.remote_delete)."""
+        [signalbot.MessageActions.remote_delete()](actions.md#signalbot._actions.MessageActions.remote_delete)."""
         return await self.bot.messages.remote_delete(sent_message)
 
     async def send_receipt(self, receipt_type: ReceiptType) -> None:
         """Same as
-         [signalbot.ReceiptActions.send()](actions.md#signalbot.actions.ReceiptActions.send)
+         [signalbot.ReceiptActions.send()](actions.md#signalbot._actions.ReceiptActions.send)
         but with the recipient set to the message's recipient."""
         await self.bot.receipts.send(self.message, receipt_type)
 
     async def delete_attachment(self, attachment: Attachment) -> None:
         """Same as
-        [signalbot.AttachmentActions.delete()](actions.md#signalbot.actions.AttachmentActions.delete)."""
+        [signalbot.AttachmentActions.delete()](actions.md#signalbot._actions.AttachmentActions.delete)."""
         await self.bot.attachments.delete(attachment)
 
     def _convert_receive_mentions_into_send_mentions(

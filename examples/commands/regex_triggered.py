@@ -1,9 +1,5 @@
-from signalbot import (
-    DataMessageContext,
-    DataMessageHandler,
-    SendMessage,
-    regex_triggered,
-)
+from signalbot import DataMessageContext, DataMessageHandler, regex_triggered
+from signalbot.messages import SendMessage
 
 
 class RegexTriggeredCommand(DataMessageHandler):

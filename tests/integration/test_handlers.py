@@ -8,11 +8,11 @@ from signalbot import (
     DataMessageHandler,
     ReactionContext,
     ReactionHandler,
-    SendMessage,
     reaction_triggered,
     regex_triggered,
     text_triggered,
 )
+from signalbot.messages import SendMessage
 from signalbot.test_utils import (
     ChatTestCase,
     GetAllMock,
@@ -64,15 +64,15 @@ class TestCommon(ChatTestCase):
         self, mocker: MockerFixture
     ) -> SendReceiveGetGroupsMocks:
         send_mock = mocker.patch(
-            "signalbot.api.client.messages.MessagesClient.send",
+            "signalbot._client.messages.MessagesClient.send",
             new_callable=SendMock,
         )
         receive_mock = mocker.patch(
-            "signalbot.api.client.messages.MessagesClient.receive",
+            "signalbot._client.messages.MessagesClient.receive",
             new_callable=ReceiveMock,
         )
         get_groups_mock = mocker.patch(
-            "signalbot.api.client.groups.GroupsClient.get_all",
+            "signalbot._client.groups.GroupsClient.get_all",
             new_callable=GetAllMock,
         )
         return SendReceiveGetGroupsMocks(send_mock, receive_mock, get_groups_mock)

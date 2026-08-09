@@ -7,7 +7,7 @@ from typing import TYPE_CHECKING
 
 from packaging.version import Version
 
-from signalbot.actions import (
+from signalbot._actions import (
     AttachmentActions,
     ContactActions,
     GeneralActions,
@@ -17,20 +17,20 @@ from signalbot.actions import (
     ReactionActions,
     ReceiptActions,
 )
+from signalbot._bot_init import build_components
+from signalbot._pipeline import AnyHandler, HandlerList, MessagePipeline
+from signalbot._recipients import RecipientResolver
+from signalbot._utils.retry import rerun_on_exception
 from signalbot.bot_config import Config, load_config
-from signalbot.bot_init import build_components
 from signalbot.errors import SignalBotError
 from signalbot.groups import GroupRegistry
 from signalbot.logger import _initialize_logger
-from signalbot.pipeline import AnyHandler, HandlerList, MessagePipeline
-from signalbot.recipients import RecipientResolver
-from signalbot.utils.retry import rerun_on_exception
 
 if TYPE_CHECKING:
     from collections.abc import Callable, Mapping
     from pathlib import Path
 
-    from signalbot.api.incoming import ReceivedMessage
+    from signalbot.messages import ReceivedMessage
 
 MIN_SIGNAL_CLI_REST_API_VERSION = Version("0.95.0")
 """
@@ -81,8 +81,8 @@ class SignalBot:
         self.config = load_config(config)
         self._logger = _initialize_logger(self.config.logging_level)
 
-        self.init_task: None | asyncio.Task = None
-        self._shutdown_task: None | asyncio.Task = None
+        self.init_task: asyncio.Task | None = None
+        self._shutdown_task: asyncio.Task | None = None
 
         components = build_components(self.config, self._logger)
         self._signal = components.signal

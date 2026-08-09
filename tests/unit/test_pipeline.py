@@ -21,8 +21,8 @@ from tests.unit.conftest import (
 if TYPE_CHECKING:
     from collections.abc import Callable
 
-    from signalbot.api.incoming import DataMessage, ReceivedMessage
     from signalbot.context import DataMessageContext, ReadyContext
+    from signalbot.messages import DataMessage, ReceivedMessage
 
 
 class TestProducer(TestCommon):

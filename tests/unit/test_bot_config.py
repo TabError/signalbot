@@ -5,12 +5,12 @@ from pathlib import Path
 import pytest
 import yaml
 
-from signalbot.api import ConnectionMode
 from signalbot.bot_config import (
     Config,
     RedisConfig,
     load_config,
 )
+from signalbot.client import ConnectionMode
 
 
 def _connection_mode_representer(dumper: yaml.Dumper, data: ConnectionMode) -> str:

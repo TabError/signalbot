@@ -1,13 +1,16 @@
 from __future__ import annotations
 
-from typing import cast
+from typing import TYPE_CHECKING, cast
 
 import pytest
 
-from signalbot.api.incoming import DataMessage, Reaction
 from signalbot.context import DataMessageContext, ReactionContext
 from signalbot.handlers import reaction_triggered, regex_triggered, text_triggered
+from signalbot.reactions import Reaction
 from tests.unit.conftest import PRIVATE_NUMBER, make_data_message
+
+if TYPE_CHECKING:
+    from signalbot.messages import DataMessage
 
 
 def _data_message(text: str | None) -> DataMessage:
