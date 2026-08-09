@@ -26,4 +26,4 @@ class ReceiptsClient(BaseClient[ReceiptsURIs]):
 
 
 class SendReceiptError(SignalAPIError):
-    pass
+    """Raised when the API rejects a read/viewed receipt send request."""

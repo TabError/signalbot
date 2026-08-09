@@ -2,4 +2,4 @@ from signalbot._generated import UpdateContactRequest
 
 
 class UpdateContact(UpdateContactRequest):
-    pass
+    """The fields to change on a contact, passed to `bot.contacts.update`."""

@@ -29,4 +29,4 @@ class ContactsClient(BaseClient[ContactsURIs]):
 
 
 class UpdateContactError(SignalAPIError):
-    pass
+    """Raised when the API rejects a contact metadata update."""

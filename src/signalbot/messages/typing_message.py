@@ -3,7 +3,7 @@ from __future__ import annotations
 from enum import StrEnum
 from typing import TYPE_CHECKING
 
-from signalbot._events import BaseMessage
+from signalbot.events import BaseMessage
 
 if TYPE_CHECKING:
     from signalbot import _generated as generated
@@ -11,11 +11,15 @@ if TYPE_CHECKING:
 
 
 class TypingAction(StrEnum):
+    """Whether a typing indicator started or stopped."""
+
     STARTED = "STARTED"
     STOPPED = "STOPPED"
 
 
 class TypingMessage(BaseMessage):
+    """A typing indicator received from a contact or group."""
+
     action: TypingAction
     group_id: str | None = None
     timestamp: int

@@ -63,8 +63,8 @@ class GroupsClient(BaseClient[GroupsURIs]):
 
 
 class GetGroupsError(SignalAPIError):
-    pass
+    """Raised when fetching group data from the API fails."""
 
 
 class UpdateGroupError(SignalAPIError):
-    pass
+    """Raised when the API rejects a group metadata update."""

@@ -30,8 +30,8 @@ class GeneralClient(BaseClient[GeneralURIs]):
 
 
 class HealthCheckError(SignalAPIError):
-    pass
+    """Raised when the `signal-cli-rest-api` health check endpoint fails."""
 
 
 class AboutError(SignalAPIError):
-    pass
+    """Raised when fetching `signal-cli-rest-api` version/capability info fails."""

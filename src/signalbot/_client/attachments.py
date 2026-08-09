@@ -35,8 +35,8 @@ class AttachmentsClient(BaseClient[AttachmentsURIs]):
 
 
 class DownloadAttachmentError(SignalAPIError):
-    pass
+    """Raised when downloading an attachment from the API fails."""
 
 
 class DeleteAttachmentError(SignalAPIError):
-    pass
+    """Raised when the API rejects a request to delete an attachment."""

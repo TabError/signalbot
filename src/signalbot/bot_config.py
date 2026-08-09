@@ -116,6 +116,19 @@ class Config(BaseModel):
 
 
 def load_config(config: Config | Mapping | Path | str) -> Config:
+    """Coerce a `Config`, mapping, or path to a JSON/YAML file into a `Config`.
+
+    Args:
+        config: An already-built `Config`, a mapping of config fields, or a
+            path (or path string) to a `.json`, `.yaml`, or `.yml` file.
+
+    Returns:
+        The resulting `Config`.
+
+    Raises:
+        ValueError: If `config` is a path with an unsupported suffix, or is
+            none of the accepted types.
+    """
     if isinstance(config, Config):
         return config
 

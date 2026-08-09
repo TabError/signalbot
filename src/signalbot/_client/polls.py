@@ -29,4 +29,4 @@ class PollsClient(BaseClient[PollsURIs]):
 
 
 class CreatePollError(SignalAPIError):
-    pass
+    """Raised when the API rejects a poll creation request."""

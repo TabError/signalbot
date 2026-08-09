@@ -20,6 +20,7 @@ if TYPE_CHECKING:
 ReceivedMessage: TypeAlias = (
     "DataMessage | GroupUpdate | RemoteDelete | TypingMessage | EditMessage | Reaction"
 )
+"""Union of all message types `parse` can return."""
 
 
 async def _parse_data_message_variant(

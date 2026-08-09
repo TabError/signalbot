@@ -4,6 +4,8 @@ from signalbot._generated import CreatePollRequest
 
 
 class CreatedPoll(CreatePollRequest):
+    """A poll after it was successfully created, with its send timestamp attached."""
+
     timestamp: int
 
     @classmethod

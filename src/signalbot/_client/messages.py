@@ -89,24 +89,24 @@ class MessagesClient(BaseClient[MessagesURIs]):
 
 
 class ReceiveError(SignalAPIError):
-    pass
+    """Raised when the receive websocket connection fails or is interrupted."""
 
 
 class SendError(SignalAPIError):
-    pass
+    """Raised when the API rejects a message send request."""
 
 
 class TypingError(SignalAPIError):
-    pass
+    """Base class for errors updating a typing indicator."""
 
 
 class StartTypingError(TypingError):
-    pass
+    """Raised when the API rejects a request to start a typing indicator."""
 
 
 class StopTypingError(TypingError):
-    pass
+    """Raised when the API rejects a request to stop a typing indicator."""
 
 
 class RemoteDeleteError(SignalAPIError):
-    pass
+    """Raised when the API rejects a remote-delete request."""

@@ -10,6 +10,8 @@ if TYPE_CHECKING:
 
 
 class EditMessage(DataMessage):
+    """A DataMessage that replaces an earlier message the sender previously sent."""
+
     target_sent_timestamp: int
 
     @classmethod

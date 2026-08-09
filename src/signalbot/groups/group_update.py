@@ -4,7 +4,7 @@ from typing import TYPE_CHECKING, Literal
 
 from pydantic import BaseModel
 
-from signalbot._events import BaseMessage
+from signalbot.events import BaseMessage
 
 if TYPE_CHECKING:
     from signalbot import _generated as generated
@@ -12,6 +12,8 @@ if TYPE_CHECKING:
 
 
 class GroupInfo(BaseModel):
+    """The group metadata attached to a group-update event."""
+
     group_id: str
     group_name: str
     revision: int
@@ -39,6 +41,8 @@ class GroupInfo(BaseModel):
 
 
 class GroupUpdate(BaseMessage):
+    """Notification that a group's metadata (name, members, ...) was updated."""
+
     group_info: GroupInfo
 
     @classmethod

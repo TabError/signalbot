@@ -29,4 +29,4 @@ class ReactionsClient(BaseClient[ReactionsURIs]):
 
 
 class SendReactionError(SignalAPIError):
-    pass
+    """Raised when the API rejects a reaction send/remove request."""

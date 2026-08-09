@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from signalbot._events import BaseMessageWithGroup
+from signalbot.events import BaseMessageWithGroup
 
 if TYPE_CHECKING:
     from signalbot import _generated as generated
@@ -14,6 +14,8 @@ if TYPE_CHECKING:
 
 
 class RemoteDelete(BaseMessageWithGroup):
+    """Notification that a previously sent message was deleted by its sender."""
+
     @classmethod
     async def _internal_parse(
         cls,

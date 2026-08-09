@@ -50,6 +50,8 @@ def _check_link_preview_url_in_text(send_message: BaseSendMessage) -> None:
 
 
 class BaseSendMessage(BaseModel):
+    """Fields shared by every outgoing message, regardless of recipient shape."""
+
     base64_attachments: list[str] | None = None
     attachments: list[PydanticPath] | None = None
     edit_timestamp: int | None = None
@@ -76,6 +78,8 @@ class BaseSendMessage(BaseModel):
 
 
 class SendMessage(BaseSendMessage):
+    """A message to send to a single recipient (a contact or a group)."""
+
     recipient: str | None = None
 
     async def to_generated(self, number: str) -> SendMessageV2:
@@ -106,6 +110,8 @@ class SendMessage(BaseSendMessage):
 
 
 class SendMessageMultiple(BaseSendMessage):
+    """The same message sent individually to multiple recipients."""
+
     recipients: list[str]
 
     async def to_generated(self, number: str) -> SendMessageV2:
@@ -132,6 +138,8 @@ class SendMessageMultiple(BaseSendMessage):
 
 
 class SentMessage(BaseSendMessage):
+    """A record of a message after it was successfully sent to one recipient."""
+
     recipient: str
     timestamp: int
 

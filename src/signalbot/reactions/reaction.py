@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from signalbot._events import BaseMessageWithGroup
+from signalbot.events import BaseMessageWithGroup
 
 if TYPE_CHECKING:
     from signalbot import _generated as generated
@@ -14,6 +14,8 @@ if TYPE_CHECKING:
 
 
 class Reaction(BaseMessageWithGroup):
+    """A reaction (emoji) added to, or removed from, a previously sent message."""
+
     emoji: str | None = None
     is_remove: bool
     target_author: str | None = None

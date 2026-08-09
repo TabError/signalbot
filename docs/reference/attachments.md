@@ -1,0 +1,5 @@
+---
+title: Attachments
+---
+
+::: signalbot.attachments
