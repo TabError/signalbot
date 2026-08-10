@@ -32,17 +32,17 @@ class TypingIndicatorToggleCommand(DataMessageHandler):
 
     def help_message(self) -> str:
         return (
-            "enable_typing_indicator / disable_typing_indicator: ⌨️ Turns the "
+            "enable-typing-indicator / disable_typing_indicator: ⌨️ Turns the "
             "typing indicator notifier on or off (starts disabled)."
         )
 
-    @text_triggered("enable_typing_indicator", "disable_typing_indicator")
+    @text_triggered("enable-typing-indicator", "disable_typing_indicator")
     async def handle_data_message(self, context: DataMessageContext) -> None:
         text = context.message.text
         if text is None:
             return
 
-        enable = text.strip().lower() == "enable_typing_indicator"
+        enable = text.strip().lower() == "enable-typing-indicator"
         self._typing_indicator_handler.enabled = enable
         state = "enabled" if enable else "disabled"
         await context.send(SendMessage(text=f"Typing indicator notifier {state}"))

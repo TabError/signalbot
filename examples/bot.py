@@ -67,7 +67,7 @@ def main() -> None:
     bot.register(DeletionNotifierHandler())
     bot.register(GroupUpdateNotifierHandler())
 
-    # Disabled by default; toggle it with the enable_typing_indicator /
+    # Disabled by default; toggle it with the enable-typing-indicator /
     # disable_typing_indicator commands.
     typing_indicator_handler = TypingIndicatorHandler()
     bot.register(typing_indicator_handler)
