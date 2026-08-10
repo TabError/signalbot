@@ -87,10 +87,10 @@ def main() -> None:
     bot.register(BroadcastCommand(recipients=broadcast_recipients))
 
     # The handler will only trigger the group named "My Group"
-    bot.register(TypingCommand(), groups=["My Group"])
+    bot.register(TypingCommand(), groups=["My Group"], contacts=False)
 
     # The handler will only trigger for the contact "+490123456789"
-    bot.register(TriggeredCommand(), contacts=["+490123456789"])
+    bot.register(TriggeredCommand(), contacts=["+490123456789"], groups=False)
 
     bot.start()
 
