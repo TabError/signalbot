@@ -39,8 +39,8 @@ class TestReply(TestCommon):
         result = await context.reply(SendMessage(text="my reply"))
 
         send_mock.assert_awaited_once()
-        (sent_arg,), _ = send_mock.call_args
-        assert sent_arg.recipient == SOURCE_UUID
+        (sent_arg, recipient), _ = send_mock.call_args
+        assert recipient == SOURCE_UUID
         assert sent_arg.text == "my reply"
         assert sent_arg.quote_author == SOURCE_UUID
         assert sent_arg.quote_text == "original text"
@@ -58,7 +58,7 @@ class TestReply(TestCommon):
 
         await context.reply(SendMessage(text="my reply"))
 
-        (sent_arg,), _ = send_mock.call_args
+        (sent_arg, _recipient), _ = send_mock.call_args
         assert sent_arg.quote_author == SOURCE_NUMBER
 
     async def test_reply_does_not_mutate_caller_message(self, mocker: MockerFixture):
@@ -71,7 +71,6 @@ class TestReply(TestCommon):
 
         await context.reply(outgoing)
 
-        assert outgoing.recipient is None
         assert outgoing.quote_text is None
 
     async def test_reply_converts_mentions_dropping_ones_without_uuid(
@@ -90,7 +89,7 @@ class TestReply(TestCommon):
 
         await context.reply(SendMessage(text="hi"))
 
-        (sent_arg,), _ = send_mock.call_args
+        (sent_arg, _recipient), _ = send_mock.call_args
         assert sent_arg.quote_mentions == [
             MessageMention(author="mentioned-uuid", start=0, length=3)
         ]
@@ -106,7 +105,7 @@ class TestReply(TestCommon):
 
         await context.reply(SendMessage(text="hi"))
 
-        (sent_arg,), _ = send_mock.call_args
+        (sent_arg, _recipient), _ = send_mock.call_args
         assert sent_arg.quote_mentions is None
 
     async def test_reply_with_only_uuidless_mentions_yields_none(
@@ -122,7 +121,7 @@ class TestReply(TestCommon):
 
         await context.reply(SendMessage(text="hi"))
 
-        (sent_arg,), _ = send_mock.call_args
+        (sent_arg, _recipient), _ = send_mock.call_args
         assert sent_arg.quote_mentions is None
 
     async def test_reply_logs_warning_for_mention_without_uuid(
@@ -143,22 +142,18 @@ class TestReply(TestCommon):
 
 
 class TestEdit(TestCommon):
-    async def test_edit_sets_recipient_and_does_not_mutate_caller_message(
-        self, mocker: MockerFixture
-    ):
+    async def test_edit_passes_message_source_as_recipient(self, mocker: MockerFixture):
         message = _message()
         edit_mock = mocker.patch.object(
             self.signal_bot.messages, "edit", mocker.AsyncMock(return_value="edited")
         )
         context = DataMessageContext(self.signal_bot, message)
         outgoing = SendMessage(text="updated text")
+        original = mocker.Mock()
 
-        result = await context.edit(outgoing, original_message=mocker.Mock())
+        result = await context.edit(outgoing, original_message=original)
 
-        edit_mock.assert_awaited_once()
-        (sent_arg, _original), _ = edit_mock.call_args
-        assert sent_arg.recipient == SOURCE_UUID
-        assert outgoing.recipient is None
+        edit_mock.assert_awaited_once_with(outgoing, original, SOURCE_UUID)
         assert result == "edited"
 
 

@@ -12,13 +12,6 @@ from signalbot.groups.group_permissions import GroupPermissions
 class UpdateGroup(BaseModel):
     """The fields to change on a group. If a field is `None`, it is left unchanged."""
 
-    group_id_or_name: str | None = Field(
-        default=None,
-        exclude=True,
-        description="The group ID or name of the group to update. Must be set "
-        "before calling `bot.groups.actions.update`, but can be left as `None` "
-        "when using `Context.update_group`, which fills it in automatically.",
-    )
     avatar: PydanticPath | str | None = Field(
         default=None,
         description="The new avatar of the group. This can be a Path or a base64 "

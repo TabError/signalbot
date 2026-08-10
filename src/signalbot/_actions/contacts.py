@@ -12,15 +12,14 @@ class ContactActions(BotActionsBase):
     async def update(
         self,
         update_contact: UpdateContact,
+        recipient: str,
     ) -> None:
         """Update a contact's metadata.
 
         Args:
             update_contact: Contact update payload.
+            recipient: The contact to update.
         """
-        if update_contact.recipient is None:
-            error_msg = "Recipient must be set in UpdateContact"
-            raise ValueError(error_msg)
-        update_contact.recipient = self._recipients.resolve(update_contact.recipient)
-        wire_request = update_contact.to_generated()
+        recipient = self._recipients.resolve(recipient)
+        wire_request = update_contact.to_generated(recipient)
         await self._signal.contacts.update(wire_request)

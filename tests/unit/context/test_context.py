@@ -31,12 +31,11 @@ class TestContext(TestCommon):
             self.signal_bot.messages, "send", mocker.AsyncMock(return_value="sent")
         )
         context = Context(self.signal_bot, message)
+        outgoing = SendMessage(text="hi")
 
-        result = await context.send(SendMessage(text="hi"))
+        result = await context.send(outgoing)
 
-        send_mock.assert_awaited_once()
-        (sent_arg,), _ = send_mock.call_args
-        assert sent_arg.recipient == PRIVATE_UUID
+        send_mock.assert_awaited_once_with(outgoing, PRIVATE_UUID)
         assert result == "sent"
 
     async def test_send_sets_recipient_from_group_message(self, mocker: MockerFixture):
@@ -45,11 +44,11 @@ class TestContext(TestCommon):
             self.signal_bot.messages, "send", mocker.AsyncMock(return_value="sent")
         )
         context = Context(self.signal_bot, message)
+        outgoing = SendMessage(text="hi")
 
-        await context.send(SendMessage(text="hi"))
+        await context.send(outgoing)
 
-        (sent_arg,), _ = send_mock.call_args
-        assert sent_arg.recipient == GROUP_INTERNAL_ID
+        send_mock.assert_awaited_once_with(outgoing, GROUP_INTERNAL_ID)
 
     async def test_start_typing_uses_message_source(self, mocker: MockerFixture):
         message = _private_message()
@@ -82,11 +81,10 @@ class TestContext(TestCommon):
         )
         context = Context(self.signal_bot, message)
 
-        update_contact = UpdateContact(recipient="placeholder", name="Bob")
+        update_contact = UpdateContact(name="Bob")
         await context.update_contact(update_contact)
 
-        update_mock.assert_awaited_once_with(update_contact)
-        assert update_contact.recipient == PRIVATE_UUID
+        update_mock.assert_awaited_once_with(update_contact, PRIVATE_UUID)
 
     async def test_update_contact_raises_for_group_message(self, mocker: MockerFixture):
         message = _group_message()
@@ -96,7 +94,7 @@ class TestContext(TestCommon):
         context = Context(self.signal_bot, message)
 
         with pytest.raises(ValueError, match="Cannot update contact for a group"):
-            await context.update_contact(UpdateContact(recipient="x", name="Bob"))
+            await context.update_contact(UpdateContact(name="Bob"))
 
         update_mock.assert_not_awaited()
 
@@ -109,11 +107,10 @@ class TestContext(TestCommon):
         )
         context = Context(self.signal_bot, message)
 
-        update_group = UpdateGroup(group_id_or_name="placeholder", name="New name")
+        update_group = UpdateGroup(name="New name")
         await context.update_group(update_group)
 
-        update_mock.assert_awaited_once_with(update_group)
-        assert update_group.group_id_or_name == GROUP_INTERNAL_ID
+        update_mock.assert_awaited_once_with(update_group, GROUP_INTERNAL_ID)
 
     async def test_update_group_raises_for_private_message(self, mocker: MockerFixture):
         message = _private_message()
@@ -123,9 +120,7 @@ class TestContext(TestCommon):
         context = Context(self.signal_bot, message)
 
         with pytest.raises(ValueError, match="Cannot update group for a private"):
-            await context.update_group(
-                UpdateGroup(group_id_or_name="x", name="New name")
-            )
+            await context.update_group(UpdateGroup(name="New name"))
 
         update_mock.assert_not_awaited()
 
@@ -141,8 +136,7 @@ class TestContext(TestCommon):
         poll = CreatePoll(question="Cats or dogs?", answers=["Cats", "Dogs"])
         result = await context.create_poll(poll)
 
-        create_mock.assert_awaited_once_with(poll)
-        assert poll.recipient == PRIVATE_UUID
+        create_mock.assert_awaited_once_with(poll, PRIVATE_UUID)
         assert result == "poll"
 
     async def test_create_poll_sets_recipient_from_group_message(
@@ -157,5 +151,4 @@ class TestContext(TestCommon):
         poll = CreatePoll(question="Cats or dogs?", answers=["Cats", "Dogs"])
         await context.create_poll(poll)
 
-        (poll_arg,), _ = create_mock.call_args
-        assert poll_arg.recipient == GROUP_INTERNAL_ID
+        create_mock.assert_awaited_once_with(poll, GROUP_INTERNAL_ID)

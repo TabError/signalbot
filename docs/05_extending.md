@@ -204,13 +204,20 @@ Steps:
      guidance above) is fine here too, same rule: additive narrowing is sound, mark it with
      `# pyright: ignore[reportIncompatibleVariableOverride]` and a reason.
    - **Standalone `BaseModel` with a `to_generated()` method** when a field the wire format requires
-     won't be known until later — most commonly `recipient`/`group_id_or_name`, which a
-     [`Context`][signalbot.context.Context] convenience method fills in from the received message.
-     Follow [`SendMessage`][signalbot.messages.SendMessage] in
+     won't be known until later — most commonly `recipient`/`group_id_or_name`. Don't put it on the
+     model as `str | None`; leave it off the model entirely and thread it through as a required
+     parameter instead: on `to_generated()` if the wire model needs it (follow
+     [`SendMessage`][signalbot.messages.SendMessage] in
      [`send_message.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/messages/send_message.py),
-     [`UpdateGroup`][signalbot.groups.UpdateGroup], or
-     [`CreatePoll`][signalbot.polls.CreatePoll]: `to_generated()` raises a `ValueError` if the deferred
-     field is still `None` when called.
+     [`UpdateContact`][signalbot.contacts.UpdateContact], or
+     [`CreatePoll`][signalbot.polls.CreatePoll]/[`CreatedPoll`][signalbot.polls.CreatedPoll] in
+     [`poll.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/polls/poll.py)),
+     or straight onto the `*Actions` method alone if it's only ever used to resolve a separate id and
+     never touches the wire model (follow [`UpdateGroup`][signalbot.groups.UpdateGroup] /
+     `GroupActions.update`, where `group_id_or_name` resolves to a `group_id` URL path segment and
+     never appears in the request body). Either way, a
+     [`Context`][signalbot.context.Context] convenience method fills the parameter in from the
+     received message.
 
 4. **Add a client method** in the relevant
    [`src/signalbot/_client/`](https://github.com/signalbot-org/signalbot/tree/main/src/signalbot/_client)
@@ -251,8 +258,9 @@ Steps:
    [`src/signalbot/context/context.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/context/context.py)
    if handlers should be able to call it directly — follow how
    [`context.react(...)`][signalbot.context.DataMessageContext.react] /
-   `context.send(...)` delegate to the Actions layer. This is usually exactly where the deferred field
-   from step 3 gets filled in — e.g. `create_poll_request.recipient = received_message.source_or_group_id()`.
+   `context.send(...)` delegate to the Actions layer. This is usually exactly where the deferred
+   parameter from step 3 gets filled in, by passing it straight through as an extra argument (e.g.
+   `self.bot.polls.create(create_poll_request, received_message.source_or_group_id())`).
 
 9. **Write a test** for the new `Actions` method (mock/stub [`SignalAPI`][signalbot.client.SignalAPI], assert the right client method
    and payload) — check

@@ -18,13 +18,13 @@ class WelcomeHandler(ReadyHandler):
 
         if self.recipient is not None:
             await context.bot.messages.send(
-                SendMessage(recipient=self.recipient, text=welcome_message)
+                SendMessage(text=welcome_message), self.recipient
             )
             await context.bot.messages.send(
-                SendMessage(recipient=self.recipient, text=commands_msg)
+                SendMessage(text=commands_msg), self.recipient
             )
             await context.bot.messages.send(
-                SendMessage(recipient=self.recipient, text=handlers_msg)
+                SendMessage(text=handlers_msg), self.recipient
             )
         else:
             print(welcome_message)

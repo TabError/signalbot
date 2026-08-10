@@ -11,29 +11,27 @@ class CreatePoll(BaseModel):
     allow_multiple_selections: bool | None = None
     answers: list[str]
     question: str
-    recipient: str | None = None
 
-    def to_generated(self) -> CreatePollRequest:
-        if self.recipient is None:
-            error_msg = "Recipient must be set in CreatePoll"
-            raise ValueError(error_msg)
+    def to_generated(self, recipient: str) -> CreatePollRequest:
         return CreatePollRequest(
             allow_multiple_selections=self.allow_multiple_selections,
             answers=self.answers,
             question=self.question,
-            recipient=self.recipient,
+            recipient=recipient,
         )
 
 
 class CreatedPoll(CreatePoll):
-    """A poll after it was successfully created, with its send timestamp attached."""
+    """A poll after it was successfully created, with its recipient and send
+    timestamp attached."""
 
+    recipient: str
     timestamp: int
 
     @classmethod
     def from_create_poll_request(
-        cls, create_poll_request: CreatePoll, timestamp: int
+        cls, create_poll_request: CreatePoll, recipient: str, timestamp: int
     ) -> CreatedPoll:
         return cls.model_construct(
-            **create_poll_request.model_dump(), timestamp=timestamp
+            **create_poll_request.model_dump(), recipient=recipient, timestamp=timestamp
         )

@@ -66,6 +66,6 @@ async def test_update_group(
     mock = mock_json_response("put", {})
 
     update_group_request = UpdateGroupRequest(name="New Name")
-    await signal_api.groups.update(GROUP_ID, update_group_request)
+    await signal_api.groups.update(update_group_request, GROUP_ID)
 
     assert mock.call_count == 1

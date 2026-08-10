@@ -12,7 +12,7 @@ async def test_update_contact(
 ):
     mock = mock_json_response("put", {})
 
-    update_contact = UpdateContact(recipient=PHONE_NUMBER, name="Bob")
-    await signal_api.contacts.update(update_contact.to_generated())
+    update_contact = UpdateContact(name="Bob")
+    await signal_api.contacts.update(update_contact.to_generated(PHONE_NUMBER))
 
     assert mock.call_count == 1

@@ -11,6 +11,7 @@ from tests.unit.conftest import TestCommon
 @dataclass
 class PollCase:
     recipient: str
+    resolved_recipient: str
     question: str
     answers: list[str]
     allow_multiple: bool
@@ -23,6 +24,7 @@ class TestPoll(TestCommon):
         [
             PollCase(
                 recipient="+49987654321",
+                resolved_recipient="+49987654321",
                 question="What's your favorite color?",
                 answers=["Red", "Blue", "Green"],
                 allow_multiple=False,
@@ -30,6 +32,7 @@ class TestPoll(TestCommon):
             ),
             PollCase(
                 recipient=GROUP_ID,
+                resolved_recipient=GROUP_ID,
                 question="What should we do?",
                 answers=["Option A", "Option B"],
                 allow_multiple=False,
@@ -37,6 +40,7 @@ class TestPoll(TestCommon):
             ),
             PollCase(
                 recipient="+49987654321",
+                resolved_recipient="+49987654321",
                 question="Which colors do you like?",
                 answers=["Red", "Blue", "Green", "Yellow"],
                 allow_multiple=True,
@@ -52,13 +56,15 @@ class TestPoll(TestCommon):
         mocker.patch.object(self.signal_bot._signal.polls, "create", poll_mock)
 
         create_poll_request = CreatePoll(
-            recipient=case.recipient,
             question=case.question,
             answers=case.answers,
             allow_multiple_selections=case.allow_multiple,
         )
-        result = await self.signal_bot.polls.create(create_poll_request)
+        result = await self.signal_bot.polls.create(create_poll_request, case.recipient)
 
         assert isinstance(result, CreatedPoll)
+        assert result.recipient == case.resolved_recipient
         assert result.timestamp == case.timestamp
-        poll_mock.assert_called_once_with(create_poll_request.to_generated())
+        poll_mock.assert_called_once_with(
+            create_poll_request.to_generated(case.resolved_recipient)
+        )

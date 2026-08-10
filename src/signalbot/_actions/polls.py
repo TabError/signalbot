@@ -13,25 +13,24 @@ class PollActions(BotActionsBase):
     async def create(
         self,
         create_poll_request: CreatePoll,
+        recipient: str,
     ) -> CreatedPoll:
         """Create a poll.
 
         Args:
             create_poll_request: The fields to create the poll with.
+            recipient: The contact or group to send the poll to.
 
         Returns:
             A CreatedPoll instance.
         """
-        if create_poll_request.recipient is None:
-            error_msg = "Recipient must be set in CreatePoll"
-            raise ValueError(error_msg)
-        create_poll_request.recipient = self._recipients.resolve(
-            create_poll_request.recipient
-        )
+        recipient = self._recipients.resolve(recipient)
 
-        wire_request = create_poll_request.to_generated()
+        wire_request = create_poll_request.to_generated(recipient)
         created_poll = await self._signal.polls.create(wire_request)
         timestamp = int(created_poll.timestamp)
         self._logger.info("[Bot] New poll created:\n%s", create_poll_request.question)
 
-        return CreatedPoll.from_create_poll_request(create_poll_request, timestamp)
+        return CreatedPoll.from_create_poll_request(
+            create_poll_request, recipient, timestamp
+        )

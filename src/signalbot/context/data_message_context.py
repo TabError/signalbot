@@ -21,9 +21,9 @@ class DataMessageContext(Context[DataMessage | EditMessage]):
         """Same as
          [signalbot.MessageActions.edit()](actions.md#signalbot._actions.MessageActions.edit)
         but with the recipient set to the message's recipient."""
-        new_message = deepcopy(new_message)
-        new_message.recipient = self.message.source_or_group_id()
-        return await self.bot.messages.edit(new_message, original_message)
+        return await self.bot.messages.edit(
+            new_message, original_message, self.message.source_or_group_id()
+        )
 
     async def reply(
         self,
@@ -36,13 +36,12 @@ class DataMessageContext(Context[DataMessage | EditMessage]):
             self.message.mentions,
         )
         message = deepcopy(message)
-        message.recipient = self.message.source_or_group_id()
         message.quote_mentions = send_mentions
         message.quote_author = self.message.source_uuid or self.message.source_number
         message.quote_text = self.message.text
         message.quote_timestamp = self.message.timestamp
 
-        return await self.bot.messages.send(message)
+        return await self.bot.messages.send(message, self.message.source_or_group_id())
 
     async def react(self, emoji: str) -> None:
         """Same as

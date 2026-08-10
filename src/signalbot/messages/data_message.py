@@ -157,7 +157,7 @@ class DataMessage(BaseMessageWithGroup):
             if mention.uuid is not None
         ]
 
-    def to_send_message(self, recipient: str) -> SendMessage:
+    def to_send_message(self) -> SendMessage:
         """Convert the received message to a SendMessage that can be sent using the
             API.
 
@@ -215,7 +215,6 @@ class DataMessage(BaseMessageWithGroup):
             else None,
             quote_text=copy.quote.text if copy.quote is not None else None,
             quote_timestamp=copy.quote.id if copy.quote is not None else None,
-            recipient=recipient,
             # sticker=copy.sticker, # Not clear how to send stickers yet
             text_mode=text_style,
             view_once=copy.view_once,

@@ -13,10 +13,9 @@ async def test_send_message_serializes_as_sendv2_with_single_recipient(
 
     message = SendMessage(
         attachments=[AnyIOPath(attachment)],
-        recipient="group-1",
     )
 
-    result = await message.to_generated("+49123456789")
+    result = await message.to_generated("+49123456789", "group-1")
 
     assert result.number == "+49123456789"
     assert result.message == ""

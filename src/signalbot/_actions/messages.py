@@ -28,26 +28,25 @@ class MessageActions(BotActionsBase):
     async def send(
         self,
         message: SendMessage,
+        recipient: str,
     ) -> SentMessage:
         """Send or edit a message.
 
         Args:
             message: The message to send.
+            recipient: The contact or group to send the message to.
 
         Returns:
             A SentMessage instance.
         """
-        if message.recipient is None:
-            error_msg = "Recipient must be set in SendMessage"
-            raise ValueError(error_msg)
-        message.recipient = self._recipients.resolve(message.recipient)
+        recipient = self._recipients.resolve(recipient)
 
-        send_message_v2 = await message.to_generated(self._phone_number)
+        send_message_v2 = await message.to_generated(self._phone_number, recipient)
         send_message_response = await self._signal.messages.send(send_message_v2)
         timestamp = int(send_message_response.timestamp)
         self._logger.info("[Bot] New message %s sent:\n%s", timestamp, message.text)
 
-        return SentMessage.from_send_message(message, timestamp)
+        return SentMessage.from_send_message(message, recipient, timestamp)
 
     async def send_multiple(
         self,
@@ -74,19 +73,20 @@ class MessageActions(BotActionsBase):
         return SentMessage.from_send_message_multiple(message, timestamp)
 
     async def edit(
-        self, new_message: SendMessage, original_message: SentMessage
+        self, new_message: SendMessage, original_message: SentMessage, recipient: str
     ) -> SentMessage:
         """Edit a message.
 
         Args:
             new_message: The message to send.
             original_message: The original message to edit.
+            recipient: The contact or group the original message was sent to.
 
         Returns:
             A SentMessage instance.
         """
         new_message.edit_timestamp = original_message.timestamp
-        return await self.send(new_message)
+        return await self.send(new_message, recipient)
 
     async def remote_delete(
         self,

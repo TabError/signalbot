@@ -43,8 +43,9 @@ class Context(Generic[MessageT]):
          [signalbot.MessageActions.send()](actions.md#signalbot._actions.MessageActions.send)
         but with the recipient set to the message's recipient."""
         received_message = cast("ReceivedMessage", self.message)
-        message.recipient = received_message.source_or_group_id()
-        return await self.bot.messages.send(message)
+        return await self.bot.messages.send(
+            message, received_message.source_or_group_id()
+        )
 
     async def start_typing(self) -> None:
         """Same as
@@ -68,8 +69,9 @@ class Context(Generic[MessageT]):
         if received_message.is_group():
             error_msg = "Cannot update contact for a group message"
             raise ValueError(error_msg)
-        update_contact.recipient = received_message.source_or_group_id()
-        await self.bot.contacts.update(update_contact)
+        await self.bot.contacts.update(
+            update_contact, received_message.source_or_group_id()
+        )
 
     async def update_group(
         self,
@@ -82,13 +84,15 @@ class Context(Generic[MessageT]):
         if received_message.is_private():
             error_msg = "Cannot update group for a private message"
             raise ValueError(error_msg)
-        update_group.group_id_or_name = received_message.source_or_group_id()
-        await self.bot.groups.actions.update(update_group)
+        await self.bot.groups.actions.update(
+            update_group, received_message.source_or_group_id()
+        )
 
     async def create_poll(self, create_poll_request: CreatePoll) -> CreatedPoll:
         """Same as
         [signalbot.PollActions.create()](actions.md#signalbot._actions.PollActions.create)
          but with the recipient set to the message's recipient."""
         received_message = cast("ReceivedMessage", self.message)
-        create_poll_request.recipient = received_message.source_or_group_id()
-        return await self.bot.polls.create(create_poll_request)
+        return await self.bot.polls.create(
+            create_poll_request, received_message.source_or_group_id()
+        )

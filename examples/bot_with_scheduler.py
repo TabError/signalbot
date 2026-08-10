@@ -9,7 +9,7 @@ async def ping(bot: SignalBot, recipient: str) -> None:
     # Scheduled jobs can run before the bot has finished connecting, so wait for it.
     await bot.wait_until_ready()
 
-    await bot.messages.send(SendMessage(recipient=recipient, text="Ping"))
+    await bot.messages.send(SendMessage(text="Ping"), recipient)
 
 
 def main(recipient: str = os.environ["PHONE_NUMBER"]) -> None:

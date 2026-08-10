@@ -90,15 +90,9 @@ class BaseSendMessage(BaseModel):
 class SendMessage(BaseSendMessage):
     """A message to send to a single recipient (a contact or a group)."""
 
-    recipient: str | None = None
-
-    async def to_generated(self, number: str) -> SendMessageV2:
+    async def to_generated(self, number: str, recipient: str) -> SendMessageV2:
         base64_attachments = await _resolve_base64_attachments(self)
         link_preview = await _resolve_link_preview(self.link_preview)
-
-        if self.recipient is None:
-            error_msg = "Recipient must be set in SendMessage"
-            raise ValueError(error_msg)
 
         return SendMessageV2(
             base64_attachments=base64_attachments,
@@ -112,7 +106,7 @@ class SendMessage(BaseSendMessage):
             quote_mentions=_as_generated_mentions(self.quote_mentions),
             quote_message=self.quote_text,
             quote_timestamp=self.quote_timestamp,
-            recipients=[self.recipient],
+            recipients=[recipient],
             sticker=self.sticker,
             text_mode=self.text_mode,
             view_once=self.view_once,
@@ -155,9 +149,11 @@ class SentMessage(BaseSendMessage):
 
     @classmethod
     def from_send_message(
-        cls, send_message: SendMessage, timestamp: int
+        cls, send_message: SendMessage, recipient: str, timestamp: int
     ) -> SentMessage:
-        return cls.model_construct(**send_message.model_dump(), timestamp=timestamp)
+        return cls.model_construct(
+            **send_message.model_dump(), recipient=recipient, timestamp=timestamp
+        )
 
     @classmethod
     def from_send_message_multiple(

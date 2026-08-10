@@ -47,13 +47,13 @@ class GroupsClient(BaseClient[GroupsURIs]):
         return GroupEntry.model_validate(await resp.json())
 
     async def update(
-        self, group_id: str, update_group_request: UpdateGroupRequest
+        self, update_group_request: UpdateGroupRequest, group_id: str
     ) -> aiohttp.ClientResponse:
         """Update a group's metadata via the API.
 
         Args:
-            group_id: The group's public id (the `group.<...>=` form).
             update_group_request: The wire-format update payload.
+            group_id: The group's public id (the `group.<...>=` form).
         """
         uri = self._uris.group_id_uri(group_id)
         payload = update_group_request.model_dump_json(exclude_none=True, by_alias=True)
