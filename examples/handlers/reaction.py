@@ -1,6 +1,5 @@
 from examples.timestamps import local_datetime_str_from_timestamp
-from signalbot import ReactionContext, ReactionHandler, reaction_triggered
-from signalbot.messages import SendMessage
+from signalbot import ReactionContext, ReactionHandler, SendMessage, reaction_triggered
 
 
 class ReactionDetailsHandler(ReactionHandler):

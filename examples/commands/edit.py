@@ -1,7 +1,12 @@
 import asyncio
 
-from signalbot import DataMessageContext, DataMessageHandler, text_triggered
-from signalbot.messages import EditMessage, SendMessage
+from signalbot import (
+    DataMessageContext,
+    DataMessageHandler,
+    EditMessage,
+    SendMessage,
+    text_triggered,
+)
 
 
 class EditCommand(DataMessageHandler):

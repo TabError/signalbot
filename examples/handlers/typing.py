@@ -1,5 +1,4 @@
-from signalbot import TypingContext, TypingHandler
-from signalbot.messages import SendMessage, TypingAction
+from signalbot import SendMessage, TypingAction, TypingContext, TypingHandler
 
 
 class TypingIndicatorHandler(TypingHandler):

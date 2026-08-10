@@ -1,5 +1,10 @@
-from signalbot import DataMessageContext, DataMessageHandler, text_triggered
-from signalbot.messages import SendMessage, SendMessageMultiple
+from signalbot import (
+    DataMessageContext,
+    DataMessageHandler,
+    SendMessage,
+    SendMessageMultiple,
+    text_triggered,
+)
 
 
 class BroadcastCommand(DataMessageHandler):

@@ -1,6 +1,10 @@
-from signalbot import DataMessageContext, DataMessageHandler, text_triggered
-from signalbot.groups import UpdateGroup
-from signalbot.messages import SendMessage
+from signalbot import (
+    DataMessageContext,
+    DataMessageHandler,
+    SendMessage,
+    UpdateGroup,
+    text_triggered,
+)
 
 
 class UpdateGroupCommand(DataMessageHandler):

@@ -1,5 +1,4 @@
-from signalbot import DataMessageContext, DataMessageHandler, text_triggered
-from signalbot.polls import CreatePoll
+from signalbot import CreatePoll, DataMessageContext, DataMessageHandler, text_triggered
 
 
 class PollCommand(DataMessageHandler):

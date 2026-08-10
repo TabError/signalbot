@@ -1,5 +1,10 @@
-from signalbot import DataMessageContext, DataMessageHandler, text_triggered
-from signalbot.messages import SendMessage, TextMode
+from signalbot import (
+    DataMessageContext,
+    DataMessageHandler,
+    SendMessage,
+    TextMode,
+    text_triggered,
+)
 
 
 class StylesCommand(DataMessageHandler):

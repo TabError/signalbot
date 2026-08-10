@@ -1,6 +1,5 @@
 from examples.timestamps import local_datetime_str_from_timestamp
-from signalbot import RemoteDeleteContext, RemoteDeleteHandler
-from signalbot.messages import SendMessage
+from signalbot import RemoteDeleteContext, RemoteDeleteHandler, SendMessage
 
 
 class DeletionNotifierHandler(RemoteDeleteHandler):

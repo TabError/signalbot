@@ -1,5 +1,9 @@
-from signalbot import DataMessageContext, DataMessageHandler, text_triggered
-from signalbot.receipts import ReceiptType
+from signalbot import (
+    DataMessageContext,
+    DataMessageHandler,
+    ReceiptType,
+    text_triggered,
+)
 
 
 class ReceiptCommand(DataMessageHandler):

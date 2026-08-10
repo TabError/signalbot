@@ -2,7 +2,7 @@ import pytest
 from pytest_mock import MockerFixture
 
 from examples.commands.ping import PingCommand
-from signalbot.test_utils import ChatTestCase, mock_chat
+from signalbot import ChatTestCase, mock_chat
 
 
 class TestPingChatTest(ChatTestCase):

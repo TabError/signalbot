@@ -1,5 +1,4 @@
-from signalbot import GroupUpdateContext, GroupUpdateHandler
-from signalbot.messages import SendMessage
+from signalbot import GroupUpdateContext, GroupUpdateHandler, SendMessage
 
 
 class GroupUpdateNotifierHandler(GroupUpdateHandler):
