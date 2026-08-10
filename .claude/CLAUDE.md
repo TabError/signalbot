@@ -14,8 +14,7 @@ pre-release: `version = "2.0.0.dev1"`); `main` still ships v1.
 Use `uv run <cmd>` for everything (never activate `.venv` directly).
 
 ```bash
-uv sync --group examples          # install with dev+examples deps (what CI uses)
-uv sync --group docs              # install docs deps
+uv sync --all-groups              # install every dep group (dev+examples+docs) — use this, don't switch between --group flags
 
 uv run pytest                                              # run all tests
 uv run pytest tests/unit/test_bot.py                       # single file
