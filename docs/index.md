@@ -44,8 +44,8 @@ A few methods aren't tied to a specific message and only exist on `bot`:
 
 - [bot.register(handler)][signalbot.bot.SignalBot.register]: Register a new handler
 - [bot.start()][signalbot.bot.SignalBot.start]: Start the bot
-- [bot.scheduler][signalbot.bot.SignalBot]: Schedule tasks, see the [scheduler examples](examples/03_bot_with_scheduler.md).
-- `bot.storage` ([`SQLiteStorage`][signalbot.storage.SQLiteStorage] or
+- [bot.scheduler][signalbot.bot.SignalBot.scheduler]: Schedule tasks, see the [scheduler examples](examples/03_bot_with_scheduler.md).
+- [bot.storage][signalbot.bot.SignalBot.storage] ([`SQLiteStorage`][signalbot.storage.SQLiteStorage] or
   [`RedisStorage`][signalbot.storage.RedisStorage]): Store and read data on disk with a db.
 
 Every method above can also be called directly on the bot, outside a handler, by supplying
