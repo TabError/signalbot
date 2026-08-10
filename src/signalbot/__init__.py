@@ -33,6 +33,7 @@ from signalbot.context import (
     TypingContext,
 )
 from signalbot.errors import SignalAPIError, SignalBotError
+from signalbot.events import GroupInfo
 from signalbot.general import About, AboutError, HealthCheckError
 from signalbot.groups import (
     AddMembers,
@@ -144,6 +145,7 @@ __all__ = [
     "GetAllMock",
     "GetGroupsError",
     "GroupEntry",
+    "GroupInfo",
     "GroupLink",
     "GroupPermissions",
     "GroupRegistry",
