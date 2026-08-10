@@ -158,15 +158,23 @@ call site. Match it when adding a new one:
 | `CreatePollRequest`                                   | [`CreatePoll`][signalbot.polls.CreatePoll]  | `bot.polls.create`                                 | [`Context.create_poll`][signalbot.context.Context.create_poll]                                                             |
 | `UpdateContactRequest`                                | [`UpdateContact`][signalbot.contacts.UpdateContact]                                                          | `bot.contacts.update`                              | [`Context.update_contact`][signalbot.context.Context.update_contact]                                                       |
 
-Two naming exceptions to be aware of, not to copy blindly:
+Naming patterns to follow:
 
-- `GroupActions` attaches to the bot as `bot.group_actions`, not `bot.groups` — that name is
-  already taken by the [`GroupRegistry`][signalbot.groups.GroupRegistry] cache
-  (`SignalBot.groups`).
-- [`Context`][signalbot.context.Context] method names otherwise mirror the `bot.<noun>` action
-  they call (`react` → `bot.reactions.react`) — `update_contact`/`update_group` keep the noun
-  because `Context` flattens several domains into one namespace, unlike `bot.<noun>`, so the
-  bare name `update` would be ambiguous.
+- **Generated request → request class drops the `Request` suffix.** `UpdateGroupRequest` →
+  `UpdateGroup`, `CreatePollRequest` → `CreatePoll`, `UpdateContactRequest` → `UpdateContact`.
+  `SendMessageV2`.
+- **Context shortcut = the Actions method's bare verb, unless that verb is already taken.**
+  [`Context`][signalbot.context.Context] flattens every domain's actions into one namespace, so
+  a verb already used by another action gets qualified with its noun to disambiguate; otherwise
+  it stays bare. `remote_delete`, `react`, `start_typing`/`stop_typing` all carry over unchanged
+  from their `bot.<noun>.<verb>` call. `send` is already claimed by
+  [`Context.send`][signalbot.context.Context.send] (messages), so receipts' `send` becomes
+  [`send_receipt`][signalbot.context.DataMessageContext.send_receipt] instead. `update` is used
+  by both groups and contacts, so neither gets the bare name — both keep the noun
+  (`update_group`, `update_contact`).
+- `GroupActions` attaches at `bot.groups.actions`, not directly on the bot — `bot.groups` is
+  already the [`GroupRegistry`][signalbot.groups.GroupRegistry] cache, so `GroupActions` nests
+  underneath it instead of taking a top-level `bot.<noun>` name of its own.
 
 Steps:
 
