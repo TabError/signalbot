@@ -11,7 +11,7 @@ if TYPE_CHECKING:
 
     from signalbot._client import SignalAPI
     from signalbot._recipients import RecipientResolver
-    from signalbot.messages import SendMessage, SendMessageMultiple
+    from signalbot.messages import SendMessage
 
 
 class MessageActions(BotActionsBase):
@@ -41,7 +41,7 @@ class MessageActions(BotActionsBase):
         """
         recipient = self._recipients.resolve(recipient)
 
-        send_message_v2 = await message.to_generated(self._phone_number, recipient)
+        send_message_v2 = await message.to_generated(self._phone_number, [recipient])
         send_message_response = await self._signal.messages.send(send_message_v2)
         timestamp = int(send_message_response.timestamp)
         self._logger.info("[Bot] New message %s sent:\n%s", timestamp, message.text)
@@ -50,43 +50,42 @@ class MessageActions(BotActionsBase):
 
     async def send_multiple(
         self,
-        message: SendMessageMultiple,
+        message: SendMessage,
+        recipients: list[str],
     ) -> list[SentMessage]:
         """Send one message to multiple recipients.
 
         Args:
-            message: The message payload with multiple recipients.
+            message: The message to send.
+            recipients: The contacts or groups to send the message to.
 
         Returns:
             A list of SentMessage instances, one per recipient.
         """
-        message.recipients = [
-            self._recipients.resolve(recipient) for recipient in message.recipients
-        ]
+        recipients = [self._recipients.resolve(recipient) for recipient in recipients]
 
-        send_message_v2 = await message.to_generated(self._phone_number)
+        send_message_v2 = await message.to_generated(self._phone_number, recipients)
         send_message_response = await self._signal.messages.send(send_message_v2)
         timestamp = int(send_message_response.timestamp)
 
         self._logger.info("[Bot] New message %s sent:\n%s", timestamp, message.text)
 
-        return SentMessage.from_send_message_multiple(message, timestamp)
+        return SentMessage.from_send_message_multiple(message, recipients, timestamp)
 
     async def edit(
-        self, new_message: SendMessage, original_message: SentMessage, recipient: str
+        self, new_message: SendMessage, original_message: SentMessage
     ) -> SentMessage:
         """Edit a message.
 
         Args:
             new_message: The message to send.
             original_message: The original message to edit.
-            recipient: The contact or group the original message was sent to.
 
         Returns:
             A SentMessage instance.
         """
         new_message.edit_timestamp = original_message.timestamp
-        return await self.send(new_message, recipient)
+        return await self.send(new_message, original_message.recipient)
 
     async def remote_delete(
         self,

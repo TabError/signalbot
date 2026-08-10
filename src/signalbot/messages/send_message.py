@@ -88,9 +88,9 @@ class BaseSendMessage(BaseModel):
 
 
 class SendMessage(BaseSendMessage):
-    """A message to send to a single recipient (a contact or a group)."""
+    """A message to send to one or more recipients (contacts or groups)."""
 
-    async def to_generated(self, number: str, recipient: str) -> SendMessageV2:
+    async def to_generated(self, number: str, recipients: list[str]) -> SendMessageV2:
         base64_attachments = await _resolve_base64_attachments(self)
         link_preview = await _resolve_link_preview(self.link_preview)
 
@@ -106,35 +106,7 @@ class SendMessage(BaseSendMessage):
             quote_mentions=_as_generated_mentions(self.quote_mentions),
             quote_message=self.quote_text,
             quote_timestamp=self.quote_timestamp,
-            recipients=[recipient],
-            sticker=self.sticker,
-            text_mode=self.text_mode,
-            view_once=self.view_once,
-        )
-
-
-class SendMessageMultiple(BaseSendMessage):
-    """The same message sent individually to multiple recipients."""
-
-    recipients: list[str]
-
-    async def to_generated(self, number: str) -> SendMessageV2:
-        base64_attachments = await _resolve_base64_attachments(self)
-        link_preview = await _resolve_link_preview(self.link_preview)
-
-        return SendMessageV2(
-            base64_attachments=base64_attachments,
-            edit_timestamp=self.edit_timestamp,
-            link_preview=link_preview,
-            mentions=_as_generated_mentions(self.mentions),
-            message=self.text or "",
-            notify_self=self.notify_self,
-            number=number,
-            quote_author=self.quote_author,
-            quote_mentions=_as_generated_mentions(self.quote_mentions),
-            quote_message=self.quote_text,
-            quote_timestamp=self.quote_timestamp,
-            recipients=self.recipients,
+            recipients=recipients,
             sticker=self.sticker,
             text_mode=self.text_mode,
             view_once=self.view_once,
@@ -157,11 +129,9 @@ class SentMessage(BaseSendMessage):
 
     @classmethod
     def from_send_message_multiple(
-        cls, send_message: SendMessageMultiple, timestamp: int
+        cls, send_message: SendMessage, recipients: list[str], timestamp: int
     ) -> list[SentMessage]:
         return [
-            cls.model_construct(
-                **send_message.model_dump(), recipient=recipient, timestamp=timestamp
-            )
-            for recipient in send_message.recipients
+            cls.from_send_message(send_message, recipient, timestamp)
+            for recipient in recipients
         ]

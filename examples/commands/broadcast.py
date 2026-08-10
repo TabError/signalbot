@@ -2,7 +2,6 @@ from signalbot import (
     DataMessageContext,
     DataMessageHandler,
     SendMessage,
-    SendMessageMultiple,
     text_triggered,
 )
 
@@ -25,8 +24,8 @@ class BroadcastCommand(DataMessageHandler):
             return
 
         await context.bot.messages.send_multiple(
-            SendMessageMultiple(
-                recipients=[*self.recipients, context.message.source_or_group_id()],
+            SendMessage(
                 text="📢 Broadcast message!",
-            )
+            ),
+            recipients=[*self.recipients, context.message.source_or_group_id()],
         )

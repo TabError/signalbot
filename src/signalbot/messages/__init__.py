@@ -23,7 +23,6 @@ from signalbot.messages.remote_delete import RemoteDelete
 from signalbot.messages.send_message import (
     BaseSendMessage,
     SendMessage,
-    SendMessageMultiple,
     SentMessage,
 )
 from signalbot.messages.typing_message import TypingAction, TypingMessage
@@ -44,7 +43,6 @@ __all__ = [
     "RemoteDeleteError",
     "SendError",
     "SendMessage",
-    "SendMessageMultiple",
     "SentMessage",
     "StartTypingError",
     "Sticker",

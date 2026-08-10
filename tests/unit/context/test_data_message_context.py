@@ -142,7 +142,7 @@ class TestReply(TestCommon):
 
 
 class TestEdit(TestCommon):
-    async def test_edit_passes_message_source_as_recipient(self, mocker: MockerFixture):
+    async def test_edit_delegates_to_message_actions(self, mocker: MockerFixture):
         message = _message()
         edit_mock = mocker.patch.object(
             self.signal_bot.messages, "edit", mocker.AsyncMock(return_value="edited")
@@ -153,7 +153,7 @@ class TestEdit(TestCommon):
 
         result = await context.edit(outgoing, original_message=original)
 
-        edit_mock.assert_awaited_once_with(outgoing, original, SOURCE_UUID)
+        edit_mock.assert_awaited_once_with(outgoing, original)
         assert result == "edited"
 
 

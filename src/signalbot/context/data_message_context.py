@@ -19,11 +19,8 @@ class DataMessageContext(Context[DataMessage | EditMessage]):
         self, new_message: SendMessage, original_message: SentMessage
     ) -> SentMessage:
         """Same as
-         [signalbot.MessageActions.edit()](actions.md#signalbot._actions.MessageActions.edit)
-        but with the recipient set to the message's recipient."""
-        return await self.bot.messages.edit(
-            new_message, original_message, self.message.source_or_group_id()
-        )
+        [signalbot.MessageActions.edit()](actions.md#signalbot._actions.MessageActions.edit)."""
+        return await self.bot.messages.edit(new_message, original_message)
 
     async def reply(
         self,
