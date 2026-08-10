@@ -230,7 +230,7 @@ Steps:
    [`src/signalbot/_client/messages.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/_client/messages.py)).
    Define a dedicated `*Error(`[`SignalAPIError`][signalbot.SignalAPIError]`)` class alongside it.
 
-5. **Expose it on [`SignalAPI`][signalbot.client.SignalAPI]** if it's a new
+5. **Expose it on `SignalAPI`** if it's a new
    section
    ([`src/signalbot/_client/signal_api.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/_client/signal_api.py))
    — existing sections (`.messages`, `.reactions`, `.groups`, ...) already route to their client class.
@@ -262,7 +262,7 @@ Steps:
    parameter from step 3 gets filled in, by passing it straight through as an extra argument (e.g.
    `self.bot.polls.create(create_poll_request, received_message.source_or_group_id())`).
 
-9. **Write a test** for the new `Actions` method (mock/stub [`SignalAPI`][signalbot.client.SignalAPI], assert the right client method
+9. **Write a test** for the new `Actions` method (mock/stub `SignalAPI`, assert the right client method
    and payload) — check
    [`tests/unit`](https://github.com/signalbot-org/signalbot/tree/main/tests/unit) for the existing
    pattern for `_actions/*` classes.
