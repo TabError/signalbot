@@ -9,8 +9,8 @@ from signalbot.messages import SentMessage
 if TYPE_CHECKING:
     import logging
 
+    from signalbot._client import SignalAPI
     from signalbot._recipients import RecipientResolver
-    from signalbot.client import SignalAPI
     from signalbot.messages import DataMessage
 
 

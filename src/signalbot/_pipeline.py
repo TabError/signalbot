@@ -42,8 +42,8 @@ if TYPE_CHECKING:
     import logging
     from collections.abc import Callable
 
+    from signalbot._client import SignalAPI
     from signalbot.bot import SignalBot
-    from signalbot.client import SignalAPI
     from signalbot.groups import GroupRegistry
 
 # message type -> (handler role, context to build, handler method name to call)

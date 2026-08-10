@@ -14,8 +14,8 @@ from signalbot.reactions import Reaction
 
 if TYPE_CHECKING:
     from signalbot import _generated as generated
+    from signalbot._client import SignalAPI
     from signalbot._generated import MessageEnvelope, SyncDataMessage
-    from signalbot.client import SignalAPI
 
 ReceivedMessage: TypeAlias = (
     "DataMessage | GroupUpdate | RemoteDelete | TypingMessage | EditMessage | Reaction"

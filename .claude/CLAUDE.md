@@ -61,7 +61,8 @@ It names every file that needs to change, in order.
 2. `src/signalbot/_client/` — one file per API section (`messages.py`, `groups.py`, `polls.py`, ...), each
    with a `*URIs` class (endpoint paths) and a `*Client` class (typed to accept generated request models,
    serializes with `model_dump_json(exclude_none=True, by_alias=True)`, calls `self._request(...)`). All
-   wired together on `SignalAPI` (`_client/signal_api.py`), exposed publicly as `signalbot.client`.
+   wired together on `SignalAPI` (`_client/signal_api.py`), internal only — not part of the public
+   API surface (`signalbot.client` only re-exports `ConnectionMode`).
 3. `src/signalbot/_actions/` — one `*Actions` class per API section (`MessageActions`, `GroupActions`, ...),
    attached to `SignalBot` in `_bot_init.py` as `bot.messages`, `bot.polls`, etc. (`GroupActions` is the
    exception, nested at `bot.groups.actions` since `bot.groups` is already the `GroupRegistry` cache).

@@ -59,7 +59,7 @@ def mock_chat(*messages: str) -> Callable[[AsyncTestMethod], AsyncTestMethod]:
                 new_callable=AboutMock,
             )
             mocker.patch(
-                "signalbot.client.SignalAPI.check_signal_service",
+                "signalbot._client.SignalAPI.check_signal_service",
                 new_callable=CheckSignalServiceMock,
             )
 

@@ -2,8 +2,8 @@ from collections.abc import Callable
 
 from pytest_mock import MockType
 
+from signalbot._client import SignalAPI
 from signalbot._generated import AddMembers, EditGroup, SendMessages, UpdateGroupRequest
-from signalbot.client import SignalAPI
 from signalbot.groups import GroupEntry, GroupPermissions
 from tests.conftest import GROUP_ID
 

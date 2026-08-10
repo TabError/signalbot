@@ -3,7 +3,7 @@ from collections.abc import AsyncIterator
 import pytest_asyncio
 
 from signalbot import SignalBot
-from signalbot.client import SignalAPI
+from signalbot._client import SignalAPI
 
 SIGNAL_SERVICE = "127.0.0.1:8080"
 PHONE_NUMBER = "+49123456789"

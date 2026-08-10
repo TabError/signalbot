@@ -20,7 +20,7 @@ from signalbot.bot_config import (
     SQLiteConfig,
     load_config,
 )
-from signalbot.client import ConnectionMode, SignalAPI
+from signalbot.client import ConnectionMode
 from signalbot.contacts import UpdateContact, UpdateContactError
 from signalbot.context import (
     Context,
@@ -98,7 +98,6 @@ from signalbot.receipts import ReceiptType, SendReceiptError
 from signalbot.storage import (
     RedisStorage,
     SQLiteStorage,
-    Storage,
     StorageBackend,
     StorageError,
     StorageOperation,
@@ -190,14 +189,12 @@ __all__ = [
     "SendReactionError",
     "SendReceiptError",
     "SentMessage",
-    "SignalAPI",
     "SignalAPIError",
     "SignalBot",
     "SignalBotError",
     "StartTypingError",
     "Sticker",
     "StopTypingError",
-    "Storage",
     "StorageBackend",
     "StorageError",
     "StorageOperation",

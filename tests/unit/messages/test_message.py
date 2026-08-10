@@ -5,7 +5,7 @@ import aiohttp
 import pytest
 from pytest_mock import MockerFixture
 
-from signalbot.client import SignalAPI
+from signalbot._client import SignalAPI
 from signalbot.groups import GroupUpdate
 from signalbot.messages import (
     DataMessage,

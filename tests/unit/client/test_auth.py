@@ -3,9 +3,9 @@ import base64
 import aiohttp
 from pytest_mock import MockerFixture
 
+from signalbot._client import SignalAPI
 from signalbot._generated import SendMessageV2
 from signalbot.auth import Authentication, BasicAuthentication, BearerAuthentication
-from signalbot.client import SignalAPI
 from tests.conftest import GROUP_ID, PHONE_NUMBER, SIGNAL_SERVICE
 from tests.unit.client.conftest import HTTP_OK
 

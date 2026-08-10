@@ -7,7 +7,7 @@ from signalbot.errors import SignalBotError
 if TYPE_CHECKING:
     import logging
 
-    from signalbot.client import SignalAPI
+    from signalbot._client import SignalAPI
     from signalbot.groups import GroupRegistry, UpdateGroup
 
 

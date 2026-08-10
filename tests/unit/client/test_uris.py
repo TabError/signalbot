@@ -1,5 +1,6 @@
 import pytest
 
+from signalbot._client import SignalAPI
 from signalbot._client.attachments import AttachmentsURIs
 from signalbot._client.base import BaseURIs
 from signalbot._client.contacts import ContactsURIs
@@ -9,7 +10,6 @@ from signalbot._client.messages import MessagesURIs
 from signalbot._client.polls import PollsURIs
 from signalbot._client.reactions import ReactionsURIs
 from signalbot._client.receipts import ReceiptsURIs
-from signalbot.client import SignalAPI
 from tests.conftest import GROUP_ID, PHONE_NUMBER, SIGNAL_SERVICE
 
 

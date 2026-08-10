@@ -16,11 +16,11 @@ from signalbot.messages.send_message import SendMessage
 
 if TYPE_CHECKING:
     from signalbot import _generated as generated
+    from signalbot._client import SignalAPI
     from signalbot._generated import (
         MessageEnvelope,
         SyncDataMessage,
     )
-    from signalbot.client import SignalAPI
 
 
 class DataMessage(BaseMessageWithGroup):

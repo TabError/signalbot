@@ -24,7 +24,7 @@ values a `Storage` backend reads and writes."""
 
 
 class Storage(ABC):
-    """Abstract base class for storage backends."""
+    """Internal abstract base class shared by `SQLiteStorage` and `RedisStorage`."""
 
     @abstractmethod
     def exists(self, key: str) -> bool:

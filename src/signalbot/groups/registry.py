@@ -10,7 +10,7 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
     from signalbot._actions import GroupActions
-    from signalbot.client import SignalAPI
+    from signalbot._client import SignalAPI
     from signalbot.groups.group_entry import GroupEntry
 
 

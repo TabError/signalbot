@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 from signalbot.messages.data_message import DataMessage
 
 if TYPE_CHECKING:
+    from signalbot._client import SignalAPI
     from signalbot._generated import MessageEnvelope
-    from signalbot.client import SignalAPI
 
 
 class EditMessage(DataMessage):

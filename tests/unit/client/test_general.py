@@ -4,9 +4,9 @@ import aiohttp
 from pytest_mock import MockerFixture, MockType
 
 from signalbot import ConnectionMode
+from signalbot._client import SignalAPI
 from signalbot._client.base import HEALTH_CHECK_GOOD_STATUS
 from signalbot._client.general import HealthCheckError
-from signalbot.client import SignalAPI
 from signalbot.general import About
 from tests.conftest import PHONE_NUMBER, SIGNAL_SERVICE
 

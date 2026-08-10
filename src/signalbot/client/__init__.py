@@ -1,6 +1,5 @@
-from signalbot._client import ConnectionMode, SignalAPI
+from signalbot._client import ConnectionMode
 
 __all__ = [
     "ConnectionMode",
-    "SignalAPI",
 ]

@@ -5,8 +5,8 @@ from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     import logging
 
+    from signalbot._client import SignalAPI
     from signalbot._recipients import RecipientResolver
-    from signalbot.client import SignalAPI
 
 
 class BotActionsBase:

@@ -5,8 +5,8 @@ import aiohttp
 import pytest
 from pytest_mock import MockerFixture, MockType
 
+from signalbot._client import SignalAPI
 from signalbot.attachments import Attachment
-from signalbot.client import SignalAPI
 from tests.unit.client.conftest import HTTP_OK
 
 

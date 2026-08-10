@@ -2,8 +2,8 @@ from collections.abc import Callable
 
 from pytest_mock import MockType
 
+from signalbot._client import SignalAPI
 from signalbot._generated import Receipt, ReceiptType
-from signalbot.client import SignalAPI
 from tests.conftest import PHONE_NUMBER
 from tests.unit.client.conftest import HTTP_OK
 

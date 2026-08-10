@@ -5,6 +5,7 @@ from typing import TYPE_CHECKING, NamedTuple
 
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
 
+from signalbot._client import SignalAPI
 from signalbot.auth import BasicAuthentication, BearerAuthentication
 from signalbot.bot_config import (
     BasicAuthConfig,
@@ -13,7 +14,6 @@ from signalbot.bot_config import (
     RedisConfig,
     SQLiteConfig,
 )
-from signalbot.client import SignalAPI
 from signalbot.errors import SignalBotError
 from signalbot.storage import RedisStorage, SQLiteStorage
 

@@ -3,6 +3,7 @@ from collections.abc import Callable
 import pytest
 from pytest_mock import MockerFixture, MockType
 
+from signalbot._client import SignalAPI
 from signalbot._client.messages import ReceiveError, SendError
 from signalbot._generated import (
     CreatePollRequest,
@@ -10,7 +11,6 @@ from signalbot._generated import (
     SendMessageV2,
     TypingIndicatorRequest,
 )
-from signalbot.client import SignalAPI
 from tests.conftest import GROUP_ID, PHONE_NUMBER
 from tests.unit.client.conftest import HTTP_OK
 
