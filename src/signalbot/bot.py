@@ -107,6 +107,10 @@ class SignalBot:
         ```
         """
         self._logger = logging.getLogger(LOGGER_NAME)
+        self._logger.warning(
+            "signalbot v1 is deprecated. No more updates will be released."
+            " Please update to v2: https://github.com/signalbot-org/signalbot/releases/tag/v2.0.0",
+        )
 
         self.config = load_config(config)
 
