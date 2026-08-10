@@ -17,6 +17,20 @@ so find the closest existing example and follow its shape.
 
 ## New incoming message
 
+Every incoming type follows the same name chain from the wire to the handler. Match it when
+adding a new one — `Xxx` (wrapped class) → `XxxHandler` → `XxxContext` → `handle_xxx`
+(snake_case of `Xxx`):
+
+| Generated class                             | Wrapped class                                                  | Handler ABC                                                          | Context class                                                      | Handler method        |
+| ------------------------------------------------------------------------ | ---------------------------------------------------------------- | ----------------------------------------------------------------------- | ---------------------------------------------------------------------- | ---------------------- |
+| `DataMessage`                                        | [`DataMessage`][signalbot.messages.DataMessage]                  | [`DataMessageHandler`][signalbot.handlers.DataMessageHandler]           | [`DataMessageContext`][signalbot.context.DataMessageContext]           | `handle_data_message`  |
+| `Reaction`                                                                | [`Reaction`][signalbot.reactions.Reaction]                       | [`ReactionHandler`][signalbot.handlers.ReactionHandler]                 | [`ReactionContext`][signalbot.context.ReactionContext]                 | `handle_reaction`      |
+| `RemoteDelete`                                                            | [`RemoteDelete`][signalbot.messages.RemoteDelete]                | [`RemoteDeleteHandler`][signalbot.handlers.RemoteDeleteHandler]         | [`RemoteDeleteContext`][signalbot.context.RemoteDeleteContext]         | `handle_remote_delete` |
+| `TypingMessage`                                                           | [`TypingMessage`][signalbot.messages.TypingMessage]              | [`TypingHandler`][signalbot.handlers.TypingHandler]                     | [`TypingContext`][signalbot.context.TypingContext]                     | `handle_typing`        |
+| `GroupInfo`               | [`GroupUpdate`][signalbot.groups.GroupUpdate] | [`GroupUpdateHandler`][signalbot.handlers.GroupUpdateHandler] | [`GroupUpdateContext`][signalbot.context.GroupUpdateContext]           | `handle_group_update`  |
+
+Steps:
+
 1. **Get a message envelope.** Set a breakpoint in `_parse_main_messages`,
    `_parse_sync_messages`, or `_parse_data_message_variant` in
    [`src/signalbot/messages/parser.py`](https://github.com/signalbot-org/signalbot/blob/main/src/signalbot/messages/parser.py)
@@ -129,6 +143,32 @@ so find the closest existing example and follow its shape.
    section of the bot that you are editing.
 
 ## New outgoing action
+
+Every outgoing action follows the same name chain from the wire request to the bot author's
+call site. Match it when adding a new one:
+
+| Generated request              | Request class                                                                                  | Actions method                                | Context shortcut                                                                                                      |
+| ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- | ------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| `SendMessageV2`                                       | [`SendMessage`][signalbot.messages.SendMessage]                                                             | `bot.messages.send`                                | [`Context.send`][signalbot.context.Context.send]  |
+| `RemoteDeleteRequest`                                 | built inline                                                     | `bot.messages.remote_delete`                       | [`DataMessageContext.remote_delete`][signalbot.context.DataMessageContext.remote_delete]                                   |
+| `TypingIndicatorRequest`                              | built inline                                                                                             | `bot.messages.start_typing` / `.stop_typing`       | [`Context.start_typing`][signalbot.context.Context.start_typing] / [`Context.stop_typing`][signalbot.context.Context.stop_typing] |
+| `SendReactionRequest`                                 | built inline                                                              | `bot.reactions.react`                              | [`DataMessageContext.react`][signalbot.context.DataMessageContext.react]                                                   |
+| `Receipt`                                              | built inline                                                                  | `bot.receipts.send`                                | [`DataMessageContext.send_receipt`][signalbot.context.DataMessageContext.send_receipt]                                     |
+| `UpdateGroupRequest`                                  | [`UpdateGroup`][signalbot.groups.UpdateGroup]                                                                | `bot.group_actions.update`                         | [`Context.update_group`][signalbot.context.Context.update_group]                                                           |
+| `CreatePollRequest`                                   | [`CreatePoll`][signalbot.polls.CreatePoll]  | `bot.polls.create`                                 | [`Context.create_poll`][signalbot.context.Context.create_poll]                                                             |
+| `UpdateContactRequest`                                | [`UpdateContact`][signalbot.contacts.UpdateContact]                                                          | `bot.contacts.update`                              | [`Context.update_contact`][signalbot.context.Context.update_contact]                                                       |
+
+Two naming exceptions to be aware of, not to copy blindly:
+
+- `GroupActions` attaches to the bot as `bot.group_actions`, not `bot.groups` — that name is
+  already taken by the [`GroupRegistry`][signalbot.groups.GroupRegistry] cache
+  (`SignalBot.groups`).
+- [`Context`][signalbot.context.Context] method names otherwise mirror the `bot.<noun>` action
+  they call (`react` → `bot.reactions.react`) — `update_contact`/`update_group` keep the noun
+  because `Context` flattens several domains into one namespace, unlike `bot.<noun>`, so the
+  bare name `update` would be ambiguous.
+
+Steps:
 
 1. **Find the endpoint** in the
    [signal-cli-rest-api Swagger docs](https://bbernhard.github.io/signal-cli-rest-api/) — note its
