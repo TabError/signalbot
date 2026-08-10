@@ -1,7 +1,9 @@
 from collections.abc import Callable
 
+import pytest
 from pytest_mock import MockerFixture, MockType
 
+from signalbot._client.messages import ReceiveError, SendError
 from signalbot._generated import (
     CreatePollRequest,
     RemoteDeleteRequest,
@@ -43,6 +45,40 @@ async def test_poll(
     resp = await signal_api.polls.create(create_poll_request)
 
     assert resp.timestamp == "1774791959123"
+
+
+async def test_send_error_includes_failure_reason(
+    signal_api: SignalAPI,
+    mock_error_response: Callable[[str, int, str], MockType],
+):
+    mock_error_response("post", 400, "Bad Request")
+
+    data_message = SendMessageV2(
+        message="Hello World!",
+        number=PHONE_NUMBER,
+        recipients=[GROUP_ID],
+    )
+
+    with pytest.raises(SendError) as exc_info:
+        await signal_api.messages.send(data_message)
+
+    assert str(exc_info.value) != ""
+    assert "400" in str(exc_info.value)
+    assert "Bad Request" in str(exc_info.value)
+
+
+async def test_receive_error_includes_failure_reason(
+    signal_api: SignalAPI, mocker: MockerFixture
+):
+    mock = mocker.patch("websockets.connect")
+    mock.return_value.__aenter__.side_effect = OSError("Connection refused")
+
+    with pytest.raises(ReceiveError) as exc_info:
+        async for _ in signal_api.messages.receive():
+            pass
+
+    assert str(exc_info.value) != ""
+    assert "Connection refused" in str(exc_info.value)
 
 
 async def test_receive(signal_api: SignalAPI, mocker: MockerFixture):

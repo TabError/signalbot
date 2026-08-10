@@ -135,6 +135,6 @@ class BaseClient(Generic[UrisT]):
             )
             resp.raise_for_status()
         except _TRANSPORT_ERRORS as exc:
-            raise error_cls from exc
+            raise error_cls(str(exc)) from exc
         else:
             return resp

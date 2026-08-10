@@ -46,7 +46,7 @@ class MessagesClient(BaseClient[MessagesURIs]):
                     yield str(raw_message)
 
         except Exception as e:
-            raise ReceiveError from e
+            raise ReceiveError(str(e)) from e
 
     async def send(
         self,

@@ -30,3 +30,25 @@ def mock_json_response(mocker: MockerFixture) -> Callable[[str, dict | list], Mo
         return mock
 
     return _mock
+
+
+@pytest.fixture
+def mock_error_response(mocker: MockerFixture) -> Callable[[str, int, str], MockType]:
+    """Patch `aiohttp.ClientSession.<verb>` so `raise_for_status()` raises,
+    simulating `signal-cli-rest-api` rejecting the request."""
+
+    def _mock(verb: str, status: int, message: str) -> MockType:
+        response = mocker.AsyncMock(spec=aiohttp.ClientResponse)
+        response.raise_for_status.side_effect = aiohttp.ClientResponseError(
+            request_info=mocker.Mock(),
+            history=(),
+            status=status,
+            message=message,
+        )
+        mock = mocker.patch(
+            f"aiohttp.ClientSession.{verb}", new_callable=mocker.AsyncMock
+        )
+        mock.return_value = response
+        return mock
+
+    return _mock
