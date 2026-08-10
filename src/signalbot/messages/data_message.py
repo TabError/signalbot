@@ -94,7 +94,7 @@ class DataMessage(BaseMessageWithGroup):
             attachments=attachments,
             expires_in_seconds=data_message.expires_in_seconds,
             mentions=mentions,
-            text=data_message.text,
+            text=data_message.message,
             previews=link_previews,
             quote=quote,
             sticker=sticker,
