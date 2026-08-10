@@ -63,9 +63,10 @@ It names every file that needs to change, in order.
    serializes with `model_dump_json(exclude_none=True, by_alias=True)`, calls `self._request(...)`). All
    wired together on `SignalAPI` (`_client/signal_api.py`), exposed publicly as `signalbot.client`.
 3. `src/signalbot/_actions/` — one `*Actions` class per API section (`MessageActions`, `GroupActions`, ...),
-   attached to `SignalBot` in `_bot_init.py` as `bot.messages`, `bot.groups`, etc. Resolves recipients via
-   `RecipientResolver` (`_recipients.py`), converts domain requests to generated ones, calls the client, logs,
-   returns a friendly domain-level result.
+   attached to `SignalBot` in `_bot_init.py` as `bot.messages`, `bot.polls`, etc. (`GroupActions` is the
+   exception, nested at `bot.groups.actions` since `bot.groups` is already the `GroupRegistry` cache).
+   Resolves recipients via `RecipientResolver` (`_recipients.py`), converts domain requests to generated
+   ones, calls the client, logs, returns a friendly domain-level result.
 4. `src/signalbot/context/` — one `*Context` class per incoming message kind (`DataMessageContext`,
    `ReactionContext`, ...), passed into handler methods. Wraps the `SignalBot` + received message and exposes
    convenience methods (`context.send(...)`, `context.react(...)`) that delegate to the Actions layer, filling

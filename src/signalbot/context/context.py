@@ -83,7 +83,7 @@ class Context(Generic[MessageT]):
             error_msg = "Cannot update group for a private message"
             raise ValueError(error_msg)
         update_group.group_id_or_name = received_message.source_or_group_id()
-        await self.bot.group_actions.update(update_group)
+        await self.bot.groups.actions.update(update_group)
 
     async def create_poll(self, create_poll_request: CreatePoll) -> CreatedPoll:
         """Same as

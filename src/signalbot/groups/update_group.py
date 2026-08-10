@@ -16,7 +16,7 @@ class UpdateGroup(BaseModel):
         default=None,
         exclude=True,
         description="The group ID or name of the group to update. Must be set "
-        "before calling `bot.group_actions.update`, but can be left as `None` "
+        "before calling `bot.groups.actions.update`, but can be left as `None` "
         "when using `Context.update_group`, which fills it in automatically.",
     )
     avatar: PydanticPath | str | None = Field(

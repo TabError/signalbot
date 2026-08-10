@@ -9,6 +9,7 @@ if TYPE_CHECKING:
     import logging
     from collections.abc import Iterator
 
+    from signalbot._actions import GroupActions
     from signalbot.client import SignalAPI
     from signalbot.groups.group_entry import GroupEntry
 
@@ -16,8 +17,11 @@ if TYPE_CHECKING:
 class GroupRegistry:
     """List-like cache of the groups the bot is a member of, with lookup helpers.
 
-    To update a group's metadata, use `GroupActions` (`bot.group_actions`) instead.
+    To update a group's metadata, use `actions` (`bot.groups.actions`) instead.
     """
+
+    actions: GroupActions
+    """Update group metadata. Set by `SignalBot._init_actions()`."""
 
     def __init__(self, signal: SignalAPI, logger: logging.Logger) -> None:
         self._signal = signal

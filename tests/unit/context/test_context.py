@@ -105,7 +105,7 @@ class TestContext(TestCommon):
     ):
         message = _group_message()
         update_mock = mocker.patch.object(
-            self.signal_bot.group_actions, "update", mocker.AsyncMock()
+            self.signal_bot.groups.actions, "update", mocker.AsyncMock()
         )
         context = Context(self.signal_bot, message)
 
@@ -118,7 +118,7 @@ class TestContext(TestCommon):
     async def test_update_group_raises_for_private_message(self, mocker: MockerFixture):
         message = _private_message()
         update_mock = mocker.patch.object(
-            self.signal_bot.group_actions, "update", mocker.AsyncMock()
+            self.signal_bot.groups.actions, "update", mocker.AsyncMock()
         )
         context = Context(self.signal_bot, message)
 

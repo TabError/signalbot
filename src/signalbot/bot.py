@@ -53,9 +53,8 @@ class SignalBot:
     groups: GroupRegistry
     """Cache of the groups the bot is a member of, with lookup helpers. Only
     populated after [SignalBot.start()][signalbot.bot.SignalBot.start] is called
-    and [SignalBot.init_task][signalbot.bot.SignalBot.init_task] is done."""
-    group_actions: GroupActions
-    """Update group metadata."""
+    and [SignalBot.init_task][signalbot.bot.SignalBot.init_task] is done.
+    Group actions are available via `groups.actions`."""
     messages: MessageActions
     """Send, edit, or delete messages, and manage typing indicators."""
     polls: PollActions
@@ -111,7 +110,7 @@ class SignalBot:
 
     def _init_actions(self) -> None:
         self.groups = GroupRegistry(self._signal, self._logger)
-        self.group_actions = GroupActions(self._signal, self.groups, self._logger)
+        self.groups.actions = GroupActions(self._signal, self.groups, self._logger)
         self._recipients = RecipientResolver(self.groups)
         self._pipeline = MessagePipeline(self, self._signal, self.groups, self._logger)
 

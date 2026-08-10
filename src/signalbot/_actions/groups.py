@@ -12,8 +12,8 @@ if TYPE_CHECKING:
 
 
 class GroupActions:
-    """Update a `SignalBot`'s groups. See `bot.groups` for the read-only group cache
-    used to resolve group ids and names.
+    """Update a `SignalBot`'s groups, attached as `bot.groups.actions`. See
+    `bot.groups` for the read-only group cache used to resolve group ids and names.
     """
 
     def __init__(

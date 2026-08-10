@@ -29,7 +29,7 @@ The bot can do a lot more, here is a quick overview of the most common methods:
 - [bot.messages.remote_delete(sent_message)][signalbot._actions.MessageActions.remote_delete]: Delete a previously sent message
 - [bot.reactions.react(message, emoji)][signalbot._actions.ReactionActions.react]: React to a message
 - [bot.receipts.send(message, receipt_type)][signalbot._actions.ReceiptActions.send]: Mark a message as read
-- [bot.group_actions.update(update_group_request)][signalbot._actions.GroupActions.update]: Change group settings
+- [bot.groups.actions.update(update_group_request)][signalbot._actions.GroupActions.update]: Change group settings
 - [bot.attachments.delete(attachment)][signalbot._actions.AttachmentActions.delete]: Delete the local copy of an attachment
 - [bot.scheduler][signalbot.bot.SignalBot]: Schedule tasks, see the [scheduler examples](examples/03_bot_with_scheduler.md).
 
