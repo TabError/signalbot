@@ -15,6 +15,8 @@ Here is minimal example of what that looks like:
 ```
 
 To set it up follow the steps in the [getting started page](01_getting_started.md).
+See [How it works](02_concepts.md) for a visual walkthrough of how a message travels from
+`signal-cli-rest-api` to your handler and back.
 
 ### Methods overview
 

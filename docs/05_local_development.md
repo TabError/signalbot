@@ -37,7 +37,7 @@ uv run pytest
 ### Extending signalbot
 
 Adding support for a new incoming or outgoing Signal message type? See the
-[Extending signalbot](05_extending.md) guide.
+[Extending signalbot](06_extending.md) guide.
 
 ### Serving the documentation locally
 

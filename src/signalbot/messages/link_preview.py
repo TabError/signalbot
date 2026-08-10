@@ -16,7 +16,7 @@ class Preview(GeneratedPreview):
     """
 
     base64_thumbnail: str | None = None
-    # Narrowed to a wrapped type; rationale in docs/05_extending.md.
+    # Narrowed to a wrapped type; rationale in docs/06_extending.md.
     image: Attachment | None = None  # pyright: ignore[reportIncompatibleVariableOverride]
 
 

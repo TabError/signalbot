@@ -46,7 +46,7 @@ CI (`.github/workflows/ci.yaml`) runs `prek` (all hooks) and `pytest --cov` on e
   → HTTP request to `signal-cli-rest-api`.
 
 **Extending either direction is a well-defined, multi-file checklist — read
-[`docs/05_extending.md`](docs/05_extending.md) before adding a new incoming message type or outgoing action.**
+[`docs/06_extending.md`](docs/06_extending.md) before adding a new incoming message type or outgoing action.**
 It names every file that needs to change, in order.
 
 ### Layering, roughly innermost to outermost

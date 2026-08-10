@@ -9,6 +9,8 @@ copyright = "Copyright &copy; 2021 René Filip."
 repo_url = "https://github.com/signalbot-org/signalbot"
 repo_name = "signalbot-org/signalbot"
 
+extra_css = ["stylesheets/extra.css"]
+
 [project.theme]
 language = "en"
 

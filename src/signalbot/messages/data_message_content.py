@@ -25,14 +25,14 @@ class Sticker(GeneratedSticker):
 class QuotedAttachment(GeneratedQuotedAttachment):
     """An attachment on the message a received message quotes."""
 
-    # Narrowed to a wrapped type; rationale in docs/05_extending.md.
+    # Narrowed to a wrapped type; rationale in docs/06_extending.md.
     thumbnail: Attachment | None = None  # pyright: ignore[reportIncompatibleVariableOverride]
 
 
 class Quote(GeneratedQuote):
     """The quoted message a received message replies to."""
 
-    # Fields below are narrowed to wrapped types; rationale in docs/05_extending.md.
+    # Fields below are narrowed to wrapped types; rationale in docs/06_extending.md.
     attachments: list[QuotedAttachment] | None = None  # pyright: ignore[reportIncompatibleVariableOverride]
     mentions: list[Mention] | None = None  # pyright: ignore[reportIncompatibleVariableOverride]
     text_styles: list[TextStyle] | None = Field(  # pyright: ignore[reportIncompatibleVariableOverride]
