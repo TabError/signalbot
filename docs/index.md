@@ -18,20 +18,35 @@ To set it up follow the steps in the [getting started page](01_getting_started.m
 
 ### Methods overview
 
-The bot can do a lot more, here is a quick overview of the most common methods:
+The bot can do a lot more, here is an overview of the methods available
+on the `context` passed into a `Handler`:
+
+| Action | Method |
+|---|---|
+| Send a new message | [`context.send(SendMessage(text=...))`][signalbot.context.Context.send] |
+| Reply, quoting the received message | [`context.reply(SendMessage(text=...))`][signalbot.context.DataMessageContext.reply] \* |
+| Edit a previously sent message | [`context.edit(SendMessage(text=...), original_message)`][signalbot.context.DataMessageContext.edit] \* |
+| Delete a previously sent message | [`context.remote_delete(sent_message)`][signalbot.context.DataMessageContext.remote_delete] \* |
+| React to a message | [`context.react("emoji")`][signalbot.context.DataMessageContext.react] \* |
+| Mark a message as read | [`context.send_receipt(ReceiptType.READ)`][signalbot.context.DataMessageContext.send_receipt] \* |
+| Delete the local copy of an attachment | [`context.delete_attachment(attachment)`][signalbot.context.DataMessageContext.delete_attachment] \* |
+| Start typing | [`context.start_typing()`][signalbot.context.Context.start_typing] |
+| Stop typing | [`context.stop_typing()`][signalbot.context.Context.stop_typing] |
+| Change group settings | [`context.update_group(UpdateGroup(name=...))`][signalbot.context.Context.update_group] |
+| Update a contact | [`context.update_contact(UpdateContact(name=...))`][signalbot.context.Context.update_contact] |
+| Create a poll | [`context.create_poll(CreatePoll(question=..., answers=[...]))`][signalbot.context.Context.create_poll] |
+
+\* Only available on [`DataMessageContext`][signalbot.context.DataMessageContext].
+
+A few methods aren't tied to a specific message and only exist on `bot`:
 
 - [bot.register(handler)][signalbot.bot.SignalBot.register]: Register a new handler
 - [bot.start()][signalbot.bot.SignalBot.start]: Start the bot
-- [bot.messages.send(SendMessage(text=...), recipient)][signalbot._actions.MessageActions.send]: Send a new message
-- [bot.messages.start_typing(recipient)][signalbot._actions.MessageActions.start_typing]: Start typing
-- [bot.messages.stop_typing(recipient)][signalbot._actions.MessageActions.stop_typing]: Stop typing
-- [bot.messages.edit(new_message, original_message, recipient)][signalbot._actions.MessageActions.edit]: Edit a previously sent message
-- [bot.messages.remote_delete(sent_message)][signalbot._actions.MessageActions.remote_delete]: Delete a previously sent message
-- [bot.reactions.react(message, emoji)][signalbot._actions.ReactionActions.react]: React to a message
-- [bot.receipts.send(message, receipt_type)][signalbot._actions.ReceiptActions.send]: Mark a message as read
-- [bot.groups.actions.update(update_group_request, group_id_or_name)][signalbot._actions.GroupActions.update]: Change group settings
-- [bot.attachments.delete(attachment)][signalbot._actions.AttachmentActions.delete]: Delete the local copy of an attachment
 - [bot.scheduler][signalbot.bot.SignalBot]: Schedule tasks, see the [scheduler examples](examples/03_bot_with_scheduler.md).
+- [bot.storage][signalbot.storage.Storage]: Store and read data on disk with a db.
+
+Every method above can also be called directly on the bot, outside a handler, by supplying
+the recipient yourself, e.g. `bot.messages.send(SendMessage(text=...), recipient)`.
 
 ## Real world bot examples
 
