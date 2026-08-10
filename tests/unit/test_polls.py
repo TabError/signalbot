@@ -1,3 +1,4 @@
+from collections.abc import Callable
 from dataclasses import dataclass
 
 import pytest
@@ -49,7 +50,18 @@ class TestPoll(TestCommon):
         ],
         ids=["phone_number", "group_id", "multiple_selections"],
     )
-    async def test_poll(self, mocker: MockerFixture, case: PollCase):
+    async def test_poll(
+        self,
+        mocker: MockerFixture,
+        case: PollCase,
+        mock_get_all_groups: Callable[[list[dict]], None],
+        fake_group: dict,
+    ):
+        # `fake_group.id == GROUP_ID`, so the resolver recognizes the
+        # `group_id` case's recipient as a group the bot is actually in.
+        mock_get_all_groups([fake_group])
+        await self.signal_bot.groups.refresh()
+
         poll_mock = mocker.AsyncMock(
             return_value=mocker.Mock(timestamp=str(case.timestamp))
         )

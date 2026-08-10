@@ -80,7 +80,7 @@ class GroupRegistry:
             error_msg = f"[Bot] Group with id '{group_id_or_name}' not found. There "
             error_msg += "is a typo in id or the bot is not a member of the group."
             self._logger.warning(error_msg)
-            return group_id_or_name
+            return None
 
         group = self._by_internal_id.get(group_id_or_name)
         if group is not None:
