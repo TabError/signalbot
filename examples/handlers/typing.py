@@ -3,7 +3,7 @@ from signalbot import SendMessage, TypingAction, TypingContext, TypingHandler
 
 class TypingIndicatorHandler(TypingHandler):
     """Notifies when someone starts typing. Starts disabled; toggle it with the
-    `enable-typing-indicator` / `disable_typing_indicator` commands in
+    `enable-typing-indicator` / `disable-typing-indicator` commands in
     `examples/commands/typing.py`.
     """
 
