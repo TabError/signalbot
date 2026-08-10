@@ -11,7 +11,7 @@ if TYPE_CHECKING:
     from signalbot._generated import DataMessage, MessageEnvelope, SyncDataMessage
 
 
-class GroupInfo(BaseModel):
+class GroupUpdateInfo(BaseModel):
     """The group metadata attached to a group-update event."""
 
     group_id: str
@@ -20,7 +20,7 @@ class GroupInfo(BaseModel):
     type: Literal["UPDATE"]
 
     @staticmethod
-    def from_base(group_info: generated.GroupInfo) -> GroupInfo:
+    def from_base(group_info: generated.GroupInfo) -> GroupUpdateInfo:
         if group_info.group_id is None:
             error_msg = "group_id cannot be None"
             raise ValueError(error_msg)
@@ -32,7 +32,7 @@ class GroupInfo(BaseModel):
             error_msg = f"Expected type 'UPDATE', got '{group_info.type}'"
             raise ValueError(error_msg)
 
-        return GroupInfo(
+        return GroupUpdateInfo(
             group_id=group_info.group_id,
             group_name=group_info.group_name,
             revision=group_info.revision,
@@ -43,7 +43,7 @@ class GroupInfo(BaseModel):
 class GroupUpdate(BaseMessage):
     """Notification that a group's metadata (name, members, ...) was updated."""
 
-    group_info: GroupInfo
+    group_info: GroupUpdateInfo
 
     @classmethod
     def _internal_parse(
@@ -55,7 +55,7 @@ class GroupUpdate(BaseMessage):
             error_msg = "MessageEnvelope does not contain group_info"
             raise ValueError(error_msg)
 
-        group_info = GroupInfo.from_base(data_message.group_info)
+        group_info = GroupUpdateInfo.from_base(data_message.group_info)
 
         return cls(
             server_delivered_timestamp=message_envelope.server_delivered_timestamp,
