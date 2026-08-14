@@ -2,7 +2,6 @@
 authors = [{name = "René Filip"}]
 classifiers = [
   "Programming Language :: Python :: 3",
-  "License :: OSI Approved :: MIT License",
   "Operating System :: OS Independent",
 ]
 description = "Framework to create your own Signal bots"
@@ -12,7 +11,8 @@ keywords = [
   "Framework",
   "Home Automation",
 ]
-license = { text = "MIT" }
+license = "MIT"
+license-files = ["LICENSE"]
 maintainers = [{name = "René Filip"}, {name = "Gara Dorta"}]
 name = "signalbot"
 readme = "README.md"
