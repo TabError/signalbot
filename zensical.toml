@@ -61,46 +61,24 @@ attr_list = {}
 def_list = {}
 footnotes = {}
 md_in_html = {}
-toc = {
-  permalink = true,
-}
-pymdownx.arithmatex = {
-  generic = true,
-}
+toc = { permalink = true }
+pymdownx.arithmatex = { generic = true }
 pymdownx.betterem = {}
 pymdownx.caret = {}
 pymdownx.details = {}
-pymdownx.emoji = {
-  emoji_generator = "zensical.extensions.emoji.to_svg",
-  emoji_index = "zensical.extensions.emoji.twemoji",
-}
-pymdownx.highlight = {
-  anchor_linenums = true,
-  line_spans = "__span",
-  pygments_lang_class = true,
-}
+pymdownx.emoji = { emoji_generator = "zensical.extensions.emoji.to_svg", emoji_index = "zensical.extensions.emoji.twemoji" }
+pymdownx.highlight = { anchor_linenums = true, line_spans = "__span", pygments_lang_class = true }
 pymdownx.inlinehilite = {}
 pymdownx.keys = {}
 pymdownx.magiclink = {}
 pymdownx.mark = {}
 pymdownx.smartsymbols = {}
-pymdownx.snippets = {} # Enable --8<-- code includes
-pymdownx.superfences = {
-  custom_fences = [
-    {
-      name = "mermaid",
-      class = "mermaid",
-      format = "pymdownx.superfences.fence_code_format",
-    },
-  ],
-}
-pymdownx.tabbed = {
-  alternate_style = true,
-  combine_header_slug = true,
-}
-pymdownx.tasklist = {
-  custom_checkbox = true,
-}
+pymdownx.snippets = {}  # Enable --8<-- code includes
+pymdownx.superfences = { custom_fences = [
+  { name = "mermaid", class = "mermaid", format = "pymdownx.superfences.fence_code_format" },
+] }
+pymdownx.tabbed = { alternate_style = true, combine_header_slug = true }
+pymdownx.tasklist = { custom_checkbox = true }
 pymdownx.tilde = {}
 
 [project.plugins.mkdocstrings.handlers.python]
@@ -111,15 +89,7 @@ inventories = [
   "https://apscheduler.readthedocs.io/en/3.x/objects.inv",
   "https://anyio.readthedocs.io/en/stable/objects.inv",
 ]
-options = {
-  show_root_toc_entry = false,
-  separate_signature = true,
-  docstring_options = { ignore_init_summary = true },
-  merge_init_into_class = true,
-  show_signature_annotations = true,
-  signature_crossrefs = true,
-  extensions = [ { griffe_pydantic = {} } ]
-}
+options = { show_root_toc_entry = false, separate_signature = true, docstring_options = { ignore_init_summary = true }, merge_init_into_class = true, show_signature_annotations = true, signature_crossrefs = true, extensions = [{ griffe_pydantic = {} }] }
 
 [project.extra.version]
 provider = "mike"
