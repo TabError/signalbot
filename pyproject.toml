@@ -150,6 +150,7 @@ runtime-evaluated-base-classes = [
 ]
 
 [tool.tombi]
+toml-version = "v1.1.0"
 files.exclude = ["uv.lock"]
 
 [[tool.uv.index]]
