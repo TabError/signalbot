@@ -46,7 +46,9 @@ CI (`.github/workflows/ci.yaml`) runs `prek` (all hooks) and `pytest --cov` on e
   → HTTP request to `signal-cli-rest-api`.
 
 **Extending either direction is a well-defined, multi-file checklist — read
-[`docs/06_extending.md`](docs/06_extending.md) before adding a new incoming message type or outgoing action.**
+[`docs/contributing/02_incoming_messages.md`](docs/contributing/02_incoming_messages.md) before adding a new
+incoming message type, or [`docs/contributing/03_outgoing_messages.md`](docs/contributing/03_outgoing_messages.md)
+before adding an outgoing action.**
 It names every file that needs to change, in order.
 
 ### Layering, roughly innermost to outermost
@@ -75,17 +77,21 @@ It names every file that needs to change, in order.
 5. `src/signalbot/handlers.py` — one `*Handler` ABC per message kind (`DataMessageHandler`,
    `ReactionHandler`, ...) with a single abstract `handle_xxx(self, context)` method that bot authors
    subclass, plus trigger decorators (`text_triggered`, `regex_triggered`, `reaction_triggered`) that filter
-   before calling through.
+   before calling through. Each decorator also stores its message predicate on the wrapper
+   (`_TRIGGER_ATTR`), which the pipeline checks at dispatch time.
 6. `src/signalbot/_pipeline.py` — `_MESSAGE_DISPATCH` is the single map tying a parsed message type to
    `(HandlerABC, ContextClass, "handle_method_name")`. Nothing reaches a handler without an entry here.
+   `_dispatch_to_handlers` only queues handlers of the right role whose filters and trigger match; of the
+   matching handlers registered with a `priority` (exclusive) only the highest one (then first
+   registered) is queued, as the handler method bound to its context.
 7. `src/signalbot/bot.py` (`SignalBot`) — top-level object bot authors construct. `_bot_init.py` builds the
    shared `SignalAPI` client, event loop, scheduler (APScheduler), and storage backend;
    `SignalBot._init_actions()` wires up the `*Actions` instances and the `MessagePipeline`.
 
 ### Runtime model
 
-`SignalBot.start()` schedules `_async_post_init` (checks `signal-cli-rest-api` connectivity/version/mode,
-refreshes the group cache, runs `ReadyHandler`s, then starts the pipeline) and runs the asyncio event loop.
+`SignalBot.start()` schedules `_async_post_init` (`_async_init` checks `signal-cli-rest-api` connectivity/version/mode,
+refreshes the group cache, runs `ReadyHandler`s; then it starts the pipeline) and runs the asyncio event loop.
 The pipeline runs 1 producer task (reads the websocket, parses, dispatches to a queue) and N consumer tasks
 (default 3; pull from the queue, invoke the handler) — tune consumer count based on how blocking handler code
 is. Both producer and consumer loops are wrapped in `rerun_on_exception` (`_utils/retry.py`) so an uncaught
@@ -106,6 +112,8 @@ their own public types via their own `__init__.py`.
 - `signalbot.test_utils.ChatTestCase` + `@mock_chat` (`src/signalbot/test_utils/chat_testing.py`) let a bot
   author unit-test handlers without a real `signal-cli-rest-api` — send/receive are mocked. See
   `examples/commands/tests/test_ping.py` for the pattern; this is also shipped to downstream users.
+  `ChatTestCase.new_private_message`/`new_edit_message`/`new_remote_delete` build raw `Envelope`s for
+  non-group messages; `tests/integration/test_chat_testing.py` tests the harness itself.
 - `asyncio_mode = "auto"` (pytest.ini via `pyproject.toml`) — async test functions don't need
   `@pytest.mark.asyncio`.
 

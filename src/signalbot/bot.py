@@ -36,7 +36,7 @@ if TYPE_CHECKING:
     from signalbot.messages import ReceivedMessage
     from signalbot.storage import RedisStorage, SQLiteStorage
 
-MIN_SIGNAL_CLI_REST_API_VERSION = Version("0.100.0")
+MIN_SIGNAL_CLI_REST_API_VERSION = Version("0.101.0")
 """
 The minimum required version of `signal-cli-rest-api` for this version of `signalbot`.
 """
@@ -145,24 +145,45 @@ class SignalBot:
         contacts: list[str] | bool = True,
         groups: list[str] | bool = True,
         f: Callable[[ReceivedMessage], bool] | None = None,
+        priority: int | None = None,
     ) -> None:
         """Register a handler with optional contact/group filters.
+
+        Every handler whose filters and trigger decorator (e.g.
+        [`text_triggered`][signalbot.handlers.text_triggered]) match a message runs,
+        except that of the matching handlers registered with a `priority`, only the
+        highest one runs.
 
         Args:
             handler: Handler instance to register.
             contacts: Allowed contacts or True for all.
             groups: Allowed groups or True for all.
             f: Optional function to further filter messages.
+            priority: Makes the handler exclusive: of the exclusive handlers that
+                match a message, only the one with the highest priority runs, the
+                first registered one on ties. None runs the handler whenever it
+                matches.
         """
-        self._pipeline.register(handler, contacts=contacts, groups=groups, f=f)
+        self._pipeline.register(
+            handler, contacts=contacts, groups=groups, f=f, priority=priority
+        )
 
-    async def _async_post_init(self) -> None:
+    async def _async_init(self) -> None:
+        """Connect to signal-cli-rest-api and get handlers ready, without starting
+        the background producer/consumer pipeline.
+
+        Split out from `_async_post_init` so `signalbot.test_utils` can initialise
+        the bot and then drive the pipeline by hand.
+        """
         await self._check_signal_service()
         await self._check_signal_cli_rest_api_version()
         await self._check_signal_cli_rest_api_mode()
         await self.groups.refresh()
         await self._pipeline.resolve_handlers()
         await self._pipeline.run_ready_handlers()
+
+    async def _async_post_init(self) -> None:
+        await self._async_init()
         await self._pipeline.start()
 
     async def _check_signal_service(self) -> None:

@@ -5,8 +5,8 @@ from copy import deepcopy
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from signalbot._generated import TextMode
 from signalbot._utils.generated_conversion import from_generated, from_generated_list
+from signalbot._utils.source import parse_source_from_envelope
 from signalbot.attachments import Attachment
 from signalbot.events import BaseMessageWithGroup, GroupInfo
 from signalbot.messages.data_message_content import Mention, Quote, Sticker, TextStyle
@@ -80,15 +80,16 @@ class DataMessage(BaseMessageWithGroup):
         sticker = from_generated(Sticker, data_message.sticker)
         text_styles = from_generated_list(TextStyle, data_message.text_styles)
         group_info = from_generated(GroupInfo, data_message.group_info)
+        source = parse_source_from_envelope(message_envelope)
 
         received_data_message = DataMessage(
             server_delivered_timestamp=message_envelope.server_delivered_timestamp,
             server_received_timestamp=message_envelope.server_received_timestamp,
-            source=message_envelope.source,
+            source=source.source,
             source_device=message_envelope.source_device,
             source_name=message_envelope.source_name,
-            source_number=message_envelope.source_number,
-            source_uuid=message_envelope.source_uuid,
+            source_number=source.number,
+            source_uuid=source.uuid,
             group_info=group_info,
             timestamp=timestamp,
             attachments=attachments,
@@ -198,10 +199,6 @@ class DataMessage(BaseMessageWithGroup):
                     thumbnail=preview.base64_thumbnail,
                 )
 
-        text_style = None
-        if copy.text_styles is not None and len(copy.text_styles) > 0:
-            text_style = TextMode(copy.text_styles[0].style)
-
         return SendMessage(
             base64_attachments=base_64_attachments,
             edit_timestamp=None,
@@ -216,6 +213,7 @@ class DataMessage(BaseMessageWithGroup):
             quote_text=copy.quote.text if copy.quote is not None else None,
             quote_timestamp=copy.quote.id if copy.quote is not None else None,
             # sticker=copy.sticker, # Not clear how to send stickers yet
-            text_mode=text_style,
+            # text_styles can't be copied yet, signal-cli-rest-api only takes styles
+            # as markers in the text
             view_once=copy.view_once,
         )
